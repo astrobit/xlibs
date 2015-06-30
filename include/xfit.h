@@ -42,6 +42,7 @@ public:
 	XVECTOR_FNA & operator =(const XVECTOR_FNA & i_cRHO)
 	{
 		Copy(i_cRHO);
+		return *this;
 	}
 
 	void Allocate(unsigned int i_uiSize)

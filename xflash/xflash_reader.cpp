@@ -143,7 +143,7 @@ void XFLASH_File::Open(const char *i_lpszFilename)
 
   /* From H5Fpkg.h */
   /* const char *H5F_SIGNATURE = "\211HDF\r\n\032\n"; */
-	const char chH5F_SIGNATURE[8] = {137, 72, 68, 70, 13, 10, 26, 10};
+	const unsigned char chH5F_SIGNATURE[8] = {137, 72, 68, 70, 13, 10, 26, 10};
 	const int iH5F_SIGNATURE_LEN = sizeof(chH5F_SIGNATURE);
 
 	const char *chNCDF_SIGNATURE = "CDF";

@@ -134,7 +134,7 @@ XSQUARE_MATRIX & XSQUARE_MATRIX::operator =(const XSQUARE_MATRIX &i_cRHO)
 	if (m_uiN_Alloc >= i_cRHO.m_uiN)
 	{
 		if (m_uiN_Alloc > i_cRHO.m_uiN)
-			memset(m_lpdValues,0,sizeof(m_lpdValues));
+			memset(m_lpdValues,0,m_uiN_Alloc * m_uiN_Alloc * sizeof(double));
 		memcpy(m_lpdValues,i_cRHO.m_lpdValues,
 			sizeof(double) * i_cRHO.m_uiN * i_cRHO.m_uiN);
 	}
