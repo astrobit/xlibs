@@ -172,7 +172,7 @@ bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QF
 }
 
 
-bool GeneralFit_2(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QFunctionVA Fit_Function, XVECTOR & io_vFit_Parameters, XSQUARE_MATRIX &o_cCovariance_Matrix, double &o_dSmin, void * io_lpvData, unsigned int i_uiMax_Iterations, int i_iConvergence_Criterion, unsigned int *o_lpiIterations)
+bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QFunctionVA Fit_Function, XVECTOR & io_vFit_Parameters, XSQUARE_MATRIX &o_cCovariance_Matrix, double &o_dSmin, void * io_lpvData, unsigned int i_uiMax_Iterations, int i_iConvergence_Criterion, unsigned int *o_lpiIterations)
 {
 	bool			bDone = false;
 	if (i_cX.Get_Size() == i_cY.Get_Size() && i_cX.Get_Size() == i_cW.Get_Size())
