@@ -315,6 +315,14 @@ void XVECTOR::Normalize(void)
 		}
 	}
 }
+// Set all elements to zero
+void XVECTOR::Zero(void)
+{
+	if (m_lpdValues)
+	{
+		memset(m_lpdValues,0,m_uiN);
+	}
+}
 
 // Get the magnitude of a vector
 double	XVECTOR::Magnitude(void) const

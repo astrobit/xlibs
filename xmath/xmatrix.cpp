@@ -257,14 +257,23 @@ void	XSQUARE_MATRIX::Identity(void)
 {
 	if (m_lpdValues)
 	{
-		m_bLU_Initialized = false;
-		memset(m_lpdValues,0,m_uiN_Alloc * m_uiN_Alloc * sizeof(double));
+		Zero();
 		for (unsigned int uiRow = 0; uiRow < m_uiN; uiRow++)
 		{
 			m_lpdValues[uiRow * m_uiN + uiRow] = 1.0;
 		}
 	}
 }
+// set all elements to zero
+void	XSQUARE_MATRIX::Zero(void)
+{
+	if (m_lpdValues)
+	{
+		m_bLU_Initialized = false;
+		memset(m_lpdValues,0,m_uiN_Alloc * m_uiN_Alloc * sizeof(double));
+	}
+}
+
 // scale an entire matrix row by a value
 void	XSQUARE_MATRIX::Scale_Row(unsigned int i_uiRow, const double &i_dScalar)
 {

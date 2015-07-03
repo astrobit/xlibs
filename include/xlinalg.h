@@ -51,6 +51,8 @@ public:
 	XVECTOR	Vector_Multiply(const XVECTOR & i_vRHO) const;
 	// Normalize the vector (make magnitude of the vector = 1)
 	void Normalize(void);
+	// Set all elements to zero
+	void Zero(void);
 	// Get the magnitude of a vector
 	double	Magnitude(void) const;
 
@@ -220,6 +222,8 @@ public:
 
 	// set the matrix to the idenity matrix
 	void	Identity(void);
+	// set all elements to zero
+	void	Zero(void);
 	// scale an entire matrix row by a value
 	void	Scale_Row(unsigned int i_uiRow, const double &i_dScalar);
 	// add two rows of the matrix together, leaving the result in the 'left 
