@@ -320,7 +320,7 @@ void XVECTOR::Zero(void)
 {
 	if (m_lpdValues)
 	{
-		memset(m_lpdValues,0,m_uiN);
+		memset(m_lpdValues,0,m_uiN_Alloc * sizeof(double));
 	}
 }
 
