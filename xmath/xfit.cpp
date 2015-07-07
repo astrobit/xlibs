@@ -200,16 +200,24 @@ bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QF
 
 		for (unsigned int uiI = 0; uiI < uiI_Max; uiI++)
 			vDelta_A.Set(uiI,0.0);
-
+//		FILE * fileOut = fopen("testfile.csv","wt");
 		while (!bDone && uiIterations < i_uiMax_Iterations)
 		{
 			uiIterations++;
 			vA += vDelta_A;
+//			printf("A\n");
+//			vA.Print();
 			mN.Zero();
 			vY.Zero();
 			for (unsigned int uiK = 0; uiK < uiK_Max; uiK++)
 			{
 				vF = Fit_Function(i_cX.Get(uiK),vA,io_lpvData);
+//				if (uiIterations == 1)
+//				{
+//					fprintf(fileOut,"%.17e, %.17e, %.17e\n",i_cX.Get(uiK),i_cY.Get(uiK),vF.Get(0));
+//				}
+//				printf("F(%i)\n",uiK);
+//				vF.Print();
 				for (unsigned int uiI = 0; uiI < uiI_Max; uiI++)
 				{
 					for (unsigned int uiJ = 0; uiJ <= uiI; uiJ++)
@@ -220,10 +228,28 @@ bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QF
 					vDel_Y.Set(uiI,i_cW.Get(uiK) * (i_cY.Get(uiK) - vF.Get(0)) * vF.Get(uiI + 1));
 				}
 				vY += vDel_Y;
+/*				for (unsigned int uiI = 0; uiI < uiI_Max; uiI++)
+				{
+					for (unsigned int uiJ = 0; uiJ <= uiI; uiJ++)
+					{
+						printf("%.2f ",mDel_N.Get(uiI,uiJ));
+					}
+					printf("\n");
+				}*/
 				mN += mDel_N;
 			}
+//			for (unsigned int uiI = 0; uiI < uiI_Max; uiI++)
+//			{
+//				for (unsigned int uiJ = 0; uiJ <= uiI; uiJ++)
+//				{
+//					printf("%.2e ",mN.Get(uiI,uiJ));
+//				}
+//				printf("\n");
+//			}
 			mN.Invert_LUD();
 			vDelta_A = mN * vY;
+//			printf("del a\n");
+//			vDelta_A.Print();
 			iDelta_Max = -40;
 			for (unsigned int uiI = 0; uiI < uiI_Max; uiI++)
 			{
@@ -274,7 +300,9 @@ bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QF
 			o_cCovariance_Matrix *= dS / (uiK_Max - uiI_Max - 1.0);
 			o_dSmin = dS;
 		}
+//		fclose(fileOut);
 	}
+//	printf("--------------------------------------------------------------------\n");
 	return bDone;
 }
 
@@ -412,7 +440,7 @@ bool XFIT_Simplex_Planar_Test(XVECTOR * io_lpvParameters, const XVECTOR & i_vEps
 			if (dDelta_Max < dMin_Offset)
 			{
 				unsigned char uiI = 0;
-				if (i_uiSuggested_Change != -1)
+				if (i_uiSuggested_Change != (unsigned int)(-1))
 					uiI = i_uiSuggested_Change;
 				else if (uiNum_Parameters <= 254)
 				{
