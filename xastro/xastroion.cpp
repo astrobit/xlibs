@@ -474,7 +474,7 @@ XASTRO_ATOMIC_PARTITION_FUNCTION_DATA *	XASTRO_ATOMIC_PARTITION_FUNCTION_DATA_LI
 //
 //--------------------------------------------------------------------------------------------
 
-double	XASTRO_ATOMIC_PARTITION_FUNCTION_DATA_IRWIN::Get_Partition_Function(unsigned int i_uiIon, const double &i_dTemperature_K)
+double	XASTRO_ATOMIC_PARTITION_FUNCTION_DATA_IRWIN::Get_Partition_Function(unsigned int i_uiIon, const double &i_dTemperature_K) const
 {
 	double dRet = 1.0;
 	if (i_uiIon <= 3)

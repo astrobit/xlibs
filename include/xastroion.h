@@ -1,6 +1,7 @@
 #pragma once
 #include <stdarg.h>
 #include <xastro.h>
+#include <cstring> // get the declaration of NULL
 
 class XASTRO_ATOMIC_IONIZATION_DATA
 {
@@ -258,6 +259,7 @@ public:
 		return *this;
 	}
 	
+	// ionization state is 0 indexed: 0 = neutral, 1 = singly ionized, ...
 	double	Get_Partition_Function(unsigned int i_uiIonization_State, const  double &i_dTemperature, const double &i_dNumber_Density) const;
 		
 
@@ -340,7 +342,7 @@ public:
 	unsigned int uiZ;
 	double	da[3][6];
 	double	dlnQ_16000[3]; // ln Q for T=16000 K (test value)
-	double	Get_Partition_Function(unsigned int i_uiIon, const double &i_dTemperature_K); // specifiy ion; ion = 1 = neutral, 2 = 1st ionized state, etc.  Only states I,II,III available from Irwin data
+	double	Get_Partition_Function(unsigned int i_uiIon, const double &i_dTemperature_K) const; // specifiy ion; ion = 1 = neutral, 2 = 1st ionized state, etc.  Only states I,II,III available from Irwin data
 };
 
 class XASTRO_ATOMIC_PARTITION_FUNCTION_DATA_IRWIN_LIST
