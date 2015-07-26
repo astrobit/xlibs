@@ -69,7 +69,7 @@ public:
 		Copy(i_cRHO);
 		return *this;
 	}
-	double	Get_Ion_State_Potential(unsigned int i_uiState)
+	double	Get_Ion_State_Potential(unsigned int i_uiState) const
 	{
 		double	dRet = 1.0e-6; // ~10^6 eV
 		if (i_uiState < m_uiIonization_Energies_Count)
