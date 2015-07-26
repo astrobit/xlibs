@@ -1,0 +1,6 @@
+ionization_data.dat:
+whitespace separated file with format
+Index	Z	Elem_name	Elem_symbol	Ion_energy(eV).....
+
+Up to 30 ion energies are included.
+Data from CRC Handbook, 2015-2016
