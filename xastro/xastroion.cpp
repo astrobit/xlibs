@@ -47,13 +47,11 @@ void XASTRO_ATOMIC_IONIZATION_DATA_LIST::Initialize(void)
 		while(fgets(lpszBuffer,1024,fileIn))
 		{
 			lpszCursor = lpszBuffer;
+			memset(lpdIonization_Energies,0,sizeof(lpdIonization_Energies));
 			if (lpszCursor[0])
 			{
 				if (xIsWhitespace(lpszCursor))
 					lpszCursor = xPassWhitespace(lpszCursor);
-				// Entry index
-				lpszCursor = xPassNumber(lpszCursor);
-				lpszCursor = xPassWhitespace(lpszCursor);
 				// Z
 				unsigned int uiZ = atoi(lpszCursor);
 				lpszCursor = xPassNumber(lpszCursor);
