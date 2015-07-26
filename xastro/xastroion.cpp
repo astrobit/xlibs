@@ -141,24 +141,27 @@ void XASTRO_ATOMIC_IONIZATION_DATA_LIST::Initialize(void)
 unsigned int XASTRO_ATOMIC_IONIZATION_DATA_LIST::Find_Z_Index(unsigned int i_uiZ) const
 {
 	unsigned int uiIndex = (unsigned int)(-1);
-	unsigned int uiHigh_Index = m_uiNum_List_Items - 1;
-	unsigned int uiLow_Index = 0;
-
-	while(uiHigh_Index != uiLow_Index && uiIndex == (unsigned int)(-1))
+	if (m_uiNum_List_Items > 0)
 	{
-		unsigned int uiTest_Idx = (uiHigh_Index + uiLow_Index) >> 1;		
-		if (m_uiQuick_Find_Z[uiTest_Idx] == i_uiZ)
-			uiIndex = uiTest_Idx;
-		else if (m_uiQuick_Find_Z[uiTest_Idx] > i_uiZ)
-			uiHigh_Index = uiTest_Idx;
-		else if (uiTest_Idx == uiLow_Index)
-			uiLow_Index = uiTest_Idx + 1;
-		else
-			uiLow_Index = uiTest_Idx;
+		unsigned int uiHigh_Index = m_uiNum_List_Items - 1;
+		unsigned int uiLow_Index = 0;
+
+		while(uiHigh_Index != uiLow_Index && uiIndex == (unsigned int)(-1))
+		{
+			unsigned int uiTest_Idx = (uiHigh_Index + uiLow_Index) >> 1;		
+			if (m_uiQuick_Find_Z[uiTest_Idx] == i_uiZ)
+				uiIndex = uiTest_Idx;
+			else if (m_uiQuick_Find_Z[uiTest_Idx] > i_uiZ)
+				uiHigh_Index = uiTest_Idx;
+			else if (uiTest_Idx == uiLow_Index)
+				uiLow_Index = uiTest_Idx + 1;
+			else
+				uiLow_Index = uiTest_Idx;
 			
+		}
+		if (uiIndex == (unsigned int)(-1) && m_uiQuick_Find_Z[uiHigh_Index] == i_uiZ)
+			uiIndex = uiHigh_Index;
 	}
-	if (uiIndex == (unsigned int)(-1) && m_uiQuick_Find_Z[uiHigh_Index] == i_uiZ)
-		uiIndex = uiHigh_Index;
 	return uiIndex;
 }
 
@@ -426,23 +429,26 @@ void XASTRO_ATOMIC_PARTITION_FUNCTION_DATA_LIST::Initialize(void)
 unsigned int XASTRO_ATOMIC_PARTITION_FUNCTION_DATA_LIST::Find_Z_Index(unsigned int i_uiZ) const
 {
 	unsigned int uiIndex = (unsigned int)(-1);
-	unsigned int uiHigh_Index = m_uiNum_List_Items - 1;
-	unsigned int uiLow_Index = 0;
-
-	while(uiHigh_Index != uiLow_Index && uiIndex == (unsigned int)(-1))
+	if (m_uiNum_List_Items > 0)
 	{
-		unsigned int uiTest_Idx = (uiHigh_Index + uiLow_Index) >> 1;		
-		if (m_uiQuick_Find_Z[uiTest_Idx] == i_uiZ)
-			uiIndex = uiTest_Idx;
-		else if (m_uiQuick_Find_Z[uiTest_Idx] > i_uiZ)
-			uiHigh_Index = uiTest_Idx;
-		else if (uiTest_Idx == uiLow_Index)
-			uiLow_Index = uiTest_Idx + 1;
-		else
-			uiLow_Index = uiTest_Idx;
+		unsigned int uiHigh_Index = m_uiNum_List_Items - 1;
+		unsigned int uiLow_Index = 0;
+
+		while(uiHigh_Index != uiLow_Index && uiIndex == (unsigned int)(-1))
+		{
+			unsigned int uiTest_Idx = (uiHigh_Index + uiLow_Index) >> 1;		
+			if (m_uiQuick_Find_Z[uiTest_Idx] == i_uiZ)
+				uiIndex = uiTest_Idx;
+			else if (m_uiQuick_Find_Z[uiTest_Idx] > i_uiZ)
+				uiHigh_Index = uiTest_Idx;
+			else if (uiTest_Idx == uiLow_Index)
+				uiLow_Index = uiTest_Idx + 1;
+			else
+				uiLow_Index = uiTest_Idx;
+		}
+		if (uiIndex == (unsigned int)(-1) && m_uiQuick_Find_Z[uiHigh_Index] == i_uiZ)
+			uiIndex = uiHigh_Index;
 	}
-	if (uiIndex == (unsigned int)(-1) && m_uiQuick_Find_Z[uiHigh_Index] == i_uiZ)
-		uiIndex = uiHigh_Index;
 	return uiIndex;
 }
 XASTRO_ATOMIC_PARTITION_FUNCTION_DATA	XASTRO_ATOMIC_PARTITION_FUNCTION_DATA_LIST::Get_PF_Data(unsigned int i_uiZ) const
