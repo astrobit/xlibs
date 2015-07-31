@@ -5,7 +5,7 @@ int main(int i_iArg_Count, char * i_lpszArg_Values[])
 {
 	XDATASET	cDataset;
 	char		lpszFilename[64];
-	for (unsigned int uiI = 1; uiI < i_iArg_Count; uiI++)
+	for (unsigned int uiI = 1; uiI < (unsigned int)(i_iArg_Count); uiI++)
 	{
 		cDataset.ReadDataFileBin(i_lpszArg_Values[uiI]);
 		if (strchr(i_lpszArg_Values[uiI],'.'))
