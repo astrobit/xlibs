@@ -34,6 +34,7 @@ void XASTRO_ATOMIC_IONIZATION_DATA_LIST::Initialize(void)
 		printf("Environment variable XASTRO_DATA_PATH not defined.\nFailed to load ionization data.");
 		return;
 	}
+	printf("Read xastro ion data from %s\n",lpszPath);
 
 	FILE * fileIn = fopen(lpszPath,"rt");
 	if (fileIn)
@@ -241,12 +242,15 @@ void XASTRO_ATOMIC_PARTITION_FUNCTION_DATA_LIST::Initialize(void)
 		printf("Environment variable XASTRO_DATA_PATH not defined.\nFailed to load partition function data.");
 		return;
 	}
+//	printf("Read xastro PF data from %s\n",lpszPath);
 	FILE * fileIn = fopen(lpszPath,"rt");
 	if (fileIn)
 	{
+		//printf("\t File is open\n");
 		XASTRO_ATOMIC_PARTITION_FUNCTION_DATA_LI * lpCurr;
 		unsigned int uiEntry_Index = 0;
 		char *lpszBuffer = new char[1024];
+		//printf("\t Buffer allocated\n");
 		unsigned int uiZ = 0, uiZnew;
 		unsigned int lpuiJ[30];
 		double lpdEnergy[30];
@@ -265,6 +269,7 @@ void XASTRO_ATOMIC_PARTITION_FUNCTION_DATA_LIST::Initialize(void)
 			lpszCursor = xPassWhitespace(lpszCursor);
 			if (uiZnew != uiZ && uiZ != 0)
 			{ 		// add entry to list
+//				printf("\t Adding entry for %i\n",uiZ);
 				lpCurr = new XASTRO_ATOMIC_PARTITION_FUNCTION_DATA_LI;
 				lpCurr->m_cData.m_uiZ = uiZ;
 				lpCurr->m_cData.m_uiNum_Entries = uiEntry_Index;
@@ -348,62 +353,65 @@ void XASTRO_ATOMIC_PARTITION_FUNCTION_DATA_LIST::Initialize(void)
 				uiEntry_Index++;
 			}
 		}
-		lpCurr = new XASTRO_ATOMIC_PARTITION_FUNCTION_DATA_LI;
-		lpCurr->m_cData.m_uiZ = uiZ;
-		lpCurr->m_cData.m_uiNum_Entries = uiEntry_Index;
-		lpCurr->m_cData.m_lpuiJ = new unsigned int[uiEntry_Index];
-		lpCurr->m_cData.m_lpdE = new double[uiEntry_Index];
-		lpCurr->m_cData.m_lpuiG = new unsigned int [uiEntry_Index];
-		lpCurr->m_cData.m_lpuiM = new unsigned int [uiEntry_Index];
-		lpCurr->m_cData.m_lpdChi = new double [uiEntry_Index];
-
-		XASTRO_ATOMIC_IONIZATION_DATA cIon_Data = g_xAstro_Ionization_Energy_Data.Get_Ionization_Data(uiZ);
-
-		memcpy(lpCurr->m_cData.m_lpuiJ,lpuiJ,sizeof(unsigned int) * uiEntry_Index);
-		memcpy(lpCurr->m_cData.m_lpdE,lpdEnergy,sizeof(double) * uiEntry_Index);
-		memcpy(lpCurr->m_cData.m_lpuiG,lpuiG,sizeof(unsigned int) * uiEntry_Index);
-		memcpy(lpCurr->m_cData.m_lpuiM,lpuiM,sizeof(unsigned int) * uiEntry_Index);
-		for (unsigned int uiI = 0; uiI < uiEntry_Index; uiI++)
+		if (uiZ != 0)
 		{
-			lpCurr->m_cData.m_lpdChi[uiI] = cIon_Data.m_lpIonization_energies_erg[lpuiJ[uiI]];
-		}
+//			printf("\t Adding entry for %i\n",uiZ);
+			lpCurr = new XASTRO_ATOMIC_PARTITION_FUNCTION_DATA_LI;
+			lpCurr->m_cData.m_uiZ = uiZ;
+			lpCurr->m_cData.m_uiNum_Entries = uiEntry_Index;
+			lpCurr->m_cData.m_lpuiJ = new unsigned int[uiEntry_Index];
+			lpCurr->m_cData.m_lpdE = new double[uiEntry_Index];
+			lpCurr->m_cData.m_lpuiG = new unsigned int [uiEntry_Index];
+			lpCurr->m_cData.m_lpuiM = new unsigned int [uiEntry_Index];
+			lpCurr->m_cData.m_lpdChi = new double [uiEntry_Index];
 
-		lpCurr->m_cData.m_dE1 = cIon_Data.m_lpIonization_energies_erg[0];
-		lpCurr->m_cData.m_uiG1 = 2; // @@TODO
+			XASTRO_ATOMIC_IONIZATION_DATA cIon_Data = g_xAstro_Ionization_Energy_Data.Get_Ionization_Data(uiZ);
 
-		m_uiNum_List_Items++;
-		// insert into list; make sure list remains sorted by Z
-		if (!m_lpHead)
-		{
-			m_lpHead = m_lpTail = lpCurr;
-		}
-		else
-		{
-			if (uiZ > m_lpTail->m_cData.m_uiZ) // end of list
+			memcpy(lpCurr->m_cData.m_lpuiJ,lpuiJ,sizeof(unsigned int) * uiEntry_Index);
+			memcpy(lpCurr->m_cData.m_lpdE,lpdEnergy,sizeof(double) * uiEntry_Index);
+			memcpy(lpCurr->m_cData.m_lpuiG,lpuiG,sizeof(unsigned int) * uiEntry_Index);
+			memcpy(lpCurr->m_cData.m_lpuiM,lpuiM,sizeof(unsigned int) * uiEntry_Index);
+			for (unsigned int uiI = 0; uiI < uiEntry_Index; uiI++)
 			{
-				m_lpTail->m_lpNext = lpCurr;
-				lpCurr->m_lpPrev = m_lpTail;
-				m_lpTail = lpCurr;
+				lpCurr->m_cData.m_lpdChi[uiI] = cIon_Data.m_lpIonization_energies_erg[lpuiJ[uiI]];
 			}
-			else if (uiZ < m_lpHead->m_cData.m_uiZ) // beginning of list
+
+			lpCurr->m_cData.m_dE1 = cIon_Data.m_lpIonization_energies_erg[0];
+			lpCurr->m_cData.m_uiG1 = 2; // @@TODO
+			m_uiNum_List_Items++;
+			// insert into list; make sure list remains sorted by Z
+			if (!m_lpHead)
 			{
-				m_lpHead->m_lpPrev = lpCurr;
-				lpCurr->m_lpNext = m_lpHead;
-				m_lpHead = lpCurr;
+				m_lpHead = m_lpTail = lpCurr;
 			}
-			else // somewhere in the middle
+			else
 			{
-				XASTRO_ATOMIC_PARTITION_FUNCTION_DATA_LI * lpPrev = m_lpTail;
-				while (lpPrev && lpPrev->m_cData.m_uiZ > uiZ)
-					lpPrev = lpPrev->m_lpPrev;
-				if (lpPrev) // we'd better get here!
+				if (uiZ > m_lpTail->m_cData.m_uiZ) // end of list
 				{
-					XASTRO_ATOMIC_PARTITION_FUNCTION_DATA_LI * lpNext = lpPrev->m_lpNext;
-					lpPrev->m_lpNext = lpCurr;
-					lpCurr->m_lpPrev = lpPrev;
-					lpCurr->m_lpNext = lpNext;
-					if (lpNext)
-						lpNext->m_lpPrev = lpCurr;
+					m_lpTail->m_lpNext = lpCurr;
+					lpCurr->m_lpPrev = m_lpTail;
+					m_lpTail = lpCurr;
+				}
+				else if (uiZ < m_lpHead->m_cData.m_uiZ) // beginning of list
+				{
+					m_lpHead->m_lpPrev = lpCurr;
+					lpCurr->m_lpNext = m_lpHead;
+					m_lpHead = lpCurr;
+				}
+				else // somewhere in the middle
+				{
+					XASTRO_ATOMIC_PARTITION_FUNCTION_DATA_LI * lpPrev = m_lpTail;
+					while (lpPrev && lpPrev->m_cData.m_uiZ > uiZ)
+						lpPrev = lpPrev->m_lpPrev;
+					if (lpPrev) // we'd better get here!
+					{
+						XASTRO_ATOMIC_PARTITION_FUNCTION_DATA_LI * lpNext = lpPrev->m_lpNext;
+						lpPrev->m_lpNext = lpCurr;
+						lpCurr->m_lpPrev = lpPrev;
+						lpCurr->m_lpNext = lpNext;
+						if (lpNext)
+							lpNext->m_lpPrev = lpCurr;
+					}
 				}
 			}
 		}
@@ -411,6 +419,7 @@ void XASTRO_ATOMIC_PARTITION_FUNCTION_DATA_LIST::Initialize(void)
 		fclose(fileIn);
 		fileIn = NULL;
 		// generate quick find lists
+		//printf("\t Generating quick Z search\n");
 		m_uiQuick_Find_Z = new unsigned int[m_uiNum_List_Items];
 		m_lpcQuick_Find_Data = new XASTRO_ATOMIC_PARTITION_FUNCTION_DATA *[m_uiNum_List_Items];
 		uiEntry_Index = 0;
@@ -551,10 +560,12 @@ void XASTRO_ATOMIC_PARTITION_FUNCTION_DATA_IRWIN_LIST::Initialize(void)
 		printf("Environment variable XASTRO_DATA_PATH not defined.\nFailed to load partition function data.");
 		return;
 	}
+	printf("Read xastro Irwin PF data from %s\n",lpszPath);
 	XDATASET	cFileData;
 	unsigned int uiI;
 	cFileData.ReadDataFile(lpszPath,false,false,',',4);
 	m_uiNum_List_Items = cFileData.GetNumElements();
+	//printf("%i items in file\n",m_uiNum_List_Items);
 	if (m_uiNum_List_Items != 0)
 	{
 		m_lpData = new XASTRO_ATOMIC_PARTITION_FUNCTION_DATA_IRWIN[m_uiNum_List_Items];
