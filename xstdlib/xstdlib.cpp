@@ -1715,11 +1715,14 @@ public:
 	unsigned int uiWord_Remainder;
 	bool bData_Initialized;
 
-	xlclALLOCATION_SIZE_DATA(void)
+	xlclALLOCATION_SIZE_DATA(void) {bData_Initialized = false; Populate();}
+
+	void Populate(void)
 	{
 		bData_Initialized = true;
 		uiPage_Size = getpagesize();
 		uiAvailable_Pages = sysconf(_SC_PHYS_PAGES);
+		//printf("Available pages: %i.  Page size %i.\n",uiAvailable_Pages, uiPage_Size);
 		uiAvailable_Memory = uiAvailable_Pages * uiPage_Size;
 		uiWord_Size = sizeof(long);
 		uiWord_Exponent = 0;
@@ -1746,6 +1749,7 @@ unsigned int xlclChoose_Allocation_Size_Word_Aligned(bool i_bQuiet, unsigned int
 { // This function chooses an allocation size that is word aligned
 	unsigned int uiAllocation_Suggested = 0;
 	unsigned int uiAllocation_Size_Requested = i_uiNumber_Of_Elements * i_uiElement_Size;
+	g_xlclAllocation_Size_Data.Populate();
 	if (i_uiElement_Size != 0)
 	{
 		uiAllocation_Size_Requested = i_uiNumber_Of_Elements * i_uiElement_Size;
