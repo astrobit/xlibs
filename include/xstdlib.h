@@ -5,24 +5,28 @@
 #include <wctype.h>
 #include <wchar.h>
 
+// test if a number is prime
+bool xTest_Prime(unsigned int i_uiI);
+
+
 // Random number generator types: 
 // PM = Park & Miller (Numerical Recipes ran0)
 // LE = L'Euyer (Numerical Recipes ran1)
 // K = Knuth  (Numerical Recipes ran3)
 
-enum XRAND_TYPE {XRT_PM,XRT_LE,XRT_K}; 
+enum XRAND_TYPE {XRT_PM,XRT_LE,XRT_K,XRT_KM}; 
 
 void		xrand_Set_Type(XRAND_TYPE eType); // select random number generator
 XRAND_TYPE	xrand_Get_Type(void); // get random number generator type
 
-void	xsrand(int iSeed); //seed the random number generator
-void	xrsrand(void); // randomly seed the random number generator
-int		xrand(void); // generate a random number between -(XRANDMAX - 1) and (XRANDMAX - 1)
+unsigned int	xsrand(unsigned int iSeed); //seed the random number generator
+unsigned int	xrsrand(void); // randomly seed the random number generator
+unsigned int		xrand(void); // generate a random number between -(XRANDMAX - 1) and (XRANDMAX - 1)
 double	xrand_d(void); // generate number between 0 and 1
 double	xrand_dm(void); // genearte number between -1 and 1
 void	xrand_gauss_bm(double & o_dY1,double & o_dY2, const double &i_dSigma_Y1 = 1.0, const double &i_dSigma_Y2 = 1.0); // generates two gaussian random numbers with mean = 0 and standard deviation 1
 double	xrand_gauss(const double & i_dMean = 0.0, const double &i_dStDev = 1.0); // generate a single gaussian random number with given mean and standard deviation
-int		xrandmax(void);
+unsigned int		xrandmax(void);
 
 #define XRANDMAX xrandmax() // legacy definition 
 

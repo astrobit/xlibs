@@ -1,4 +1,4 @@
-all: astro math stdlib io time flash flashtest astroiontest xtools
+all: astro math stdlib io time flash flashtest astroiontest xtools xrandtest
 
 xtools: xdatasettocsv
 
@@ -126,6 +126,10 @@ $(OBJDIR)/xastroion_test.o: testing/xastroion_test.cpp
 $(BINDIR)/xdatasettocsv: xtools/xdatasettocsv.cpp $(LIBDIR)/libxio.a $(LIBDIR)/libxstdlib.a
 	$(CCOMP) $(FLAGS) xtools/xdatasettocsv.cpp -lxio -lxstdlib -o $(BINDIR)/xdatasettocsv
 xdatasettocsv: $(BINDIR)/xdatasettocsv
+
+$(BINDIR)/xrandtest: testing/xrand_test.cpp $(LIBDIR)/libxstdlib.a $(INCLUDEDIR)/xstdlib.h
+	$(CCOMP) $(FLAGS) testing/xrand_test.cpp -lxstdlib -o $(BINDIR)/xrandtest
+xrandtest: $(BINDIR)/xrandtest
 
 clean:
 	-rm $(LIBDIR)/*.a.a

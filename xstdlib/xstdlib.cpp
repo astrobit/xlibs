@@ -5,294 +5,326 @@
 #include <string>
 #include <unistd.h>
 
+unsigned int XRAND_get_sys_rand(void)
+{
+	unsigned int uiSeed;
+	FILE* urandom = fopen("/dev/urandom", "r");
+	fread(&uiSeed, sizeof(uiSeed), 1, urandom);
+	fclose(urandom);
+	return uiSeed;
+}
+
+unsigned int XRAND_isqrt(unsigned int i_uiI)
+{
+	unsigned int uiX = 2;
+	if (i_uiI == 0)
+		uiX = 0;
+	else if (i_uiI == 1)
+		uiX = 1;
+	else
+	{
+		unsigned int uiX_l = -1;
+		unsigned int uiX_l2;
+		do
+		{
+			uiX_l2 = uiX_l;
+			uiX_l = uiX;
+			uiX = (uiX + i_uiI / uiX) >> 1;
+		}
+		while (uiX != uiX_l && uiX != uiX_l2);
+		// if i+1 is a perfect square, the sequence doesn't converge; need to check for repeating sequence (isqrt(n) .. isqrt(n+1) ... isqrt(n))
+		if (uiX == uiX_l2 && uiX_l < uiX)
+			uiX = uiX_l;
+	}
+	return uiX;
+}
+
+bool xTest_Prime(unsigned int i_uiI)
+{
+	// slow but effective prime number test
+	// returns true if the input is prime
+	// 1 is NOT a prime number
+	bool bPrime = (i_uiI > 2 && (i_uiI & 0x01));
+	if (i_uiI == 2)
+		bPrime = true;
+	else
+	{
+		unsigned int iSqI = XRAND_isqrt(i_uiI);
+		for (unsigned int uiJ = 3; uiJ <= iSqI && bPrime; uiJ+=2)
+		{
+			bPrime = ((i_uiI % uiJ) != 0);
+		}
+	}
+	return bPrime;
+}
 // Template class for random number generators
 class XRAND
 {
+private:
+	unsigned int k_iRANDMAX;
+	double	k_dSCALAR;
 protected:
-	int k_iRANDMAX;
+	void SetRandMax(unsigned int i_iRand_Max)
+	{
+		k_iRANDMAX = i_iRand_Max;
+		k_dSCALAR = 1.0 / i_iRand_Max;
+	}
+
 public:
 	XRAND(void)
 	{
 		k_iRANDMAX = 0;
+		k_dSCALAR = 0.0;
 	}
-        virtual ~XRAND(void) {;}
-	virtual void Seed(int iSeed)=0;
-	virtual int Generate_Random_Number(void)=0;
-	virtual int GetRandInt(void)=0;
-	virtual double GetRandDouble(void)=0;
-	virtual double GetRandDoubleNegative(void)=0;
-	int GetRandMax(void)
+	XRAND(unsigned int i_iRand_Max)
+	{
+		SetRandMax(i_iRand_Max);
+	}
+	virtual ~XRAND(void) {;}
+	virtual unsigned int Seed(unsigned int iSeed)=0;
+	virtual unsigned int Generate_Random_Number(void)=0;
+	unsigned int GetRandInt(void) {return Generate_Random_Number();}
+//	virtual double GetRandDouble(void)=0;
+//	virtual double GetRandDoubleNegative(void)=0;
+	inline unsigned int GetRandMax(void) const
 	{
 		return k_iRANDMAX;
 	}
+	inline double GetRandDouble(void)
+	{
+		return Generate_Random_Number() * k_dSCALAR; // 0 ... ~0.99..
+	}
+	inline double GetRandDoubleNegative(void)
+	{
+		return (Generate_Random_Number() * k_dSCALAR - 0.5) * 2.0; // -0.5 ... 0.499...
+	}
 };
 
-// Park & Miller random number generator, from
-// Numerical Recipies in c++, 2nd ed.
-class XRAND_Park_Miller : public XRAND
+
+// Linear congruential generator
+// This is a generic implementation of an LCG:
+// a random number generator of form
+// s_i = (a s_{i-1} + d) modulo m
+class XRAND_LCG : public XRAND
 {
 private:
-	int m_iSeed;
-	int k_iAA;
-	double k_dSCALAR;
+	unsigned int	m_iA;
+	unsigned int m_iD;
+	unsigned int m_iSm1;
+protected:
+	void Set_A(unsigned int i_iA) {m_iA = i_iA;}
+	void Set_D(unsigned int i_iD) {m_iD = i_iD;}
 public:
-	XRAND_Park_Miller(void)
+	XRAND_LCG(void)
 	{
-		k_iRANDMAX = 2147483647;
-		k_iAA = 16807;
-		m_iSeed = 0x62094986;
-		k_dSCALAR = 1.0 / k_iRANDMAX;
+		m_iA = 0;
+		m_iD = 0;
 	}
-	void Seed(int i_iSeed)
+	XRAND_LCG(unsigned int i_iA, unsigned int i_iD, unsigned int i_iM) : XRAND(i_iM)
 	{
-		m_iSeed = i_iSeed;
+		m_iA = i_iA;
+		m_iD = i_iD;
 	}
-	int Generate_Random_Number(void)
-	{
-		int uiMult = m_iSeed * k_iAA;
-		uiMult %= k_iRANDMAX;
-		m_iSeed = uiMult;
-		return m_iSeed;
-	}
-	int GetRandInt(void)
-	{
-		return Generate_Random_Number();
-	}
-	double GetRandDouble(void)
-	{
-		return (Generate_Random_Number() * k_dSCALAR);
-	}
-	double GetRandDoubleNegative(void)
-	{
-		return (Generate_Random_Number() * k_dSCALAR + 1.0) * 0.5;
-	}
+	inline unsigned int Get_A(void) const {return m_iA;}
+	inline unsigned int Get_D(void) const {return m_iD;}
+	inline unsigned int Seed(unsigned int i_iSeed) {m_iSm1 = i_iSeed; return m_iSm1;}
+	inline unsigned int Generate_Random_Number(void) { int iS = (m_iA * m_iSm1 + m_iD) % XRAND::GetRandMax(); m_iSm1 = iS; return iS;}
+	inline operator unsigned int(void) {return m_iSm1;}
 };
+// Multiplicitave linear congruential generator
+// This is identical to the LCG above, but with d = 0
+// This is the more common implementation of an LCG
 
-// Subractive Random number generator, from Knuth;
-// Based on Numerical Recipes in c++, 2nd ed
-// with modifications to reduce memory footprint
-class XRAND_Knuth : public XRAND
+class XRAND_MLCG : public XRAND
 {
 private:
-	int	m_iIdx_Next;
-	int m_iIdx_Next_Offset;
-	int	m_iDataset[55];
-
-	int k_iMSEED;
-	double k_dSCALAR;
-	
+	unsigned int	m_iA;
+	unsigned int m_iSm1;
+	bool m_bM_prime;
+protected:
+	void Set_A(unsigned int i_iA) {m_iA = i_iA;}
 public:
-	XRAND_Knuth(void)
+	XRAND_MLCG(void)
 	{
-		k_iRANDMAX = 1000000000;
-		k_iMSEED = 161803398;
-		k_dSCALAR = 1.0 / k_iRANDMAX;
-		Seed(-1);
+		m_iA = 0;
+		m_iSm1 = 1;
+		m_bM_prime = false;
 	}
-	void Seed(int iSeed)
+	XRAND_MLCG(unsigned int i_iA, unsigned int i_iM) : XRAND(i_iM)
 	{
-		int iMJ = abs(k_iMSEED - abs(iSeed));
-		int iMK;
-		unsigned int uiI, uiII, uiK;
-		
-		iMJ %= k_iRANDMAX;
-		m_iDataset[54] = iMJ;
-		iMK = 1;
-		for (uiI = 0; uiI < 54; uiI++)
-		{
-			uiII = (21 * (uiI + 1)) % 55; // 'random' staring value... uhh... sure
-			m_iDataset[uiII - 1] = iMK;
-			iMK = iMJ - iMK;
-			if (iMK < 0) iMK += k_iRANDMAX;
-			iMJ = m_iDataset[uiII - 1];
-		}
-		for (uiK = 0; uiK < 4; uiK++)
-		{
-			for (uiI = 0; uiI < 55; uiI++)
-			{
-				m_iDataset[uiI] -= m_iDataset[((uiI + 31) % 55)];
-				if(m_iDataset[uiI] < 0) m_iDataset[uiI] += k_iRANDMAX;
-			}
-		}
-		m_iIdx_Next = -1;
-		m_iIdx_Next_Offset = 30;
-		
-	}
-	int Generate_Random_Number(void)
-	{
-		m_iIdx_Next++;
-		if (m_iIdx_Next == 55)
-			m_iIdx_Next = 0;
-		m_iIdx_Next_Offset++;
-		if (m_iIdx_Next_Offset == 55)
-			m_iIdx_Next_Offset = 0;
-		int iMJ = m_iDataset[m_iIdx_Next] - m_iDataset[m_iIdx_Next_Offset];
-		if (iMJ < 0) iMJ += k_iRANDMAX;
-		m_iDataset[m_iIdx_Next] = iMJ;
-		return iMJ;
-	}
-	int GetRandInt(void)
-	{
-		return Generate_Random_Number();
-	}
-	double GetRandDouble(void)
-	{
-		return Generate_Random_Number() * k_dSCALAR;
-	}
-	double GetRandDoubleNegative(void)
-	{
-		return (Generate_Random_Number() * k_dSCALAR - 0.5) * 2.0;
-	}
+		m_iA = i_iA;
+		m_bM_prime = xTest_Prime(i_iM);
+		if (!m_bM_prime)
+			fprintf(stderr,"\033[0;31mWarning\033[0m: non-prime %u chosen as M for an MLCG\n",i_iM);
 
-	
+	}
+	inline unsigned int Seed(unsigned int i_iSeed)
+	{
+		i_iSeed %= XRAND::GetRandMax();
+		while (i_iSeed == 0) // MLCG must have a non-zero value for s
+		{
+			i_iSeed = XRAND_get_sys_rand() % XRAND::GetRandMax();
+		}
+		if (i_iSeed < 0)
+			i_iSeed += XRAND::GetRandMax();
+		if (!m_bM_prime && !xTest_Prime(i_iSeed))
+		{
+			// the seed and m must be co-prime.  If this is not the case, reseed
+			// do this by searching for the nearest prime number above the current value
+			while (!xTest_Prime(i_iSeed))
+				i_iSeed++;
+		}
+		m_iSm1 = i_iSeed;
+		return m_iSm1;
+	}
+	inline unsigned int Generate_Random_Number(void) { int iS = (m_iA * m_iSm1) % XRAND::GetRandMax(); m_iSm1 = iS; return iS;}
+	inline operator unsigned int(void) {return m_iSm1;}
 };
 
+// Park & Miller random number generator
+// Park, Stephen K. and Miller, Keith W. 1988 Communications of the ACM 31:1192
+// simple MLCG with suggested a and m.
+class XRAND_Park_Miller : public XRAND_MLCG
+{
+public:
+	XRAND_Park_Miller(void) : XRAND_MLCG(16807,2147483647)
+	{
+//		XRAND::SetRandMax(2147483647);
+//		XRAND_MLCG::Set_A(16807);
+//		Seed(0x62094986);
+	}
+};
 
-// Subractive Random number generator, from L'Ecuyer;
-// Based on Numerical Recipes in c++, 2nd ed
-// with modifications to allow for integer value return
+// From L'Ecuyer, Pierre 1988  Communications of the ACM 31:742
+// The L'Ecuyer prng uses a linear combination of independant MCLG;  
+// this has the advantage of increasing the period to be the least common
+// multiple of periods of the constituent MCLGs
 class XRAND_LEcuyer : public XRAND
 {
 private:
-	int k_iIM1;
-	int k_iIM2;
-	int k_iIA1;
-	int k_iIA2;
-	int k_iIQ1;
-	int k_iIQ2;
-	int k_iIR1;
-	int k_iIR2;
-	int k_iNTAB;
-	int k_iIMM1;
-	int k_iNDIV;
-	double k_dEps;
-	int m_iSeed_2;
-	int m_iY;
-	int * m_iIV;
-	int m_iSeed;
-	double k_dSCALAR;
+	XRAND_MLCG	m_cMLCG1;
+	XRAND_MLCG	m_cMLCG2;
 
-
-	void Copy(const XRAND_LEcuyer & i_cRHO)
-	{
-		k_iIM1 = i_cRHO.k_iIM1;
-		k_iIM2 = i_cRHO.k_iIM2;
-		k_iIA1 = i_cRHO.k_iIA1;
-		k_iIA2 = i_cRHO.k_iIA2;
-		k_iIQ1 = i_cRHO.k_iIQ1;
-		k_iIQ2 = i_cRHO.k_iIQ2;
-		k_iIR1 = i_cRHO.k_iIR1;
-		k_iIR2 = i_cRHO.k_iIR2;
-		k_iNTAB = i_cRHO.k_iNTAB;
-		k_iIMM1 = i_cRHO.k_iIMM1;
-		k_iNDIV = i_cRHO.k_iNDIV;
-		k_dEps = i_cRHO.k_dEps;
-		m_iSeed_2 = i_cRHO.m_iSeed_2;
-		m_iY = i_cRHO.m_iY;
-		m_iSeed = i_cRHO.m_iSeed;
-		k_dSCALAR = i_cRHO.k_dSCALAR;
-
-		if (m_iIV != NULL)
-			delete [] m_iIV;
-		m_iIV = new int[k_iNDIV];
-		memcpy(m_iIV,i_cRHO.m_iIV,k_iNDIV * sizeof(int));
-	}
 public:
-	XRAND_LEcuyer(void)
+	XRAND_LEcuyer(void) : m_cMLCG1(40014,2147483563), m_cMLCG2(40692,2147483399)
 	{
-		k_iIM1 = 2147483563;
-		k_iRANDMAX = k_iIM1;
-		k_iIM2 = 2147483399;
-		k_iIA1 = 40014;
-		k_iIA2 = 40692;
-		k_iIQ1 = 53668;
-		k_iIQ2 = 52774;
-		k_iIR1 = 12211;
-		k_iIR2 = 3791;
-		k_iNTAB = 32;
-		k_iIMM1 = k_iIM1 - 1;
-		k_iNDIV = 1 + k_iIMM1 / k_iNTAB;
-		m_iSeed_2 = 123456789;
-		m_iY = 0;
-		m_iIV = new int[k_iNDIV];
-		k_dEps = 3.0e-16;
-		k_dSCALAR = 1.0 / k_iRANDMAX;
-		Seed(-1);
-	}
-	XRAND_LEcuyer(const XRAND_LEcuyer & i_cRHO)
-	{
-		// don't know why it would be copied like this, but just in case
-		m_iIV = NULL;
-		Copy(i_cRHO);
-	}
-	XRAND_LEcuyer & operator =(const XRAND_LEcuyer &i_cRHO)
-	{
-		Copy(i_cRHO);
-		return *this;
-	}
-	~XRAND_LEcuyer(void)
-	{
-		delete [] m_iIV;
+		SetRandMax(m_cMLCG1.GetRandMax() - 1);
 	}
 
-	void Seed(int i_iSeed)
+	unsigned int Seed(unsigned int i_iSeed)
 	{
-		int iJ,iK;
-
-		if (i_iSeed < 0)
-			i_iSeed = -i_iSeed;
-		if (i_iSeed == 0)
-			i_iSeed = 1;
-		m_iSeed = m_iSeed_2 = i_iSeed;
-		for (iJ = k_iNTAB + 7; iJ >= 0; iJ--)
-		{
-			iK = m_iSeed / k_iIQ1;
-			m_iSeed = k_iIA1 * (m_iSeed - iK * k_iIQ1) - iK * k_iIR1;
-			if (m_iSeed < 0) m_iSeed += k_iIM1;
-			if (iJ < k_iNTAB) m_iIV[iJ] = m_iSeed;
-		}
-		m_iY = m_iIV[0];
+		unsigned int iSa = i_iSeed >> 1;
+		unsigned int iSb = i_iSeed - iSa;
+		m_cMLCG1.Seed(iSa);
+		m_cMLCG2.Seed(iSb);
+		return (m_cMLCG1 - m_cMLCG2);
 	}
-	int Generate_Random_Number(void)
+	unsigned int Generate_Random_Number(void)
 	{
-		int iK;
-		int iJ;
-		int iRet = k_iRANDMAX;
-
-		iK = m_iSeed / k_iIQ1;
-		m_iSeed = k_iIA1 * (m_iSeed - iK * k_iIQ1) - iK * k_iIR1;
-		if (m_iSeed < 0) m_iSeed += k_iIM1;
-		iK = m_iSeed_2 / k_iIQ2;
-		m_iSeed_2 = k_iIA2 * (m_iSeed_2 - iK * k_iIQ2) - iK * k_iIR2;
-		if (m_iSeed_2 < 0) m_iSeed_2 += k_iIM2;
-		iJ = m_iY / k_iNDIV;
-		m_iY = m_iIV[iJ] - m_iSeed_2;
-		m_iIV[iJ] = m_iSeed;
-		if (m_iY < 1) m_iY += k_iIMM1;
-		if (m_iY <= k_iRANDMAX)
-			iRet = m_iY;
-		return iRet;
-
-	}
-	int GetRandInt(void)
-	{
-		return Generate_Random_Number();
-	}
-	double GetRandDouble(void)
-	{
-		return Generate_Random_Number() * k_dSCALAR;
-	}
-	double GetRandDoubleNegative(void)
-	{
-		return (Generate_Random_Number() * k_dSCALAR - 0.5) * 2.0;
+		// See source, eq. 12
+		int iZ = m_cMLCG1.Generate_Random_Number() - m_cMLCG2.Generate_Random_Number();
+		iZ %= XRAND::GetRandMax();
+		return iZ;
 	}
 };
+
+// From Knuth, Donald E. 1997 The Art of Computer Programming, vol. 2 (p33)
+// Algorithm M; we use a specific implementation with k = 64, and using the 
+// suggested MLCGs of L'Eculyer (above)
+class XRAND_Knuth_M : public XRAND
+{
+private:
+	XRAND_MLCG	m_cMLCG1;
+	XRAND_MLCG	m_cMLCG2;
+
+	unsigned int	m_iDataset[64];
+
+	void Generate_Table(void)
+	{
+		for (unsigned int uiI = 0; uiI < 64; uiI++)
+			m_iDataset[uiI] = m_cMLCG1.Generate_Random_Number();
+	}
+public:
+	XRAND_Knuth_M(void) : m_cMLCG1(40014,2147483563), m_cMLCG2(40692,2147483399)
+	{
+		SetRandMax(m_cMLCG1.GetRandMax());
+		Generate_Table();
+	}
+
+	unsigned int  Seed(unsigned int i_iSeed)
+	{
+		unsigned int iSa = i_iSeed >> 1;
+		unsigned int iSb = i_iSeed - iSa;
+		m_cMLCG1.Seed(iSa);
+		m_cMLCG2.Seed(iSb);
+		Generate_Table();
+		unsigned int iY = m_cMLCG2;
+		unsigned int iJ = (64 * iY) / m_cMLCG2.GetRandMax();
+		unsigned int iRet = m_iDataset[iJ];
+		return iRet;
+	}
+
+	unsigned int Generate_Random_Number(void)
+	{
+		unsigned int iY = m_cMLCG2.Generate_Random_Number();
+		unsigned int iJ = (64 * iY) / m_cMLCG2.GetRandMax();
+		unsigned int iRet = m_iDataset[iJ];
+		m_iDataset[iJ] = m_cMLCG1.Generate_Random_Number();
+		return iRet;
+	}
+};
+
+// From Knuth, Donald E. 1997 The Art of Computer Programming, vol. 2 (p34)
+// Algorithm B; we use a specific implementation with k = 64, and using the 
+// suggested MLCGs of Park & Miller (above)
+class XRAND_Knuth_B : public XRAND
+{
+private:
+	XRAND_Park_Miller	m_cMLCG_X;
+
+	unsigned int	m_iDataset[64];
+	unsigned int m_iY;
+
+	void Generate_Table(void)
+	{
+		for (unsigned int uiI = 0; uiI < 64; uiI++)
+			m_iDataset[uiI] = m_cMLCG_X.Generate_Random_Number();
+		m_iY = m_cMLCG_X.Generate_Random_Number();
+	}
+
+public:
+	XRAND_Knuth_B(void)
+	{
+		SetRandMax(m_cMLCG_X.GetRandMax());
+		Generate_Table();
+	}
+
+	unsigned int Seed(unsigned int i_iSeed)
+	{
+		m_cMLCG_X.Seed(i_iSeed);
+		Generate_Table();
+		int iJ = (64 * m_iY) / m_cMLCG_X.GetRandMax();
+		m_iY = m_iDataset[iJ];
+		m_iDataset[iJ] = m_cMLCG_X.Generate_Random_Number();
+		return m_iY;
+	}
+
+	unsigned int Generate_Random_Number(void)
+	{
+		int iJ = (64 * m_iY) / m_cMLCG_X.GetRandMax();
+		m_iY = m_iDataset[iJ];
+		m_iDataset[iJ] = m_cMLCG_X.Generate_Random_Number();
+		return m_iY;
+	}
+};
+
 
 
 XRAND_TYPE	g_eXRand_Selected_Type = XRT_PM;
 
 XRAND_Park_Miller 	g_xrand_Park_Miller;
-XRAND_Knuth 		g_xrand_Knuth;
+XRAND_Knuth_M 		g_xrand_Knuth_M;
+XRAND_Knuth_B 		g_xrand_Knuth_B;
 XRAND_LEcuyer 		g_xrand_LEcuyer;
 XRAND *				g_lpxrand_Selected = &g_xrand_Park_Miller;
 
@@ -309,9 +341,13 @@ void		xrand_Set_Type(XRAND_TYPE i_eType) // select random number generator
 		g_eXRand_Selected_Type = XRT_LE;
 		g_lpxrand_Selected = &g_xrand_LEcuyer;
 		break;
+	case XRT_KM:
+		g_eXRand_Selected_Type = XRT_KM;
+		g_lpxrand_Selected = &g_xrand_Knuth_M;
+		break;
 	case XRT_K:
 		g_eXRand_Selected_Type = XRT_K;
-		g_lpxrand_Selected = &g_xrand_Knuth;
+		g_lpxrand_Selected = &g_xrand_Knuth_B;
 		break;
 	}
 
@@ -321,7 +357,7 @@ XRAND_TYPE	xrand_Get_Type(void) // get random number generator type
 	return g_eXRand_Selected_Type;
 }
 
-int			xrandmax(void)
+unsigned int			xrandmax(void)
 {
 	int iRet = 0;
 	if (g_lpxrand_Selected)
@@ -330,24 +366,28 @@ int			xrandmax(void)
 
 }
 
-void	xsrand(int i_iSeed)
+unsigned int	xsrand(unsigned int i_iSeed)
 {
+	unsigned int uiRet = i_iSeed;
 	if (g_lpxrand_Selected)
-		g_lpxrand_Selected->Seed(i_iSeed);
+		uiRet = g_lpxrand_Selected->Seed(i_iSeed);
+	return uiRet;
 }
 
-void	xrsrand(void)
+unsigned int	xrsrand(void)
 {
 	unsigned int uiSeed;
         size_t iJunk;
+	unsigned int uiRet;
 	FILE* urandom = fopen("/dev/urandom", "r");
 	iJunk = fread(&uiSeed, sizeof(uiSeed), 1, urandom);
 	fclose(urandom);
 	if (g_lpxrand_Selected)
-		g_lpxrand_Selected->Seed(uiSeed);
+		uiRet = g_lpxrand_Selected->Seed(uiSeed);
+	return uiRet;
 }
 
-int	xrand(void) // generate random integer number.  Depending on the generator the number may be allowed to be negative.
+unsigned int	xrand(void) // generate random integer number.  Depending on the generator the number may be allowed to be negative.
 {
 	int iRet = -1;
 	if (g_lpxrand_Selected)
