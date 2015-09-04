@@ -8,3 +8,8 @@ As of 4 Sept 2015 the random number generators have been completed, but have not
 It is notable that the Park-Miller a and m values have been criticized as being a 'poor' generator, with a period and range < m.  All generators included here suffer from problems: specifically none will produce a true 0 as all of them use MLCG.  A future implementation should include LCGs such that true 0 can be achieved.
 
 Use of code in these libraries is at the user's own risk.  No guaruntee of the safety or applicability of any code is made by the author.
+
+
+prerequisites:
+	mpi (any form)
+	HDF5
