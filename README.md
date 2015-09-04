@@ -10,6 +10,8 @@ It is notable that the Park-Miller a and m values have been criticized as being 
 Use of code in these libraries is at the user's own risk.  No guaruntee of the safety or applicability of any code is made by the author.
 
 
+Pulls of code prior to commit 5f9b606 is forbidden due to licensing.
+
 prerequisites:
 	mpi (any form)
 	HDF5
