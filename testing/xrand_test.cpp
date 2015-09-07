@@ -256,10 +256,13 @@ int main(int i_iArg_Count, const char * i_lpszArg_Values[])
 	printf("Test algorithm test\n");
 	fflush(stdout);
 	Test_Basic(iSeed);
+	fflush(stdout);
 	printf("PM test\n");
 	Test_PM(iSeed);
+	fflush(stdout);
 	printf("Park & Miller\n");
 	xrand_Set_Type(XRT_PM);
+	fflush(stdout);
 	unsigned int uiFails = 0;
 	for (unsigned int uiI = 0; uiI < 1000; uiI++)
 	{
