@@ -37,30 +37,31 @@ unsigned int Get_Rand_Seed(void)
 class LCG
 {
 public:
-	unsigned int k_iRANDMAX;
-	unsigned int	m_iA;
-	unsigned int	m_iC;
-	unsigned int m_iSm1;
+	unsigned long long k_iRANDMAX;
+	unsigned long long	m_iA;
+	unsigned long long	m_iC;
+	unsigned long long m_iSm1;
 protected:
-	void Set_A(unsigned int i_iA) {m_iA = i_iA;}
-	void Set_C(unsigned int i_iC) {m_iC = i_iC;}
+	void Set_A(unsigned long long i_iA) {m_iA = i_iA;}
+	void Set_C(unsigned long long i_iC) {m_iC = i_iC;}
 public:
 	LCG(void)
 	{
 		m_iA = 0;
 		m_iC = 0;
 	}
-	LCG(unsigned int i_iA, unsigned int i_iC, unsigned int i_iM)
+	LCG(unsigned long long i_iA, unsigned long long i_iC, unsigned long long i_iM)
 	{
 		m_iA = i_iA;
 		m_iC = i_iC;
 		k_iRANDMAX = i_iM;
 	}
-	inline int Get_Rand_Max(void) {return k_iRANDMAX;}
-	inline unsigned int Seed(int i_iSeed) {m_iSm1 = i_iSeed % k_iRANDMAX; return m_iSm1;}
-	inline unsigned int Generate_Random_Number(void) { unsigned int iS = (m_iA * m_iSm1 + m_iC) % k_iRANDMAX; m_iSm1 = iS; return iS;}
+	inline int Get_Rand_Max(void) {return (unsigned int)k_iRANDMAX;}
+	inline unsigned int Seed(int i_iSeed) {m_iSm1 = i_iSeed % k_iRANDMAX; return (unsigned int)m_iSm1;}
+	inline unsigned int Generate_Random_Number(void) { unsigned long long iS = (m_iA * m_iSm1 + m_iC) % k_iRANDMAX; m_iSm1 = iS; return (unsigned int)iS;}
 	//operator int (void) {return m_iSm1;}
 };
+
 extern unsigned int XRAND_isqrt(unsigned int i_uiI);
 
 bool Test_Prime(unsigned int i_uiI)
@@ -95,28 +96,28 @@ void Init_Primes(void)
 class MLCG
 {
 public:
-	unsigned int k_iRANDMAX;
+	unsigned long long k_iRANDMAX;
 	bool		m_bM_prime;
-	unsigned int	m_iA;
-	unsigned int m_iSm1;
+	unsigned long long	m_iA;
+	unsigned long long m_iSm1;
 protected:
-	void Set_A(unsigned int i_iA) {m_iA = i_iA;}
+	void Set_A(unsigned long long i_iA) {m_iA = i_iA;}
 public:
 	MLCG(void)
 	{
 		m_iA = 0;
 	}
-	MLCG(unsigned int i_iA, unsigned int i_iM)
+	MLCG(unsigned long long i_iA, unsigned long long i_iM)
 	{
 		m_iA = i_iA;
 		k_iRANDMAX = i_iM;
 		m_bM_prime = Test_Prime(i_iM);
 		if (!m_bM_prime)
-			printf("Warning: non-prime %u chosen as M for an MLCG\n",i_iM);
+			printf("Warning: non-prime %llu chosen as M for an MLCG\n",i_iM);
 //		for (unsigned int uiI = 0; uiI < 
 	}
-	inline int Get_Rand_Max(void) {return k_iRANDMAX;}
-	inline unsigned int Seed(unsigned int i_iSeed)
+	inline int Get_Rand_Max(void) {return (unsigned int)k_iRANDMAX;}
+	inline unsigned int Seed(unsigned long long i_iSeed)
 	{
 		i_iSeed %= k_iRANDMAX;
 		while (i_iSeed == 0) // MLCG must have a non-zero value for s
@@ -133,9 +134,9 @@ public:
 				i_iSeed++;
 		}
 		m_iSm1 = i_iSeed;
-		return m_iSm1;
+		return (unsigned int)m_iSm1;
 	}
-	inline unsigned int Generate_Random_Number(void) { unsigned int iS = (m_iA * m_iSm1) % k_iRANDMAX; m_iSm1 = iS; return iS;}
+	inline unsigned int Generate_Random_Number(void) { unsigned long long iS = (m_iA * m_iSm1) % k_iRANDMAX; m_iSm1 = iS; return (unsigned int)iS;}
 };
 void Test_Basic(int i_iSeed)
 {
@@ -223,7 +224,7 @@ void Test(unsigned int i_iSeed, func_seed fSeed, func_rand fRand, func_rand fMax
 		printf("No loop.\n");
 }
 
-MLCG	g_cLCG(16807,(1<<31) - 1);
+LCG	g_cLCG(2147483629,2147483587,(1<<31) - 1); // Rtl uniform
 unsigned int SeedLCG(unsigned int i_iSeed)
 {
 	return g_cLCG.Seed(i_iSeed);
@@ -236,9 +237,9 @@ unsigned int RandMaxLCG(void)
 {
 	return g_cLCG.Get_Rand_Max();
 }
-void Test_PM(unsigned int i_iSeed)
+void Test_LCG(unsigned int i_iSeed, bool bZero_Allowed)
 {
-	Test(i_iSeed,SeedLCG,RandLCG,RandMaxLCG,false);
+	Test(i_iSeed,SeedLCG,RandLCG,RandMaxLCG,bZero_Allowed);
 }
 
 unsigned int isqrt(unsigned int i_uiI)
@@ -278,7 +279,7 @@ int main(int i_iArg_Count, const char * i_lpszArg_Values[])
 	Test_Basic(iSeed);
 	fflush(stdout);
 	printf("PM test\n");
-	Test_PM(iSeed);
+	Test_LCG(iSeed,true);
 	fflush(stdout);
 	printf("Park & Miller\n");
 	xrand_Set_Type(XRT_PM);
@@ -286,16 +287,35 @@ int main(int i_iArg_Count, const char * i_lpszArg_Values[])
 	fflush(stdout);
 	printf("L'Eculyer\n");
 	xrand_Set_Type(XRT_LE);
-	Test(iSeed,xsrand,xrand,xrandmax,false);
+	Test(iSeed,xsrand,xrand,xrandmax,true);
 	fflush(stdout);
 	printf("Knuth Algorithm B\n");
 	xrand_Set_Type(XRT_K);
-	Test(iSeed,xsrand,xrand,xrandmax,false);
+	Test(iSeed,xsrand,xrand,xrandmax,true);
 	fflush(stdout);
 	printf("Knuth Algorithm M\n");
 	xrand_Set_Type(XRT_KM);
-	Test(iSeed,xsrand,xrand,xrandmax,false);
+	Test(iSeed,xsrand,xrand,xrandmax,true);
 	fflush(stdout);
+
+	unsigned int uiM = 0, uiA = 0, uiC = 0;
+	for (unsigned int uiI = -1; uiI > 0 && uiC == 0; uiI--)
+	{
+		if (Test_Prime(uiI))
+		{
+			if (uiM == 0)
+				uiM = uiI;
+			else if (uiA == 0)
+				uiA = uiI;
+			else if (uiC == 0)
+				uiC = uiI;
+			uiI >>= 1;
+		}
+	}
+	g_cLCG = LCG(uiA,uiC,uiM);
+	printf("Generated test (%u s + %u) %% %u\n",uiA,uiC,uiM);
+	Test_LCG(iSeed,true);
+
 //	for (unsigned int uiI = 2; uiI < 1024; uiI++)
 //	{
 //		printf("%i : %i\n",uiI,XRAND_isqrt(uiI));

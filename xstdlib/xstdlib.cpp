@@ -61,7 +61,7 @@ bool xTest_Prime(unsigned int i_uiI)
 class XRAND
 {
 private:
-	unsigned int k_iRANDMAX;
+	unsigned long long k_iRANDMAX;
 	double	k_dSCALAR;
 protected:
 	void SetRandMax(unsigned int i_iRand_Max)
@@ -88,7 +88,7 @@ public:
 //	virtual double GetRandDoubleNegative(void)=0;
 	inline unsigned int GetRandMax(void) const
 	{
-		return k_iRANDMAX;
+		return (unsigned int)k_iRANDMAX;
 	}
 	inline double GetRandDouble(void)
 	{
@@ -108,9 +108,9 @@ public:
 class XRAND_LCG : public XRAND
 {
 private:
-	unsigned int	m_iA;
-	unsigned int m_iD;
-	unsigned int m_iSm1;
+	unsigned long long	m_iA;
+	unsigned long long m_iD;
+	unsigned long long m_iSm1;
 protected:
 	void Set_A(unsigned int i_iA) {m_iA = i_iA;}
 	void Set_D(unsigned int i_iD) {m_iD = i_iD;}
@@ -127,8 +127,8 @@ public:
 	}
 	inline unsigned int Get_A(void) const {return m_iA;}
 	inline unsigned int Get_D(void) const {return m_iD;}
-	inline unsigned int Seed(unsigned int i_iSeed) {m_iSm1 = i_iSeed; return m_iSm1;}
-	inline unsigned int Generate_Random_Number(void) { int iS = (m_iA * m_iSm1 + m_iD) % XRAND::GetRandMax(); m_iSm1 = iS; return iS;}
+	inline unsigned int Seed(unsigned int i_iSeed) {m_iSm1 = i_iSeed; return (unsigned int)m_iSm1;}
+	inline unsigned int Generate_Random_Number(void) { long long iS = (m_iA * m_iSm1 + m_iD) % XRAND::GetRandMax(); m_iSm1 = iS; return (unsigned int)iS;}
 	inline operator unsigned int(void) {return m_iSm1;}
 };
 // Multiplicitave linear congruential generator
@@ -138,8 +138,8 @@ public:
 class XRAND_MLCG : public XRAND
 {
 private:
-	unsigned int	m_iA;
-	unsigned int m_iSm1;
+	unsigned long long	m_iA;
+	unsigned long long m_iSm1;
 	bool m_bM_prime;
 protected:
 	void Set_A(unsigned int i_iA) {m_iA = i_iA;}
@@ -175,7 +175,7 @@ public:
 				i_iSeed++;
 		}
 		m_iSm1 = i_iSeed;
-		return m_iSm1;
+		return (unsigned int)m_iSm1;
 	}
 	inline unsigned int Generate_Random_Number(void) { int iS = (m_iA * m_iSm1) % XRAND::GetRandMax(); m_iSm1 = iS; return iS;}
 	inline operator unsigned int(void) {return m_iSm1;}
