@@ -57,7 +57,7 @@ public:
 		k_iRANDMAX = i_iM;
 	}
 	inline int Get_Rand_Max(void) {return k_iRANDMAX;}
-	inline void Seed(int i_iSeed) {m_iSm1 = i_iSeed % k_iRANDMAX;}
+	inline unsigned int Seed(int i_iSeed) {m_iSm1 = i_iSeed % k_iRANDMAX; return m_iSm1;}
 	inline unsigned int Generate_Random_Number(void) { unsigned int iS = (m_iA * m_iSm1 + m_iC) % k_iRANDMAX; m_iSm1 = iS; return iS;}
 	//operator int (void) {return m_iSm1;}
 };
@@ -148,6 +148,7 @@ void Test_Basic(int i_iSeed)
 	cLCG.Seed(iSeed_Norm);
 	timespec tTime_Last;
 	clock_gettime(CLOCK_MONOTONIC_RAW,&tTime_Last);
+	iSeed_Norm = cLCG.Generate_Random_Number();
 	printf("%i\n",iSeed_Norm);
 	//iCurr = iSeed_Norm - 1;
 	do
@@ -164,61 +165,80 @@ void Test_Basic(int i_iSeed)
 	printf("Period %llu\n",llPeriod_Count);
 	printf("Time per iteration = %.3e\n",dIter_Time);
 }
-void Test_PM(int i_iSeed)
+
+typedef unsigned int (*func_seed)(unsigned int);
+typedef unsigned int (*func_rand)(void);
+
+
+void Test(unsigned int i_iSeed, func_seed fSeed, func_rand fRand, func_rand fMax, bool bZero_Allowed)
 {
-	MLCG	cLCG(16807,2147483647);
-	int iCurr;
-	int iSeed_Norm = i_iSeed % cLCG.Get_Rand_Max();
+	printf("%u (%x)\n",fMax(),fMax());
+	unsigned int uiMax_Period = -1;
+	unsigned long long llMaxPeriod = uiMax_Period;
+	unsigned int iCurr;
+	unsigned int iSeed_Norm = i_iSeed % fMax();
 	if (iSeed_Norm < 0)
-		iSeed_Norm += cLCG.Get_Rand_Max();
+		iSeed_Norm += fMax();
 	unsigned long long llPeriod_Count =  0;
-	iSeed_Norm = cLCG.Seed(iSeed_Norm);
+	unsigned long long llIters =  0;
+	unsigned long long llLoop_Period_Count = 0;
+
+	iSeed_Norm = fSeed(iSeed_Norm);
 	printf("Using seed %u\n",iSeed_Norm);
 	timespec tTime_Last;
+	for (unsigned int uiI = 0; uiI < -1; uiI++) if (fRand() > fMax()) printf("\033[0;31mFAIL\033[0m\n");
+
+	iSeed_Norm = fRand();
+	printf("%u\n",iSeed_Norm);
 	clock_gettime(CLOCK_MONOTONIC_RAW,&tTime_Last);
-	printf("%i\n",iSeed_Norm);
 	//iCurr = iSeed_Norm - 1;
 	do
 	{
 		llPeriod_Count++;
-		iCurr = cLCG.Generate_Random_Number();
-//		printf("%i\n",iCurr);
-		if (iCurr == 0)
-			printf("\033[0;31mFAIL\033[0m\n");
+		llIters++;
+		iCurr = fRand();
 	}
-	while (iCurr != 0 && iSeed_Norm != iCurr);
-	timespec tTime_Curr;
-	clock_gettime(CLOCK_MONOTONIC_RAW,&tTime_Curr);
-	double	dTime = (tTime_Curr.tv_sec - tTime_Last.tv_sec) + (tTime_Curr.tv_nsec - tTime_Last.tv_nsec) * 1.0e-9;
-	double	dIter_Time = dTime / llPeriod_Count;
-	printf("Period %llu\n",llPeriod_Count);
-	printf("Time per iteration = %.3e\n",dIter_Time);
-}
-
-void Test(int i_iSeed)
-{
-	int iCurr;
-	unsigned long long llPeriod_Count =  0;
-	int iSeed_Norm = i_iSeed % xrandmax();
-	if (iSeed_Norm < 0)
-		iSeed_Norm += xrandmax();
-	iSeed_Norm = xsrand(iSeed_Norm);
-	timespec tTime_Last;
-	clock_gettime(CLOCK_MONOTONIC_RAW,&tTime_Last);
+	while ((bZero_Allowed || iCurr != 0) && iSeed_Norm != iCurr && llPeriod_Count < llMaxPeriod);
+	iSeed_Norm = fRand();
 	do
 	{
-		llPeriod_Count++;
-		iCurr = xrand();
-		if (llPeriod_Count % 1000000 == 0)
-			printf("%llu %i\n",llPeriod_Count/1000000,iCurr);
-	} while (iSeed_Norm != iCurr);
+		llIters++;
+		llLoop_Period_Count++;
+		iCurr = fRand();
+	}
+	while (iCurr != 0 && iSeed_Norm != iCurr && llLoop_Period_Count < llMaxPeriod);
 
 	timespec tTime_Curr;
 	clock_gettime(CLOCK_MONOTONIC_RAW,&tTime_Curr);
 	double	dTime = (tTime_Curr.tv_sec - tTime_Last.tv_sec) + (tTime_Curr.tv_nsec - tTime_Last.tv_nsec) * 1.0e-9;
-	double	dIter_Time = dTime / llPeriod_Count;
+	double	dIter_Time = dTime / llIters;
 	printf("Period %llu\n",llPeriod_Count);
 	printf("Time per iteration = %.3e\n",dIter_Time);
+	fflush(stdout);
+
+	printf("Loop test....");
+	if (llLoop_Period_Count < llPeriod_Count)
+		printf("Loop period %llu.\n",llLoop_Period_Count);
+	else
+		printf("No loop.\n");
+}
+
+MLCG	g_cLCG(16807,(1<<31) - 1);
+unsigned int SeedLCG(unsigned int i_iSeed)
+{
+	return g_cLCG.Seed(i_iSeed);
+}
+unsigned int RandLCG(void)
+{
+	return g_cLCG.Generate_Random_Number();
+}
+unsigned int RandMaxLCG(void)
+{
+	return g_cLCG.Get_Rand_Max();
+}
+void Test_PM(unsigned int i_iSeed)
+{
+	Test(i_iSeed,SeedLCG,RandLCG,RandMaxLCG,false);
 }
 
 unsigned int isqrt(unsigned int i_uiI)
@@ -262,23 +282,20 @@ int main(int i_iArg_Count, const char * i_lpszArg_Values[])
 	fflush(stdout);
 	printf("Park & Miller\n");
 	xrand_Set_Type(XRT_PM);
+	Test(iSeed,xsrand,xrand,xrandmax,false);
 	fflush(stdout);
-	unsigned int uiFails = 0;
-	for (unsigned int uiI = 0; uiI < 1000; uiI++)
-	{
-		unsigned int uiX = Get_Rand_Seed();
-		unsigned int uiiSqX = isqrt(uiX);
-		unsigned int uiSqiSqX = uiiSqX * uiiSqX;
-		unsigned int uiSqiSqXm1 = (uiiSqX - 1) * (uiiSqX - 1);
-		unsigned int uiSqiSqXp1 = (uiiSqX + 1) * (uiiSqX + 1);
-		unsigned int uiDiff = uiSqiSqX - uiX;
-		unsigned int uiDiffm1 = uiSqiSqXm1 - uiX;
-		unsigned int uiDiffp1 = uiSqiSqXp1 - uiX;
-		printf("%u: %u %i %i %i",uiX,uiiSqX,uiDiffm1,uiDiff,uiDiffp1);
-		if ((int)uiDiff > 0) {uiFails++; printf("...\033[0;31mFAIL\033[0m");}
-		printf("\n");
-	}
-	printf("%i failures\n",uiFails);
+	printf("L'Eculyer\n");
+	xrand_Set_Type(XRT_LE);
+	Test(iSeed,xsrand,xrand,xrandmax,false);
+	fflush(stdout);
+	printf("Knuth Algorithm B\n");
+	xrand_Set_Type(XRT_K);
+	Test(iSeed,xsrand,xrand,xrandmax,false);
+	fflush(stdout);
+	printf("Knuth Algorithm M\n");
+	xrand_Set_Type(XRT_KM);
+	Test(iSeed,xsrand,xrand,xrandmax,false);
+	fflush(stdout);
 //	for (unsigned int uiI = 2; uiI < 1024; uiI++)
 //	{
 //		printf("%i : %i\n",uiI,XRAND_isqrt(uiI));

@@ -320,13 +320,13 @@ public:
 
 
 
-XRAND_TYPE	g_eXRand_Selected_Type = XRT_PM;
+XRAND_TYPE	g_eXRand_Selected_Type = XRT_KM;
 
 XRAND_Park_Miller 	g_xrand_Park_Miller;
 XRAND_Knuth_M 		g_xrand_Knuth_M;
 XRAND_Knuth_B 		g_xrand_Knuth_B;
 XRAND_LEcuyer 		g_xrand_LEcuyer;
-XRAND *				g_lpxrand_Selected = &g_xrand_Park_Miller;
+XRAND *				g_lpxrand_Selected = &g_xrand_Knuth_M;
 
 void		xrand_Set_Type(XRAND_TYPE i_eType) // select random number generator
 {
