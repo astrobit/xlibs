@@ -71,6 +71,7 @@ public:
 	XSPLINE_DATA(const XSPLINE_DATA &i_cRHO);
 	XSPLINE_DATA(void);
 	void Initialize(const double * i_lpdX, const double * i_lpdY, unsigned int i_uiNum_Data_Points);
+	XSPLINE_DATA(const double * i_lpdX, const double * i_lpdY, unsigned int i_uiNum_Data_Points){Initialize(i_lpdX,i_lpdY,i_uiNum_Data_Points);}
 	double Interpolate(const double &i_dX) const;
 	XSPLINE_DATA & operator =(const XSPLINE_DATA & i_cRHO);
 };
