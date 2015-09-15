@@ -90,3 +90,13 @@ double	XA_Jeans_Density(const double &i_dTemp_K, const double &i_dMu, const doub
 {
 	return (pow(5. * g_XASTRO.k_dKb * i_dTemp_K / (i_dMu * g_XASTRO.k_dmh * g_XASTRO.k_dG),3.0) * 3.0 / (4.0 * g_XASTRO.k_dpi) * pow(i_dMass_g,-2.));
 }
+
+
+XASTRO_FILTER_GAUSSIAN	g_XASTRO_Filter_Swift_v(5440.0,750.0);
+XASTRO_FILTER_GAUSSIAN	g_XASTRO_Filter_Swift_b(4390.0,980.0);
+XASTRO_FILTER_GAUSSIAN	g_XASTRO_Filter_Swift_u(3450.0,875.0);
+XASTRO_FILTER_GAUSSIAN	g_XASTRO_Filter_Swift_uvw1(2510.0,700.0);
+XASTRO_FILTER_GAUSSIAN	g_XASTRO_Filter_Swift_uvm2(2170.0,510.0);
+XASTRO_FILTER_GAUSSIAN	g_XASTRO_Filter_Swift_uvw2(1880.0,760.0);
+XASTRO_FILTER_GAUSSIAN	g_XASTRO_Filter_Swift_white(3850.0,2600.0);
+

@@ -1,4 +1,6 @@
 #pragma once
+#include <cmath>
+
 class XASTRO_CONSTS
 {
 public:
@@ -50,4 +52,52 @@ extern	XASTRO_CONSTS	g_XASTRO;
 double	XA_Jeans_Mass(const double &i_dTemp_K, const double &i_dNumber_Density_cmm3, const double &i_dMu);
 double	XA_Jeans_Density(const double &i_dTemp_K, const double &i_dMu, const double &i_dMass_g);
 
+
+class XASTRO_FILTER
+{
+public:
+	virtual double operator <<(const double & i_dWavelength_Angstroms)=0;
+};
+
+class XASTRO_FILTER_GAUSSIAN : public XASTRO_FILTER
+{
+private:
+	double	m_dCentral_Wavelength;
+	double	m_dSigma;
+	double	m_dScaling;
+public:
+
+	XASTRO_FILTER_GAUSSIAN(void)
+	{
+		m_dCentral_Wavelength = 5500.0;
+		m_dSigma = 100.0;
+		m_dScaling = 1.0;
+	}
+	XASTRO_FILTER_GAUSSIAN(const double & i_dCentral_Wavelength_Angstroms, const double & i_dFull_Width_Half_Max_Angstroms, const double &i_dScaling = 1.0)
+	{
+		m_dCentral_Wavelength = i_dCentral_Wavelength_Angstroms;
+		Set_FWHM(i_dFull_Width_Half_Max_Angstroms);
+		m_dScaling = i_dScaling;
+	}
+	void	Set_Sigma(const double & i_dSigma){m_dSigma = i_dSigma;};
+	void	Set_FWHM(const double & i_dFWHM) {m_dSigma = i_dFWHM / (2.0 * sqrt(2.0 * log(2.0)));}
+	void	Set_Central_Wavelength(const double & i_dWavelength_Angstroms){m_dCentral_Wavelength = i_dWavelength_Angstroms;}
+	void	Set_Scaling(const double & i_dScaling) {m_dScaling = i_dScaling;}
+	inline double Get_Transmission(const double &i_dWavelength_Angstroms)
+	{
+		double dDel_WL = i_dWavelength_Angstroms - m_dCentral_Wavelength;
+		double dExp = dDel_WL / m_dSigma;
+		return (m_dScaling * exp(-dExp * dExp));
+	}
+
+	double operator << (const double &i_dWavelength_Angstroms){return Get_Transmission(i_dWavelength_Angstroms);}
+};
+
+extern XASTRO_FILTER_GAUSSIAN	g_XASTRO_Filter_Swift_u;
+extern XASTRO_FILTER_GAUSSIAN	g_XASTRO_Filter_Swift_v;
+extern XASTRO_FILTER_GAUSSIAN	g_XASTRO_Filter_Swift_b;
+extern XASTRO_FILTER_GAUSSIAN	g_XASTRO_Filter_Swift_uvw1;
+extern XASTRO_FILTER_GAUSSIAN	g_XASTRO_Filter_Swift_uvw2;
+extern XASTRO_FILTER_GAUSSIAN	g_XASTRO_Filter_Swift_uvm2;
+extern XASTRO_FILTER_GAUSSIAN	g_XASTRO_Filter_Swift_white;
 
