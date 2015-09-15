@@ -100,3 +100,18 @@ XASTRO_FILTER_GAUSSIAN	g_XASTRO_Filter_Swift_uvm2(2170.0,510.0);
 XASTRO_FILTER_GAUSSIAN	g_XASTRO_Filter_Swift_uvw2(1880.0,760.0);
 XASTRO_FILTER_GAUSSIAN	g_XASTRO_Filter_Swift_white(3850.0,2600.0);
 
+
+const double g_XASTRO_Vega_u_lum = 1.26726338539281169e+34;
+const double g_XASTRO_Vega_v_lum = 1.11994643111111157e+34;
+const double g_XASTRO_Vega_b_lum = 2.48514964875034518e+34;
+const double g_XASTRO_Vega_uvw1_lum = 1.05311372501524477e+34;
+const double g_XASTRO_Vega_uvw2_lum = 1.54124059960300707e+34;
+const double g_XASTRO_Vega_uvm2_lum = 9.19595425657849857e+33;
+const double g_XASTRO_Vega_white_lum = 5.08343897550328910e+34;
+
+
+double XA_Compute_Magnitude(const double & i_dFlux, const double & i_dReference_Flux, const double & i_dReference_Magnitude)
+{
+	return 2.5 * log10(i_dReference_Flux / i_dFlux) + i_dReference_Magnitude;
+}
+

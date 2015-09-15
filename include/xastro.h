@@ -52,6 +52,8 @@ extern	XASTRO_CONSTS	g_XASTRO;
 double	XA_Jeans_Mass(const double &i_dTemp_K, const double &i_dNumber_Density_cmm3, const double &i_dMu);
 double	XA_Jeans_Density(const double &i_dTemp_K, const double &i_dMu, const double &i_dMass_g);
 
+double XA_Compute_Magnitude(const double & i_dFlux, const double & i_dReference_Flux, const double & i_dReference_Magnitude);
+
 
 class XASTRO_FILTER
 {
@@ -100,4 +102,13 @@ extern XASTRO_FILTER_GAUSSIAN	g_XASTRO_Filter_Swift_uvw1;
 extern XASTRO_FILTER_GAUSSIAN	g_XASTRO_Filter_Swift_uvw2;
 extern XASTRO_FILTER_GAUSSIAN	g_XASTRO_Filter_Swift_uvm2;
 extern XASTRO_FILTER_GAUSSIAN	g_XASTRO_Filter_Swift_white;
+
+extern const double g_XASTRO_Vega_u_lum;
+extern const double g_XASTRO_Vega_v_lum;
+extern const double g_XASTRO_Vega_b_lum;
+extern const double g_XASTRO_Vega_uvw1_lum;
+extern const double g_XASTRO_Vega_uvw2_lum;
+extern const double g_XASTRO_Vega_uvm2_lum;
+extern const double g_XASTRO_Vega_white_lum;
+
 
