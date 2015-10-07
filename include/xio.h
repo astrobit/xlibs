@@ -113,6 +113,7 @@ class XDATASET
 {
 private:
 
+	bool	*		m_lpbEmpty_Cell;
 	double *		m_lplpdDataset;
 	unsigned int	m_uiNum_Columns;
 	unsigned int	m_uiSize_Alloc;
@@ -120,6 +121,7 @@ private:
 	char **			m_lpszHeader_Lines;
 	unsigned int	m_uiHeader_Lines;
 
+	void Initialize_Pointers(void); // warning: sets all pointers and all size variables to 0 regardless of allocation state.
 	void Copy(const XDATASET & i_cRHO);
 	void Reallocate(unsigned int i_uiNum_Columns, unsigned int i_uiNum_Elements);
 public:
@@ -139,9 +141,15 @@ public:
 	void				SetHeaderLine(const char * i_lpszHeader_Line);
 	inline unsigned int GetNumColumns(void) const {return m_uiNum_Columns;}
 	inline unsigned int GetNumElements(void) const {return m_uiNum_Elements;}
+	inline unsigned int GetNumRows(void) const {return m_uiNum_Elements;}
 	double 				GetElement(unsigned int i_uiColumn, unsigned int i_uiElement_Num) const;
 	double * 			GetElementArray(unsigned int i_uiColumn) const;
+	bool * 				GetElementEmptyArray(unsigned int i_uiColumn) const;
+
 	const char *		GetHeaderLine(unsigned int i_uiHeader_Line_Row) const;
+
+	bool				IsElementEmpty(unsigned int i_uiColumn, unsigned int i_uiRow) const;
+
 	// warning: ReadDataFile does not have strings fully implemented.
 	void 				ReadDataFile(const char * i_lpszFilename, bool i_bWhitespace_Separated_Columns, bool i_bAllow_Strings, char i_chColumn_Separator = 0, unsigned int i_uiHeader_Lines = 1);
 	void				ReadDataFileBin(const char * i_lpszFilename, bool i_bQuiet = false);
