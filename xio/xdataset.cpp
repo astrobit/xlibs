@@ -330,14 +330,15 @@ void XDATASET::ReadDataFile(const char * i_lpszFilename, bool i_bWhitespace_Sepa
 							}
 							else if (i_chColumn_Separator != 0 && lpszCursor[0] == i_chColumn_Separator)
 							{
-								lpszCursor = xPassSeparator(lpszCursor);
-								if (lpszCursor != 0 && lpszCursor[0] != 10 && lpszCursor[0] != 13)
+								lpszCursor++;
+								//lpszCursor = xPassSeparator(lpszCursor);
+//								if (lpszCursor != 0 && lpszCursor[0] != 10 && lpszCursor[0] != 13)
 									uiNum_Columns++;
 							}
 							else if (i_bWhitespace_Separated_Columns && xIsWhitespace(lpszCursor))
 							{
 								lpszCursor = xPassWhitespace(lpszCursor);
-								if (lpszCursor != 0 && lpszCursor[0] != 10 && lpszCursor[0] != 13)
+//								if (lpszCursor != 0 && lpszCursor[0] != 10 && lpszCursor[0] != 13)
 									uiNum_Columns++;
 							}
 							else
@@ -363,7 +364,19 @@ void XDATASET::ReadDataFile(const char * i_lpszFilename, bool i_bWhitespace_Sepa
 						{
 							SetElement(uiCurr_Column,uiData_Lines,atof(lpszCursor));
 							lpszCursor = xPassNumber(lpszCursor);
-							lpszCursor = xPassSeparator(lpszCursor);
+							if (i_bWhitespace_Separated_Columns)
+								lpszCursor = xPassSeparator(lpszCursor);
+							else if (i_chColumn_Separator != 0 && lpszCursor[0] == i_chColumn_Separator)
+							{
+								lpszCursor++;
+//								lpszCursor = xPassWhitespace(lpszCursor);
+							}
+							uiCurr_Column++;
+						}
+						else if (!i_bWhitespace_Separated_Columns && i_chColumn_Separator != 0 && lpszCursor[0] == i_chColumn_Separator)
+						{
+							lpszCursor++;
+//							lpszCursor = xPassWhitespace(lpszCursor);
 							uiCurr_Column++;
 						}
 						else if (lpszCursor[0] != 0 && lpszCursor[0] != 10 && lpszCursor[0] != 13)
