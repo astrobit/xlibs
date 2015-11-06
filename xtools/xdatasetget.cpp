@@ -25,6 +25,13 @@ int main(int i_iArg_Count, const char * i_lpszArg_Values[])
 		printf("File is assumed to be comma separated.\n");
 	}
 	if (cData.GetNumElements() > 0)
-		printf("%f\n",cData.GetElement(uiCol,uiRow));
+	{
+		if (uiCol > cData.GetNumColumns() || uiRow > cData.GetNumRows())
+			printf("Col %i Row %i not in dataset\n",uiCol,uiRow);
+		else if (cData.IsElementEmpty(uiCol,uiRow))
+			printf("----\n");
+		else
+			printf("%f\n",cData.GetElement(uiCol,uiRow));
+	}
 	return 0;
 }
