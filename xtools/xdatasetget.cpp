@@ -8,14 +8,14 @@ int main(int i_iArg_Count, const char * i_lpszArg_Values[])
 	unsigned int uiCol;
 	if (i_iArg_Count == 4 && strstr(i_lpszArg_Values[1],".xdataset") != NULL)
 	{
-		uiRow = atoi(i_lpszArg_Values[2]);
-		uiCol = atoi(i_lpszArg_Values[3]);
+		uiRow = atoi(i_lpszArg_Values[3]);
+		uiCol = atoi(i_lpszArg_Values[2]);
 		cData.ReadDataFileBin(i_lpszArg_Values[1]);
 	}
 	else if (i_iArg_Count == 5)
 	{
-		uiRow = atoi(i_lpszArg_Values[3]);
-		uiCol = atoi(i_lpszArg_Values[4]);
+		uiRow = atoi(i_lpszArg_Values[4]);
+		uiCol = atoi(i_lpszArg_Values[3]);
 		cData.ReadDataFile(i_lpszArg_Values[1],false,false,',',atoi(i_lpszArg_Values[2]));
 	}
 	else
