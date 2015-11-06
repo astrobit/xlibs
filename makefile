@@ -1,6 +1,6 @@
-all: astro math stdlib io time flash flashtest astroiontest xtools xrandtest xdatasettest
+all: astro math stdlib io time flash flashtest astroiontest xtools xrandtest xdatasettest xdatasetget
 
-xtools: xdatasettocsv
+xtools: xdatasettocsv xdatasetget
 
 .PHONY: all
 
@@ -134,6 +134,10 @@ xrandtest: $(BINDIR)/xrandtest
 $(BINDIR)/xdatasettest: testing/xdataset_testing.cpp $(LIBDIR)/libxio.a $(INCLUDEDIR)/xio.h $(LIBDIR)/libxstdlib.a $(INCLUDEDIR)/xstdlib.h
 	$(CCOMP) $(FLAGS) testing/xdataset_testing.cpp -lxio -lxstdlib -o $(BINDIR)/xdatasettest
 xdatasettest: $(BINDIR)/xdatasettest
+
+$(BINDIR)/xdatasetget: xtools/xdatasetget.cpp $(LIBDIR)/libxio.a $(INCLUDEDIR)/xio.h $(LIBDIR)/libxstdlib.a $(INCLUDEDIR)/xstdlib.h
+	$(CCOMP) $(FLAGS) xtools/xdatasetget.cpp -lxio -lxstdlib -o $(BINDIR)/xdatasetget
+xdatasetget: $(BINDIR)/xdatasetget
 
 clean:
 	-rm $(LIBDIR)/*.a.a
