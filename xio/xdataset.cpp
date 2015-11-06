@@ -364,8 +364,13 @@ void XDATASET::ReadDataFile(const char * i_lpszFilename, bool i_bWhitespace_Sepa
 						{
 							SetElement(uiCurr_Column,uiData_Lines,atof(lpszCursor));
 							lpszCursor = xPassNumber(lpszCursor);
+							if (!i_bWhitespace_Separated_Columns && xIsWhitespace(lpszCursor))
+								lpszCursor = xPassWhitespace(lpszCursor);
+
 							if (i_bWhitespace_Separated_Columns)
+							{
 								lpszCursor = xPassSeparator(lpszCursor);
+							}
 							else if (i_chColumn_Separator != 0 && lpszCursor[0] == i_chColumn_Separator)
 							{
 								lpszCursor++;
