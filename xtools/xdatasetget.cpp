@@ -23,13 +23,15 @@ int main(int i_iArg_Count, const char * i_lpszArg_Values[])
 		printf("Usage: xdatasetget <file> <headerlines> <column> <row>\n");
 		printf("If <file> is an .xdataset, <headerlines> is ommitted.\n");
 		printf("File is assumed to be comma separated.\n");
+		printf("Value of specified element is sent to stdout.  If table element is empty, output is CR.\n");
+		printf("If the table is not sufficiently large, a message is sent to stderr\n");
 	}
 	if (cData.GetNumElements() > 0)
 	{
 		if (uiCol > cData.GetNumColumns() || uiRow > cData.GetNumRows())
-			printf("Col %i Row %i not in dataset\n",uiCol,uiRow);
+			fprintf(stderr,"Col %i Row %i not in dataset\n",uiCol,uiRow);
 		else if (cData.IsElementEmpty(uiCol,uiRow))
-			printf("----\n");
+			printf("\n");
 		else
 			printf("%f\n",cData.GetElement(uiCol,uiRow));
 	}
