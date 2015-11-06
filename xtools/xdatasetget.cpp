@@ -28,7 +28,7 @@ int main(int i_iArg_Count, const char * i_lpszArg_Values[])
 	}
 	if (cData.GetNumElements() > 0)
 	{
-		if (uiCol > cData.GetNumColumns() || uiRow > cData.GetNumRows())
+		if (uiCol >= cData.GetNumColumns() || uiRow >= cData.GetNumRows())
 			fprintf(stderr,"Col %i Row %i not in dataset\n",uiCol,uiRow);
 		else if (cData.IsElementEmpty(uiCol,uiRow))
 			printf("\n");
