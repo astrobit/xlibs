@@ -151,6 +151,7 @@ public:
 	bool				IsElementEmpty(unsigned int i_uiColumn, unsigned int i_uiRow) const;
 
 	// warning: ReadDataFile does not have strings fully implemented.
+	unsigned int		TestDataFileBin(const char * i_lpszFilename); // if file is an xdataset, returns the version # of the file (low order bits (0-7) = sub version, bits 8-15 = major version; otherwise returns 0.
 	void 				ReadDataFile(const char * i_lpszFilename, bool i_bWhitespace_Separated_Columns, bool i_bAllow_Strings, char i_chColumn_Separator = 0, unsigned int i_uiHeader_Lines = 1);
 	void				ReadDataFileBin(const char * i_lpszFilename, bool i_bQuiet = false);
 	void				SaveDataFileCSV(const char * i_lpszFilename, const char * lpszColumn_Names[], char i_chColumn_Separator = ',', const char i_lpszNumberFormatString[] = "%.17e");

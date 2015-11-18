@@ -480,6 +480,27 @@ void XDATASET::TransferMPI(ompi_communicator_t * i_lpCommunicator, int i_iSource
 	}
 }
 
+unsigned int XDATASET::TestDataFileBin(const char * i_lpszFilename)
+{
+	unsigned int uiRet = 0;
+	FILE * fileOut = fopen(i_lpszFilename,"rb");
+	if (fileOut)
+	{
+		char lpszHeader[] = {"XIODATASET"};
+		char *lpszReadHeader;
+		lpszReadHeader = new char[sizeof(lpszHeader)];
+		unsigned char ucVersion;
+		unsigned char ucSubversion;
+		fread(lpszReadHeader,sizeof(lpszHeader),1,fileOut);
+		if (strcmp(lpszHeader,lpszReadHeader) == 0)
+		{
+			fread(&ucVersion,sizeof(ucVersion),1,fileOut);
+			fread(&ucSubversion,sizeof(ucSubversion),1,fileOut);
+			uiRet = (ucVersion << 8) + ucSubversion;
+		}
+	}
+	return uiRet;
+}
 
 void XDATASET::ReadDataFileBin(const char * i_lpszFilename, bool i_bQuiet)
 {
