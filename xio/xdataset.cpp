@@ -498,6 +498,7 @@ unsigned int XDATASET::TestDataFileBin(const char * i_lpszFilename)
 			fread(&ucSubversion,sizeof(ucSubversion),1,fileOut);
 			uiRet = (ucVersion << 8) + ucSubversion;
 		}
+		fclose(fileOut);
 	}
 	return uiRet;
 }
