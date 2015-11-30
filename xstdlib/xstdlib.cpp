@@ -463,33 +463,33 @@ bool xIsWhitespace(const char * lpString)
 	return (lpString && lpString[0] != 0 && (lpString[0] ==' ' || lpString[0] == '\t'));
 }
 
-char * xPassWhitespace(char * lpString)
+char * xPassWhitespace(const char * lpString)
 {
 	while (xIsWhitespace(lpString))
 		lpString++;
-	return lpString;
+	return (char*)lpString;
 }
-char * xPassNumber(char * lpString)
+char * xPassNumber(const char * lpString)
 {
 	while (xIsANumber(lpString))
 		lpString++;
-	return lpString;
+	return (char*)lpString;
 }
-char * xPassSeparator(char * lpString)
+char * xPassSeparator(const char * lpString)
 {
 	while (lpString && lpString[0] != 0 && 
 		(lpString[0] == ' ' || lpString[0] == '\t' || lpString[0] == ','))
 		lpString++;
-	return lpString;
+	return (char*)lpString;
 }
-char * xPassSeparator(char * lpString, char chSeparator)
+char * xPassSeparator(const char * lpString, char chSeparator)
 {
 	while (lpString && lpString[0] != 0 && 
 		(lpString[0] == chSeparator))
 		lpString++;
-	return lpString;
+	return (char*)lpString;
 }
-char * xPassString(char * lpString,char chString_Identifier)
+char * xPassString(const char * lpString,char chString_Identifier)
 {
 	if (lpString[0] == chString_Identifier)
 	{
@@ -500,7 +500,7 @@ char * xPassString(char * lpString,char chString_Identifier)
 		if (lpString[0] == chString_Identifier)
 			lpString++;
 	}
-	return lpString;
+	return (char*)lpString;
 }
 
 unsigned long long XMin_ui64(unsigned int i_uiNum_Parameters,...)

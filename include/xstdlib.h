@@ -212,11 +212,11 @@ public:
 bool xIsANumber(const char * lpString);
 bool xIsAScientificNumber(const char * i_lpszString);
 bool xIsWhitespace(const char * lpString);
-char * xPassWhitespace(char * lpString);
-char * xPassNumber(char * lpString);
-char * xPassSeparator(char * lpString);
-char * xPassSeparator(char * lpString, char chSeparator);
-char * xPassString(char * lpString,char chString_Identifier);
+char * xPassWhitespace(const char * lpString);
+char * xPassNumber(const char * lpString);
+char * xPassSeparator(const char * lpString);
+char * xPassSeparator(const char * lpString, char chSeparator);
+char * xPassString(const char * lpString,char chString_Identifier);
 
 double	xGetNumberFromEndOfString(const char * i_lpszString);
 char *	xGetLastWordInString(const char * i_lpszString);
