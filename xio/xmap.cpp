@@ -120,7 +120,15 @@ double	XMAP::Get_Value_Double(const std::string &i_szKey) const
 {
 	double dRet = nan("");
 	if (Key_Exists(i_szKey))
-		dRet = atof(Get_Value_String(i_szKey).c_str());
+	{
+		std::string szValue = Get_Value_String(i_szKey);
+		dRet = atof(szValue.c_str());
+		const char * lpszExp = strchr(szValue.c_str(),'d');
+		if (!lpszExp)
+			lpszExp = strchr(szValue.c_str(),'D');
+		if (lpszExp)
+			dRet *= pow(10.0,atoi(lpszExp + 1));
+	}
 	return dRet;
 }
 bool	XMAP::Get_Value_Bool(const std::string &i_szKey) const
