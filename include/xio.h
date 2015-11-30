@@ -1,10 +1,11 @@
 #pragma once
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 #include <xstdlib.h>
 #include <mpi.h>
-
-
+#include <string>
+#include <map>
+#include <stdint.h>
 //
 // XDATASET and XDATASET_ADVANCED
 // Are containers for matrix-like data (e.g. a spreadsheet)
@@ -165,3 +166,30 @@ public:
 	void 				TransferMPI(int i_iCommunicator, int i_iSource_Rank, int i_iDest_Rank);
 #endif
 };
+
+class XMAP // read a file containing key values (such as "a=b")
+{
+private:
+	std::map< const std::string, std::string>	m_cMap;
+public:
+	void	Read_File(const char * i_lpszFilename);
+
+//	bool Key_Exists(const char * i_lpszKey) const;
+//	double	Get_Value_Double(const char * i_lpszKey) const;
+//	bool	Get_Value_Bool(const char * i_lpszKey) const;
+//	int	Get_Value_Int(const char * i_lpszKey) const;
+//	unsigned int	Get_Value_Uint(const char * i_lpszKey) const;
+//	int64_t	Get_Value_Int64(const char * i_lpszKey) const;
+//	uint64_t	Get_Value_Uint64(const char * i_lpszKey) const;
+//	std::string	Get_Value_String(const char * i_lpszKey) const;
+
+	bool Key_Exists(const std::string & i_strKey) const;
+	double	Get_Value_Double(const std::string & i_strKey) const;
+	bool	Get_Value_Bool(const std::string & i_strKey) const;
+	int	Get_Value_Int(const std::string & i_strKey) const;
+	unsigned int	Get_Value_Uint(const std::string & i_strKey) const;
+	int64_t	Get_Value_Int64(const std::string & i_strKey) const;
+	uint64_t	Get_Value_Uint64(const std::string & i_strKey) const;
+	std::string	Get_Value_String(const std::string & i_strKey) const;
+};
+

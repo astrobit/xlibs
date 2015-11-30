@@ -36,9 +36,9 @@ $(LIBDIR)/libxastro.a: $(OBJDIR)/xastro.o $(OBJDIR)/xastroline.o $(OBJDIR)/xastr
 	ar -cvr $(LIBDIR)/libxastro.a  $(OBJDIR)/xastro.o $(OBJDIR)/xastroline.o $(OBJDIR)/xastroion.o
 astro: $(LIBDIR)/libxastro.a
 
-$(LIBDIR)/libxio.a: $(OBJDIR)/xdataset.o $(OBJDIR)/xiocmn.o $(OBJDIR)/xdataset_advanced.o
+$(LIBDIR)/libxio.a: $(OBJDIR)/xdataset.o $(OBJDIR)/xiocmn.o $(OBJDIR)/xdataset_advanced.o $(OBJDIR)/xmap.o
 	-rm $(LIBDIR)/libxio.a
-	ar -cvr $(LIBDIR)/libxio.a $(OBJDIR)/xdataset.o $(OBJDIR)/xiocmn.o $(OBJDIR)/xdataset_advanced.o
+	ar -cvr $(LIBDIR)/libxio.a $(OBJDIR)/xdataset.o $(OBJDIR)/xiocmn.o $(OBJDIR)/xdataset_advanced.o $(OBJDIR)/xmap.o
 io: $(LIBDIR)/libxio.a
 
 $(LIBDIR)/libxmath.a: $(OBJDIR)/xcomplex.o $(OBJDIR)/xfit.o $(OBJDIR)/xindex_vector.o $(OBJDIR)/xmath.o $(OBJDIR)/xmatrix.o $(OBJDIR)/xmatrix_tri.o $(OBJDIR)/xpolynomial.o $(OBJDIR)/xroots.o $(OBJDIR)/xstat.o $(OBJDIR)/xtensor.o $(OBJDIR)/xvector.o
@@ -59,6 +59,9 @@ $(OBJDIR)/xastroline.o: xastro/xastroline.cpp include/xastroline.h
 
 $(OBJDIR)/xastroion.o: xastro/xastroion.cpp include/xastroion.h
 	$(CCOMP) $(FLAGS) -c xastro/xastroion.cpp -o $(OBJDIR)/xastroion.o
+
+$(OBJDIR)/xmap.o: xio/xmap.cpp include/xio.h
+	$(CCOMP) $(FLAGS) -c xio/xmap.cpp -o $(OBJDIR)/xmap.o
 
 $(OBJDIR)/xdataset.o: xio/xdataset.cpp include/xio.h
 	$(CCOMP) $(FLAGS) -c xio/xdataset.cpp -o $(OBJDIR)/xdataset.o
