@@ -9,9 +9,9 @@ void	XMAP::Read_File(const char * i_lpszFilename)
 	char lpszBuffer[512];
 	if (fileRead)
 	{
+		fgets(lpszBuffer,sizeof(lpszBuffer),fileRead);
 		while (!feof(fileRead))
 		{
-			fgets(lpszBuffer,sizeof(lpszBuffer),fileRead);
 			const char * lpszCursor = lpszBuffer;
 			lpszCursor = xPassWhitespace(lpszCursor);
 			if (lpszCursor && lpszCursor[0] != 0 && lpszCursor[0] != 10 && lpszCursor[0] != 13 && lpszCursor[0] != '#' &&
@@ -56,7 +56,9 @@ void	XMAP::Read_File(const char * i_lpszFilename)
 				}
 				m_cMap[std::string(lpszKey)] = std::string(lpszValue);
 			}
+			fgets(lpszBuffer,sizeof(lpszBuffer),fileRead);
 		}
+		fclose(fileRead);
 	}
 	else
 		fprintf(stderr,"XMAP: unable to open %s.\n",i_lpszFilename);
