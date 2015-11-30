@@ -24,7 +24,9 @@ void	XMAP::Read_File(const char * i_lpszFilename)
 					uiI++;
 					lpszCursor++;
 				}
+				lpszKey[uiI] = 0;
 				lpszCursor = xPassWhitespace(lpszCursor);
+//				printf("Cursor(a) %s",lpszCursor);
 				if (lpszCursor[0] == '=')
 					lpszCursor++;
 				lpszCursor = xPassWhitespace(lpszCursor);
@@ -37,6 +39,7 @@ void	XMAP::Read_File(const char * i_lpszFilename)
 						lpszCursor++;
 					lpszCursor = xPassWhitespace(lpszCursor);
 				}
+//				printf("Cursor(b) %s",lpszCursor);
 				bool bCheck_String = false;
 				char chString_Char;
 				if (lpszCursor[0] == '\"' || lpszCursor[0] == '\'')
@@ -47,13 +50,16 @@ void	XMAP::Read_File(const char * i_lpszFilename)
 				}
 
 				uiI = 0;
+//				printf("Cursor(c) %s",lpszCursor);
 				while (lpszCursor[0] != 0 && lpszCursor[0] != 10 && lpszCursor[0] != 13 && 
-					!(bCheck_String && lpszCursor[0] == chString_Char) && !(!bCheck_String || lpszCursor[0] != ' ' || lpszCursor[0] != '\t'))
+					!(bCheck_String && lpszCursor[0] == chString_Char) && !(!bCheck_String && (lpszCursor[0] == ' ' || lpszCursor[0] == '\t')))
 				{
 					lpszValue[uiI] = lpszCursor[0];
 					uiI++;
 					lpszCursor++;
 				}
+				lpszValue[uiI] = 0;
+//				printf("Add %s : %s\n",lpszKey,lpszValue);
 				m_cMap[std::string(lpszKey)] = std::string(lpszValue);
 			}
 			fgets(lpszBuffer,sizeof(lpszBuffer),fileRead);
