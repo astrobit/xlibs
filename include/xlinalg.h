@@ -62,6 +62,7 @@ public:
 	XVECTOR &operator +=(const XVECTOR &i_vRHO);
 	XVECTOR operator -(const XVECTOR &i_vRHO) const;
 	XVECTOR &operator -=(const XVECTOR &i_vRHO);
+	XVECTOR &operator =(const std::vector<double> &i_vRHO);
 	// Scalar operatations
 	XVECTOR operator -(void)  const;
 	XVECTOR operator *(const double &i_dRHO)  const;

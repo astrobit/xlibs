@@ -138,7 +138,15 @@ XVECTOR &XVECTOR::operator =(const XVECTOR &i_vRHO)
 	Copy(i_vRHO);
 	return *this;
 }
-
+XVECTOR &XVECTOR::operator =(const std::vector<double> &i_vRHO)
+{
+	Set_Size(i_vRHO.size());
+	for (unsigned int uiI = 0; uiI < i_vRHO.size(); uiI++)
+	{
+		Set(uiI,i_vRHO[uiI]);
+	}
+	return *this;
+}
 XVECTOR XVECTOR::operator +(const XVECTOR &i_vRHO) const
 {
 	XVECTOR	vRet;
