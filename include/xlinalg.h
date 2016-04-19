@@ -73,6 +73,10 @@ public:
 	bool	operator==(const XVECTOR &i_vRHO)  const;
 	bool	operator!=(const XVECTOR &i_vRHO)  const;
 
+	inline double	operator[](int i_iIndex) const {return Get(i_iIndex);};
+	inline double	operator[](unsigned int i_iIndex) const {return Get(i_iIndex);};
+
+
 	// allow SQUARE_MATRIX and TRIDIAG_MATRIX classes access
 	// to private data members for efficiency
 	friend class	XTENSOR;
