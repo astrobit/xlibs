@@ -670,3 +670,25 @@ void	XSQUARE_MATRIX::Create_Rotation_Matrix(const double & i_dPhi_Rad,const doub
 
 }
 
+
+bool XSQUARE_MATRIX::is_nan(void) const
+{
+	bool bRet = false;
+	unsigned int uiN = m_uiN * m_uiN;
+	for (unsigned int uiI = 0; uiI < uiN && !bRet;  uiI++)
+	{
+		bRet = isnan(m_lpdValues[uiI]);
+	}
+	return bRet;
+}
+bool XSQUARE_MATRIX::is_inf(void) const
+{
+	bool bRet = false;
+	unsigned int uiN = m_uiN * m_uiN;
+	for (unsigned int uiI = 0; uiI < uiN && !bRet;  uiI++)
+	{
+		bRet = isinf(m_lpdValues[uiI]);
+	}
+	return bRet;
+}
+

@@ -339,3 +339,19 @@ double	XVECTOR::Magnitude(void) const
 	return sqrt(dMagSqr);
 }
 
+bool XVECTOR::is_nan(void) const
+{
+	bool bRet = false;
+	for (unsigned int uiI = 0; uiI < m_uiN && !bRet; uiI++)
+		bRet = isnan(m_lpdValues[uiI]);
+	return bRet;
+}
+
+bool XVECTOR::is_inf(void) const
+{
+	bool bRet = false;
+	for (unsigned int uiI = 0; uiI < m_uiN && !bRet; uiI++)
+		bRet = isinf(m_lpdValues[uiI]);
+	return bRet;
+}
+

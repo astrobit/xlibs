@@ -77,6 +77,8 @@ public:
 	inline double	operator[](int i_iIndex) const {return Get(i_iIndex);};
 	inline double	operator[](unsigned int i_iIndex) const {return Get(i_iIndex);};
 
+	bool is_nan(void) const;
+	bool is_inf(void) const;
 
 	// allow SQUARE_MATRIX and TRIDIAG_MATRIX classes access
 	// to private data members for efficiency
@@ -271,6 +273,10 @@ public:
 
 	// Transpose the matrix
 	void	Transpose(void);
+
+	// test for nan or inf
+	bool is_nan(void) const;
+	bool is_inf(void) const;
 };
 XSQUARE_MATRIX operator * (const double &i_dLHO, const XSQUARE_MATRIX &i_vRHO);
 

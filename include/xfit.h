@@ -83,7 +83,7 @@ public:
 
 void PolynomialFit(const XVECTOR &i_cX, const XVECTOR &i_cY, const XVECTOR &i_cWeights, unsigned int i_uiDegree, XPOLYNOMIAL & o_polyFit, XSQUARE_MATRIX &o_cCovariance_Matrix);
 bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QFunctionDA Fit_Function, XVECTOR_FNA i_vFit_Function_dA, XVECTOR & io_vFit_Parameters, XSQUARE_MATRIX &o_cCovariance_Matrix, double &o_dSmin, unsigned int i_uiMax_Iterations = 20, int i_iConvergence_Criterion = -30, unsigned int *o_lpiIterations = NULL);
-bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QFunctionVA Fit_Function, XVECTOR & io_vFit_Parameters, XSQUARE_MATRIX &o_cCovariance_Matrix, double &o_dSmin, void * io_lpvData = NULL, unsigned int i_uiMax_Iterations = 20, int i_iConvergence_Criterion = -30, unsigned int *o_lpiIterations = NULL);
+bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QFunctionVA Fit_Function, XVECTOR & io_vFit_Parameters, XSQUARE_MATRIX &o_cCovariance_Matrix, double &o_dSmin, void * io_lpvData = NULL, unsigned int i_uiMax_Iterations = 20, int i_iConvergence_Criterion = -30, unsigned int *o_lpiIterations = NULL, XVECTOR * o_lpvEstimated_Fit_Parameters = NULL);
 
 double	UsePolynomialFit(const double &i_dX, const XPOLYNOMIAL & o_polyFit, const XSQUARE_MATRIX &o_cCovariance_Matrix, double &o_dError);
 
