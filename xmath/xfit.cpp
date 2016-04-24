@@ -172,7 +172,7 @@ bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QF
 }
 
 
-bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QFunctionVA Fit_Function, XVECTOR & io_vFit_Parameters, XSQUARE_MATRIX &o_cCovariance_Matrix, double &o_dSmin, void * io_lpvData, unsigned int i_uiMax_Iterations, int i_iConvergence_Criterion, unsigned int *o_lpiIterations)
+bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QFunctionVA Fit_Function, XVECTOR & io_vFit_Parameters, XSQUARE_MATRIX &o_cCovariance_Matrix, double &o_dSmin, void * io_lpvData, unsigned int i_uiMax_Iterations, int i_iConvergence_Criterion, unsigned int *o_lpiIterations, XVECTOR * o_lpvEstimated_Fit_Parameters)
 {
 	bool			bDone = false;
 	if (i_cX.Get_Size() == i_cY.Get_Size() && i_cX.Get_Size() == i_cW.Get_Size())
@@ -191,6 +191,7 @@ bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QF
 		int iE_A;
 		int iE_dA;
 		int iE_oA;
+		bool			bNan_Inf = false;
 
 		mN.Set_Size(uiI_Max);
 		mDel_N.Set_Size(uiI_Max);
@@ -201,7 +202,7 @@ bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QF
 		for (unsigned int uiI = 0; uiI < uiI_Max; uiI++)
 			vDelta_A.Set(uiI,0.0);
 //		FILE * fileOut = fopen("testfile.csv","wt");
-		while (!bDone && uiIterations < i_uiMax_Iterations)
+		while (!bDone && !bNan_Inf && uiIterations < i_uiMax_Iterations)
 		{
 			uiIterations++;
 			vA += vDelta_A;
@@ -209,23 +210,26 @@ bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QF
 //			vA.Print();
 			mN.Zero();
 			vY.Zero();
-			for (unsigned int uiK = 0; uiK < uiK_Max; uiK++)
+			for (unsigned int uiK = 0; uiK < uiK_Max && !bNan_Inf; uiK++)
 			{
+//				printf("F(%i)\n",uiK);
 				vF = Fit_Function(i_cX.Get(uiK),vA,io_lpvData);
+				bNan_Inf |= vF.is_nan() || vF.is_inf();
 //				if (uiIterations == 1)
 //				{
 //					fprintf(fileOut,"%.17e, %.17e, %.17e\n",i_cX.Get(uiK),i_cY.Get(uiK),vF.Get(0));
 //				}
-//				printf("F(%i)\n",uiK);
 //				vF.Print();
-				for (unsigned int uiI = 0; uiI < uiI_Max; uiI++)
+				for (unsigned int uiI = 0; uiI < uiI_Max && !bNan_Inf; uiI++)
 				{
-					for (unsigned int uiJ = 0; uiJ <= uiI; uiJ++)
+					for (unsigned int uiJ = 0; uiJ <= uiI && !bNan_Inf; uiJ++)
 					{
 						mDel_N.Set(uiI,uiJ,i_cW.Get(uiK) * vF.Get(uiI + 1) * vF.Get(uiJ + 1));
 						mDel_N.Set(uiJ,uiI,i_cW.Get(uiK) * vF.Get(uiI + 1) * vF.Get(uiJ + 1));
+						bNan_Inf |= mDel_N.is_nan() || mDel_N.is_inf();
 					}
 					vDel_Y.Set(uiI,i_cW.Get(uiK) * (i_cY.Get(uiK) - vF.Get(0)) * vF.Get(uiI + 1));
+					bNan_Inf |= vDel_Y.is_nan() || vDel_Y.is_inf();
 				}
 				vY += vDel_Y;
 /*				for (unsigned int uiI = 0; uiI < uiI_Max; uiI++)
@@ -236,6 +240,7 @@ bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QF
 					}
 					printf("\n");
 				}*/
+//				printf("N\n");
 				mN += mDel_N;
 			}
 //			for (unsigned int uiI = 0; uiI < uiI_Max; uiI++)
@@ -246,28 +251,32 @@ bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QF
 //				}
 //				printf("\n");
 //			}
-			mN.Invert_LUD();
-			vDelta_A = mN * vY;
-//			printf("del a\n");
-//			vDelta_A.Print();
-			iDelta_Max = -40;
-			for (unsigned int uiI = 0; uiI < uiI_Max; uiI++)
+			if (!bNan_Inf)
 			{
-				double	dAi = vA.Get(uiI);
-				double	dDeltaAi = vDelta_A.Get(uiI);
-				double	doAi = sqrt(mN.Get(uiI,uiI));
-				frexp(dAi,&iE_A);
-				frexp(dDeltaAi,&iE_dA);
-				frexp(doAi,&iE_oA);
-				if ((iE_dA - iE_A) > iDelta_Max)
-					iDelta_Max = iE_dA - iE_A;
-				if ((iE_dA - iE_oA) > iDelta_Max)
-					iDelta_Max = (iE_dA - iE_oA);
-			}
+				mN.Invert_LUD();
+				vDelta_A = mN * vY;
+				bNan_Inf = vDelta_A.is_nan() || vDelta_A.is_inf();
+	//			printf("del a\n");
+	//			vDelta_A.Print();
+				iDelta_Max = -40;
+				for (unsigned int uiI = 0; uiI < uiI_Max; uiI++)
+				{
+					double	dAi = vA.Get(uiI);
+					double	dDeltaAi = vDelta_A.Get(uiI);
+					double	doAi = sqrt(mN.Get(uiI,uiI));
+					frexp(dAi,&iE_A);
+					frexp(dDeltaAi,&iE_dA);
+					frexp(doAi,&iE_oA);
+					if ((iE_dA - iE_A) > iDelta_Max)
+						iDelta_Max = iE_dA - iE_A;
+					if ((iE_dA - iE_oA) > iDelta_Max)
+						iDelta_Max = (iE_dA - iE_oA);
+				}
 
-			if (iDelta_Max < i_iConvergence_Criterion)
-			{
-				bDone = true;
+				if (iDelta_Max < i_iConvergence_Criterion)
+				{
+					bDone = true;
+				}
 			}
 		}
 		if (o_lpiIterations)
@@ -280,6 +289,7 @@ bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QF
 			double	dS = 0.0;
 			for (unsigned int uiK = 0; uiK < uiK_Max; uiK++)
 			{
+//				printf("F(k) %i\n",uiK);
 				vF = Fit_Function(i_cX.Get(uiK),vA,io_lpvData);
 				for (unsigned int uiI = 0; uiI < uiI_Max; uiI++)
 				{
@@ -294,12 +304,15 @@ bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QF
 				mN += mDel_N;
 				dS += i_cW.Get(uiK) * pow(i_cY.Get(uiK) - vF.Get(0),2.0);
 			}
+//			printf("Inverrt LUD\n");
 			mN.Invert_LUD();
 			io_vFit_Parameters = vA;
 			o_cCovariance_Matrix = mN;
 			o_cCovariance_Matrix *= dS / (uiK_Max - uiI_Max - 1.0);
 			o_dSmin = dS;
 		}
+		if (o_lpvEstimated_Fit_Parameters)
+			o_lpvEstimated_Fit_Parameters[0] = vA;
 //		fclose(fileOut);
 	}
 //	printf("--------------------------------------------------------------------\n");
