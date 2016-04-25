@@ -30,6 +30,16 @@ XVECTOR::XVECTOR(const XVECTOR &i_vRHO)
 	m_uiN_Alloc = 0;
 	Copy(i_vRHO);
 }*/
+	// destructor
+XVECTOR::~XVECTOR(void)
+{
+	if (m_lpdValues)
+		delete [] m_lpdValues;
+	m_lpdValues = NULL;
+	m_uiN_Alloc = 0;
+	m_uiN = 0;
+}
+
 // set size of vector
 void	XVECTOR::Set_Size(unsigned int i_uiN)
 {
@@ -77,10 +87,10 @@ void	XVECTOR::Print(FILE * fileOut) const
 {
 	for (unsigned int uiRow = 0; uiRow < m_uiN; uiRow++)
 	{
-		if (fileOut)
-			fprintf(fileOut,"%u,%f\n",uiRow,m_lpdValues[uiRow]);
-		else
-			printf("%u,%f\n",uiRow,m_lpdValues[uiRow]);
+		if (!fileOut)
+			fileOut = stdout;
+		fprintf(fileOut,"%u,%f\n",uiRow,m_lpdValues[uiRow]);
+		fflush(fileOut);
 	}
 }
 

@@ -1,6 +1,7 @@
 #include <xlinalg.h>
 #include <string.h>
 
+
 void XTENSOR::Allocate(const XINDEX_VECTOR	&i_uivDimensions)
 {
 	unsigned int uiRank = i_uivDimensions.Get_Size();
@@ -67,7 +68,7 @@ void			XTENSOR::Copy(const XTENSOR &i_tRHO)
 }
 
 // 
-unsigned int	XTENSOR::ComputeIndex(const XINDEX_VECTOR	&i_uivElement_Index)
+unsigned int	XTENSOR::ComputeIndex(const XINDEX_VECTOR	&i_uivElement_Index) const
 {
 	unsigned int uiIndex = 0x0ffffffff;
 	if (m_uiRank > 0)
@@ -109,6 +110,19 @@ XTENSOR::XTENSOR(const XTENSOR &i_tRHO)
 	m_uiSize_Alloc = 0;
 	Copy(i_tRHO);
 }
+// destructor
+XTENSOR::~XTENSOR(void)
+{
+	if (m_lpdValues)
+		delete [] m_lpdValues;
+	m_lpdValues = NULL;
+	m_uiRank = 0;
+	m_uivDimensions.Zero();
+	m_uivIndexing_Vector.Zero();
+	m_uiNum_Entries = 0;
+	m_uiSize_Alloc = 0;
+}
+
 // set size of tensor
 void	XTENSOR::Set_Size(const XINDEX_VECTOR & i_uivDimensions)
 {
@@ -122,7 +136,7 @@ void	XTENSOR::Set(const XINDEX_VECTOR & i_uivElement_Index, const double &i_dVal
 		m_lpdValues[uiIndex] = i_dValue;
 }
 // get tensor element
-double	XTENSOR::Get(const XINDEX_VECTOR & i_uivElement_Index)
+double	XTENSOR::Get(const XINDEX_VECTOR & i_uivElement_Index) const
 {
 	double	dRet = 0.0;
 	unsigned int uiIndex = ComputeIndex(i_uivElement_Index);

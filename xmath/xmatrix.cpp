@@ -40,6 +40,24 @@ XSQUARE_MATRIX::XSQUARE_MATRIX(const XSQUARE_MATRIX &i_cRHO)
 	m_lpdL_Values = m_lpdU_Values = NULL;
 	Perform_LU_Decomposition();
 }
+// desructor
+XSQUARE_MATRIX::~XSQUARE_MATRIX(void)
+{
+	if (m_lpdValues)
+		delete [] m_lpdValues;
+	if (m_lpuiPivot_Table)
+		delete [] m_lpuiPivot_Table;
+	if (m_lpdL_Values)
+		delete [] m_lpdL_Values;
+	if (m_lpdU_Values)
+		delete [] m_lpdU_Values;
+	m_lpdValues = NULL;
+	m_lpuiPivot_Table = NULL;
+	m_uiN = 0;
+	m_uiN_Alloc = 0;
+	m_bLU_Initialized = false;
+	m_lpdL_Values = m_lpdU_Values = NULL;
+}
 // set size of matrix
 void	XSQUARE_MATRIX::Set_Size(unsigned int i_uiN)
 {
@@ -270,6 +288,11 @@ void	XSQUARE_MATRIX::Zero(void)
 	if (m_lpdValues)
 	{
 		m_bLU_Initialized = false;
+		if (m_uiN != m_uiN_Alloc)
+		{
+			fprintf(stderr,"N != nalloc in sqaure matrix\n");
+			fflush(stderr);
+		}
 		memset(m_lpdValues,0,m_uiN_Alloc * m_uiN_Alloc * sizeof(double));
 	}
 }
@@ -549,12 +572,36 @@ XVECTOR	XSQUARE_MATRIX::Solve_LU(const XVECTOR &i_vB)
 	return vX;
 }
 
+
+XVECTOR * g_lpvX = NULL;
+unsigned int g_uiX_Size = 0;
+
+class DUMMY
+{
+public:
+	DUMMY(void){;}
+	~DUMMY(void)
+	{
+		if (g_lpvX)
+			delete [] g_lpvX;
+		g_lpvX = NULL;
+		g_uiX_Size = 0;
+	}
+};
+
+DUMMY g_cDummy;
 void XSQUARE_MATRIX::Invert_LUD(void)
 { // Invert the matrix using LU decomposition
 	Perform_LU_Decomposition();
 	if (m_lpdValues && m_bLU_Initialized)
 	{
-		XVECTOR	*lpvX = new XVECTOR[m_uiN];
+		if (g_lpvX == NULL || g_uiX_Size < m_uiN)
+		{
+			if (g_lpvX)
+				delete [] g_lpvX;
+			g_lpvX = new XVECTOR[m_uiN];
+			g_uiX_Size = m_uiN;
+		}
 		XVECTOR	vB(m_uiN);
         XVECTOR	vY(m_uiN);
 		for (unsigned int uiI = 0; uiI < m_uiN; uiI++)
@@ -565,12 +612,12 @@ void XSQUARE_MATRIX::Invert_LUD(void)
 				vB.Set(uiI - 1,0.0);
 			vB.Set(uiI,1.0);
 			vY = Forward_Substituion(vB);
-			lpvX[uiI] = Back_Substituion(m_lpdU_Values,vY);
+			g_lpvX[uiI] = Back_Substituion(m_lpdU_Values,vY);
 		}
 		// Inverse found (stored in the array of X vectors)
 		// no refill matrix
 		for (unsigned int uiI = 0; uiI < m_uiN; uiI++)
-			Set(uiI, lpvX[uiI]);
+			Set(uiI, g_lpvX[uiI]);
 		m_bLU_Initialized = false;
 		// Get LU decomposition of inverted matrix
 		Perform_LU_Decomposition();

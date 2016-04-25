@@ -27,6 +27,8 @@ public:
 	XVECTOR(unsigned int i_uiN);
 	// copy constructor
 	XVECTOR(const XVECTOR &i_cRHO);
+	// destructor
+	~XVECTOR(void);
 	// contructor from c++ vector class
 //	XVECTOR(const std::vector<double> &i_vRHO);
 	// get size of vector
@@ -104,8 +106,11 @@ public:
 	XINDEX_VECTOR(unsigned int i_uiN);
 	// copy constructor
 	XINDEX_VECTOR(const XINDEX_VECTOR &i_cRHO);
+	// destructor
+	~XINDEX_VECTOR(void);
 	// get size of vector
-	unsigned int Get_Size(void) const{return m_uiN;}
+	inline unsigned int Get_Size(void) const{return m_uiN;}
+	inline size_t size(void) const {return m_uiN;}
 	// set size of vector
 	void	Set_Size(unsigned int i_uiN);
 	// set an element
@@ -127,6 +132,8 @@ public:
 	// Boolean operations
 	bool	operator==(const XINDEX_VECTOR &i_vRHO)  const;
 	bool	operator!=(const XINDEX_VECTOR &i_vRHO)  const;
+	// Set all elements to zero
+	void Zero(void);
 
 	// allow SQUARE_MATRIX and TRIDIAG_MATRIX classes access
 	// to private data members for efficiency
@@ -153,7 +160,7 @@ private:
 	unsigned int	m_uiSize_Alloc;
 	void			Copy(const XTENSOR &i_tRHO);
 	void			Allocate(const XINDEX_VECTOR	&i_uivDimensions);
-	unsigned int	ComputeIndex(const XINDEX_VECTOR	&i_uivElement_Index);
+	unsigned int	ComputeIndex(const XINDEX_VECTOR	&i_uivElement_Index) const;
 public:
 	// default constructor
 	XTENSOR(void);
@@ -161,12 +168,17 @@ public:
 	XTENSOR(const XINDEX_VECTOR &i_vDimensions);
 	// copy constructor
 	XTENSOR(const XTENSOR &i_cRHO);
+	// destructor
+	~XTENSOR(void);
+	// get size of tensor
+	inline size_t Get_Rank(void) const {return m_uiRank;}
+	inline XINDEX_VECTOR Get_Dimensions(void) const {return m_uivDimensions;}
 	// set size of tensor
 	void	Set_Size(const XINDEX_VECTOR & i_uivDimensions);
 	// set tensor element
 	void	Set(const XINDEX_VECTOR & i_uivElement_Index, const double &i_dValue);
 	// get tensor element
-	double	Get(const XINDEX_VECTOR & i_uivElement_Index);
+	double	Get(const XINDEX_VECTOR & i_uivElement_Index) const;
 };
 //----------------------------------------------------------------------------
 //
@@ -192,8 +204,13 @@ public:
 	XSQUARE_MATRIX(unsigned int i_uiN);
 	// copy constructor
 	XSQUARE_MATRIX(const XSQUARE_MATRIX &i_cRHO);
+	// destructor
+	~XSQUARE_MATRIX(void);
 	// set size of matrix
 	void	Set_Size(unsigned int i_uiN);
+	// get size of matrix
+	inline size_t	Get_Size(void) const{return m_uiN;}
+	inline size_t	size(void) const{return m_uiN;}
 	// set matrix element
 	void	Set(
 				unsigned int i_uiRow, 
@@ -309,6 +326,11 @@ public:
 	XTRIDIAG_MATRIX(unsigned int i_uiN);
 	// copy constructor
 	XTRIDIAG_MATRIX(const XTRIDIAG_MATRIX &i_cRHO);
+	// destructor
+	~XTRIDIAG_MATRIX(void);
+	// Get size
+	inline unsigned int Get_Size(void) const {return m_uiN;}
+	inline size_t size(void) const {return m_uiN;}
 	// set a particlar row/column
 	void	Set(
 		unsigned int i_uiRow, 

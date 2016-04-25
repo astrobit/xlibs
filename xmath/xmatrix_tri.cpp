@@ -55,6 +55,19 @@ XTRIDIAG_MATRIX::XTRIDIAG_MATRIX(const XTRIDIAG_MATRIX &i_cRHO)
 	Set_Size(i_cRHO.m_uiN);
 	memcpy(m_lpdValues,i_cRHO.m_lpdValues,i_cRHO.m_uiN * 3 * sizeof(double));
 }
+// destructor
+XTRIDIAG_MATRIX::~XTRIDIAG_MATRIX(void)
+{
+	if (m_lpdValues)
+		delete [] m_lpdValues;
+	m_lpdValues = NULL;
+	if (m_lpdGH)
+		delete [] m_lpdGH;
+	m_lpdGH = NULL;
+	m_uiN = 0;
+	m_uiN_Alloc = 0;
+}
+
 // set a particlar row/column
 void	XTRIDIAG_MATRIX::Set(
 	unsigned int i_uiRow, 

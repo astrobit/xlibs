@@ -208,11 +208,18 @@ bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QF
 			vA += vDelta_A;
 //			printf("A\n");
 //			vA.Print();
+//			printf("%i %i %lu %lu %lu	\n",uiK_Max,uiI_Max,mN.size(),vY.size(),vA.size());
+//			fflush(stdout);
 			mN.Zero();
+//			printf("N.zero\n");
+//			fflush(stdout);
 			vY.Zero();
+//			printf("Y.zero\n");
+//			fflush(stdout);
 			for (unsigned int uiK = 0; uiK < uiK_Max && !bNan_Inf; uiK++)
 			{
 //				printf("F(%i)\n",uiK);
+//				fflush(stdout);
 				vF = Fit_Function(i_cX.Get(uiK),vA,io_lpvData);
 				bNan_Inf |= vF.is_nan() || vF.is_inf();
 //				if (uiIterations == 1)
@@ -220,6 +227,7 @@ bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QF
 //					fprintf(fileOut,"%.17e, %.17e, %.17e\n",i_cX.Get(uiK),i_cY.Get(uiK),vF.Get(0));
 //				}
 //				vF.Print();
+//				fflush(stdout);
 				for (unsigned int uiI = 0; uiI < uiI_Max && !bNan_Inf; uiI++)
 				{
 					for (unsigned int uiJ = 0; uiJ <= uiI && !bNan_Inf; uiJ++)
@@ -228,10 +236,12 @@ bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QF
 						mDel_N.Set(uiJ,uiI,i_cW.Get(uiK) * vF.Get(uiI + 1) * vF.Get(uiJ + 1));
 						bNan_Inf |= mDel_N.is_nan() || mDel_N.is_inf();
 					}
-					vDel_Y.Set(uiI,i_cW.Get(uiK) * (i_cY.Get(uiK) - vF.Get(0)) * vF.Get(uiI + 1));
+					if (!bNan_Inf)
+						vDel_Y.Set(uiI,i_cW.Get(uiK) * (i_cY.Get(uiK) - vF.Get(0)) * vF.Get(uiI + 1));
 					bNan_Inf |= vDel_Y.is_nan() || vDel_Y.is_inf();
 				}
-				vY += vDel_Y;
+				if (!bNan_Inf)
+					vY += vDel_Y;
 /*				for (unsigned int uiI = 0; uiI < uiI_Max; uiI++)
 				{
 					for (unsigned int uiJ = 0; uiJ <= uiI; uiJ++)
@@ -241,7 +251,10 @@ bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QF
 					printf("\n");
 				}*/
 //				printf("N\n");
-				mN += mDel_N;
+				if (!bNan_Inf)
+					mN += mDel_N;
+//				printf("N done\n");
+//				fflush(stdout);
 			}
 //			for (unsigned int uiI = 0; uiI < uiI_Max; uiI++)
 //			{
@@ -251,31 +264,42 @@ bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QF
 //				}
 //				printf("\n");
 //			}
+//			printf("LUD\n");
+//			fflush(stdout);
+			bNan_Inf |= mN.is_nan() || mN.is_inf();
 			if (!bNan_Inf)
 			{
 				mN.Invert_LUD();
-				vDelta_A = mN * vY;
-				bNan_Inf = vDelta_A.is_nan() || vDelta_A.is_inf();
-	//			printf("del a\n");
-	//			vDelta_A.Print();
-				iDelta_Max = -40;
-				for (unsigned int uiI = 0; uiI < uiI_Max; uiI++)
+//				printf("LUD done\n");
+				bNan_Inf = mN.is_nan() || mN.is_inf();
+				if (!bNan_Inf)
 				{
-					double	dAi = vA.Get(uiI);
-					double	dDeltaAi = vDelta_A.Get(uiI);
-					double	doAi = sqrt(mN.Get(uiI,uiI));
-					frexp(dAi,&iE_A);
-					frexp(dDeltaAi,&iE_dA);
-					frexp(doAi,&iE_oA);
-					if ((iE_dA - iE_A) > iDelta_Max)
-						iDelta_Max = iE_dA - iE_A;
-					if ((iE_dA - iE_oA) > iDelta_Max)
-						iDelta_Max = (iE_dA - iE_oA);
-				}
-
-				if (iDelta_Max < i_iConvergence_Criterion)
-				{
-					bDone = true;
+					vDelta_A = mN * vY;
+					bNan_Inf = vDelta_A.is_nan() || vDelta_A.is_inf();
+//					printf("del a\n");
+//					vDelta_A.Print();
+					iDelta_Max = -40;
+					for (unsigned int uiI = 0; uiI < uiI_Max && !bNan_Inf; uiI++)
+					{
+						double	dAi = vA.Get(uiI);
+						double	dDeltaAi = vDelta_A.Get(uiI);
+						double dNi = mN.Get(uiI,uiI);
+						double	doAi = DBL_MAX;
+						if (dNi > 0.0 && !isnan(dNi) && !isinf(dNi))
+							doAi = sqrt(dNi);
+						frexp(dAi,&iE_A);
+						frexp(dDeltaAi,&iE_dA);
+						frexp(doAi,&iE_oA);
+						if ((iE_dA - iE_A) > iDelta_Max)
+							iDelta_Max = iE_dA - iE_A;
+						if ((iE_dA - iE_oA) > iDelta_Max)
+							iDelta_Max = (iE_dA - iE_oA);
+					}
+//					printf("conv test done\n");
+					if (!bNan_Inf && iDelta_Max < i_iConvergence_Criterion)
+					{
+						bDone = true;
+					}
 				}
 			}
 		}

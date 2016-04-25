@@ -23,6 +23,15 @@ XINDEX_VECTOR::XINDEX_VECTOR(const XINDEX_VECTOR &i_cRHO)
 	m_lpuiValues = NULL;
 	Copy(i_cRHO);
 }
+// destructor
+XINDEX_VECTOR::~XINDEX_VECTOR(void)
+{
+	m_uiN_Alloc = 0;
+	m_uiN = 0;
+	if (m_lpuiValues)
+		delete [] m_lpuiValues;
+	m_lpuiValues = NULL;
+}
 // set size of vector
 void	XINDEX_VECTOR::Set_Size(unsigned int i_uiN)
 {
@@ -174,4 +183,10 @@ void XINDEX_VECTOR::Copy(const XINDEX_VECTOR &i_vRHO)
 	m_uiN = i_vRHO.m_uiN;
 	memcpy(m_lpuiValues,i_vRHO.m_lpuiValues, i_vRHO.m_uiN * sizeof(double));
 }
+void XINDEX_VECTOR::Zero(void)
+{
+	if (m_uiN_Alloc > 0 && m_lpuiValues)
+		memset(m_lpuiValues,0,sizeof(unsigned int) * m_uiN_Alloc);
+}
+
 
