@@ -363,11 +363,16 @@ void XDATASET::ReadDataFile(const char * i_lpszFilename, bool i_bWhitespace_Sepa
 						else if ((lpszCursor[0] == 'n' && lpszCursor[1] == 'a' && lpszCursor[2] == 'n') ||
 								(lpszCursor[0] == 'N' && lpszCursor[1] == 'a' && lpszCursor[2] == 'N') ||
 								(lpszCursor[0] == 'N' && lpszCursor[1] == 'A' && lpszCursor[2] == 'N') ||
+								(lpszCursor[0] == '-' && lpszCursor[1] == 'n' && lpszCursor[2] == 'a' && lpszCursor[3] == 'n') ||
+								(lpszCursor[0] == '-' && lpszCursor[1] == 'N' && lpszCursor[2] == 'a' && lpszCursor[3] == 'N') ||
+								(lpszCursor[0] == '-' && lpszCursor[1] == 'N' && lpszCursor[2] == 'A' && lpszCursor[3] == 'N') ||
 								(lpszCursor[0] == 'i' && lpszCursor[1] == 'n' && lpszCursor[2] == 'f') ||
 								(lpszCursor[0] == '-' && lpszCursor[1] == 'i' && lpszCursor[2] == 'n' && lpszCursor[3] == 'f') ||
 								(lpszCursor[0] == 'I' && lpszCursor[1] == 'N' && lpszCursor[2] == 'F') ||
 								(lpszCursor[0] == '-' && lpszCursor[1] == 'I' && lpszCursor[2] == 'N' && lpszCursor[3] == 'F'))
 						{ // nan and inf
+							if (lpszCursor[0] == '-')
+								lpszCursor++;
 							lpszCursor+=3; // bypass the field and don't set the value.
 							if (!i_bWhitespace_Separated_Columns && xIsWhitespace(lpszCursor))
 								lpszCursor = xPassWhitespace(lpszCursor);
