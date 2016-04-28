@@ -307,33 +307,66 @@ bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QF
 			o_lpiIterations[0] = uiIterations;
 		if (bDone)
 		{
+			bDone = false;
+			XVECTOR vAsave = vA;
+			double dS;
 			vA += vDelta_A; // update A
-			mN.Zero();
-			vY.Zero();
-			double	dS = 0.0;
-			for (unsigned int uiK = 0; uiK < uiK_Max; uiK++)
+			unsigned int uiCount = 0;
+			while (!bDone && uiCount < 2)
 			{
-//				printf("F(k) %i\n",uiK);
-				vF = Fit_Function(i_cX.Get(uiK),vA,io_lpvData);
-				for (unsigned int uiI = 0; uiI < uiI_Max; uiI++)
+				mN.Zero();
+				vY.Zero();
+				dS = 0.0;
+				for (unsigned int uiK = 0; uiK < uiK_Max && !bNan_Inf; uiK++)
 				{
-					for (unsigned int uiJ = 0; uiJ <= uiI; uiJ++)
+	//				printf("F(k) %i\n",uiK);
+					vF = Fit_Function(i_cX.Get(uiK),vA,io_lpvData);
+					bNan_Inf |= vF.is_nan() || vF.is_inf();
+	//				if (uiIterations == 1)
+	//				{
+	//					fprintf(fileOut,"%.17e, %.17e, %.17e\n",i_cX.Get(uiK),i_cY.Get(uiK),vF.Get(0));
+	//				}
+	//				vF.Print();
+	//				fflush(stdout);
+					for (unsigned int uiI = 0; uiI < uiI_Max && !bNan_Inf; uiI++)
 					{
-						mDel_N.Set(uiI,uiJ,i_cW.Get(uiK) * vF.Get(uiI + 1) * vF.Get(uiJ + 1));
-						mDel_N.Set(uiJ,uiI,i_cW.Get(uiK) * vF.Get(uiI + 1) * vF.Get(uiJ + 1));
+						for (unsigned int uiJ = 0; uiJ <= uiI && !bNan_Inf; uiJ++)
+						{
+							mDel_N.Set(uiI,uiJ,i_cW.Get(uiK) * vF.Get(uiI + 1) * vF.Get(uiJ + 1));
+							mDel_N.Set(uiJ,uiI,i_cW.Get(uiK) * vF.Get(uiI + 1) * vF.Get(uiJ + 1));
+							bNan_Inf |= mDel_N.is_nan() || mDel_N.is_inf();
+						}
+						if (!bNan_Inf)
+							vDel_Y.Set(uiI,i_cW.Get(uiK) * (i_cY.Get(uiK) - vF.Get(0)) * vF.Get(uiI + 1));
+						bNan_Inf |= vDel_Y.is_nan() || vDel_Y.is_inf();
 					}
-					vDel_Y.Set(uiI,i_cW.Get(uiK) * (i_cY.Get(uiK) - vF.Get(0)) * vF.Get(uiI + 1));
+					if (!bNan_Inf)
+					{
+						vY += vDel_Y;
+						mN += mDel_N;
+
+						dS += i_cW.Get(uiK) * pow(i_cY.Get(uiK) - vF.Get(0),2.0);
+					}
 				}
-				vY += vDel_Y;
-				mN += mDel_N;
-				dS += i_cW.Get(uiK) * pow(i_cY.Get(uiK) - vF.Get(0),2.0);
+	//			printf("Inverrt LUD\n");
+				if (!bNan_Inf)
+				{
+					mN.Invert_LUD();
+					bNan_Inf = mN.is_nan() || mN.is_inf();
+				}
+				if (!bNan_Inf)
+					bDone = true;
+				else
+					vA = vAsave;
+				uiCount++;
 			}
-//			printf("Inverrt LUD\n");
-			mN.Invert_LUD();
-			io_vFit_Parameters = vA;
-			o_cCovariance_Matrix = mN;
-			o_cCovariance_Matrix *= dS / (uiK_Max - uiI_Max - 1.0);
-			o_dSmin = dS;
+			if (bDone)
+			{
+				io_vFit_Parameters = vA;
+				o_cCovariance_Matrix = mN;
+				o_cCovariance_Matrix *= dS / (uiK_Max - uiI_Max - 1.0);
+				o_dSmin = dS;
+			}
 		}
 		if (o_lpvEstimated_Fit_Parameters)
 			o_lpvEstimated_Fit_Parameters[0] = vA;
