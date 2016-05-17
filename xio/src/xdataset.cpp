@@ -1,6 +1,8 @@
 #include <cstdlib>
 #include <xio.h>
+#ifdef PARALLEL
 #include <mpi.h>
+#endif
 #include <cstdio>
 #include <cmath>
 
@@ -447,11 +449,12 @@ void XDATASET::PrintLine(unsigned int i_uiElement) const
 	}
 	printf("\n");
 }
+#ifdef PARALLEL
 #ifndef OPEN_MPI
 void XDATASET::TransferMPIBCast(int i_lpCommunicator, int i_iSource_Rank)
-#else
+#else // ifndef OPEN_MPI
 void XDATASET::TransferMPIBCast(ompi_communicator_t * i_lpCommunicator, int i_iSource_Rank)
-#endif
+#endif // ifndef OPEN_MPI
 {
 	unsigned int uiNum_Columns = m_uiNum_Columns, uiNum_Elements = m_uiNum_Elements;
 	MPI_Bcast(&uiNum_Columns,1,MPI_UNSIGNED,i_iSource_Rank,i_lpCommunicator);
@@ -474,9 +477,9 @@ void XDATASET::TransferMPIBCast(ompi_communicator_t * i_lpCommunicator, int i_iS
 }
 #ifndef OPEN_MPI
 void XDATASET::TransferMPI(int i_lpCommunicator, int i_iSource_Rank, int i_iDest_Rank)
-#else
+#else // ifndef OPEN_MPI
 void XDATASET::TransferMPI(ompi_communicator_t * i_lpCommunicator, int i_iSource_Rank, int i_iDest_Rank)
-#endif
+#endif // ifndef OPEN_MPI
 {
 	int iMy_Rank;
 	MPI_Status sStatus;
@@ -507,6 +510,7 @@ void XDATASET::TransferMPI(ompi_communicator_t * i_lpCommunicator, int i_iSource
 			MPI_Abort(MPI_COMM_WORLD,0);
 	}
 }
+#endif // ifdef PARALLEL
 
 unsigned int XDATASET::TestDataFileBin(const char * i_lpszFilename)
 {

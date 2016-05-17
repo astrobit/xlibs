@@ -1,5 +1,7 @@
 #include <xio.h>
+#ifdef PARALLEL
 #include <mpi.h>
+#endif
 #include <float.h>
 
 
@@ -970,12 +972,13 @@ void XDATASET_ADVANCED::SaveFile(const char * i_lpszFilename, char i_chColumn_Se
 
 
 
+#ifdef PARALLEL
 
 #ifndef OPEN_MPI
 void XDATASET_ADVANCED::TransferMPIBCast(int i_lpCommunicator, int i_iSource_Rank)
-#else
+#else // ifndef OPEN_MPI
 void XDATASET_ADVANCED::TransferMPIBCast(ompi_communicator_t * i_lpCommunicator, int i_iSource_Rank)
-#endif
+#endif // ifndef OPEN_MPI
 {
 	int iMyRank;
 	MPI_Comm_rank(i_lpCommunicator,&iMyRank);
@@ -1040,9 +1043,9 @@ void XDATASET_ADVANCED::TransferMPIBCast(ompi_communicator_t * i_lpCommunicator,
 }
 #ifndef OPEN_MPI
 void XDATASET_ADVANCED::TransferMPI(int i_lpCommunicator, int i_iSource_Rank, int i_iDest_Rank)
-#else
+#else // ifndef OPEN_MPI
 void XDATASET_ADVANCED::TransferMPI(ompi_communicator_t * i_lpCommunicator, int i_iSource_Rank, int i_iDest_Rank)
-#endif
+#endif // ifndef OPEN_MPI
 {
 	int iMyRank;
 	MPI_Comm_rank(i_lpCommunicator,&iMyRank);
@@ -1132,7 +1135,7 @@ void XDATASET_ADVANCED::TransferMPI(ompi_communicator_t * i_lpCommunicator, int 
 
 
 }
-
+#endif // ifdef PARALLEL
 void XDATASET_ADVANCED::Realloc_String_Storage(unsigned int i_uiDesired_Size)
 {
 	XRound2(i_uiDesired_Size); // make sure it is a power of 2

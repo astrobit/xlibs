@@ -2,7 +2,10 @@
 #include <cstdlib>
 #include <cstdio>
 #include <xstdlib.h>
+#ifdef PARALLEL
 #include <mpi.h>
+#endif // ifdef PARALLEL
+
 #include <string>
 #include <map>
 #include <stdint.h>
@@ -101,13 +104,15 @@ public:
 	// recommended floating point format is "%.17e", but any form is valid
 	void SaveFile(const char * i_lpszFilename, char i_chColumn_Separator, char i_chString_Delimiter, const char * lpszFloatingPointFormat);
 
+#ifdef PARALLEL
 #ifdef OPEN_MPI
 	void TransferMPIBCast(ompi_communicator_t * i_lpCommunicator, int i_iSource_Rank);
 	void TransferMPI(ompi_communicator_t * i_lpCommunicator, int i_iSource_Rank, int i_iDest_Rank);
-#else
+#else // ifndef OPEN_MPI
 	void TransferMPIBCast(int i_iCommunicator, int i_iSource_Rank);
 	void TransferMPI(int i_iCommunicator, int i_iSource_Rank, int i_iDest_Rank);
-#endif
+#endif // ifndef OPEN_MPI
+#endif // ifdef PARALLEL
 };
 
 class XDATASET
@@ -158,13 +163,15 @@ public:
 	void				SaveDataFileCSV(const char * i_lpszFilename, const char * lpszColumn_Names[], char i_chColumn_Separator = ',', const char i_lpszNumberFormatString[] = "%.17e");
 	void				SaveDataFileBin(const char * i_lpszFilename, bool i_bQuiet = false);
 	void 				PrintLine(unsigned int i_uiElement) const;
+#ifdef PARALLEL
 #ifdef OPEN_MPI
 	void 				TransferMPIBCast(ompi_communicator_t * i_lpCommunicator, int i_iSource_Rank);
 	void 				TransferMPI(ompi_communicator_t * i_lpCommunicator, int i_iSource_Rank, int i_iDest_Rank);
-#else
+#else // ifndef OPEN_MPI
 	void 				TransferMPIBCast(int i_iCommunicator, int i_iSource_Rank);
 	void 				TransferMPI(int i_iCommunicator, int i_iSource_Rank, int i_iDest_Rank);
-#endif
+#endif // ifndef OPEN_MPI
+#endif // ifdef PARALLEL
 };
 
 class XMAP // read a file containing key values (such as "a=b")

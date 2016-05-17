@@ -13,5 +13,12 @@ Use of code in these libraries is at the user's own risk.  No guaruntee of the s
 Pulls of code prior to commit 5f9b606 is forbidden due to licensing.
 
 prerequisites:
-	mpi (any form)
-	HDF5
+	(optional) mpi (any form)
+	HDF5 (for xflash only)
+
+build instructions:
+	from xlibs:
+		make
+	if you wish to build the mpi versions of the libs:
+		make MPICXX=<mpi c++ compiler>
+

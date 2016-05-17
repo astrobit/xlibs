@@ -1,0 +1,65 @@
+OBJDIR := ./obj
+SRCDIR := ./src
+LIBDIR := ../lib
+INCDIR := ../include
+CXXFLAGSLCL := $(CXXFLAGS) -I$(INCDIR) -c
+PARDEF := -DPARALLEL=1
+BARENAMESO = ${BARENAME}so
+BARENAMEMPI = ${BARENAME}mpi
+LIBNAME = lib${BARENAME}
+LIBNAMEMPI = ${LIBNAME}mpi
+INCLUDES=$(wildcard $(INCDIR)/*.hpp) $(wildcard $(INCDIR)/*.h)
+
+
+
+ifdef MPICXX
+all: $(BARENAME) $(BARENAMEMPI) $(BARENAMESO)
+else
+all: $(BARENAME) $(BARENAMESO)
+	@echo "Warning: MPI library not built"
+endif
+
+SRC := $(wildcard $(SRCDIR)/*.cpp)
+OBJS := $(subst $(SRCDIR),$(OBJDIR),$(patsubst %.cpp,%.o,$(SRC)))
+SHAROBJS := $(subst $(SRCDIR),$(OBJDIR),$(patsubst %.cpp,%.so,$(SRC)))
+PAROBJS := $(subst $(SRCDIR),$(OBJDIR),$(patsubst %.cpp,%.po,$(SRC)))
+clean:
+	-rm $(OBJS)
+	-rm $(SHAROBJS)
+	-rm $(PAROBJS)
+	-rm $(LIBDIR)/$(LIBNAME).a
+	-rm $(LIBDIR)/$(LIBNAME).so.1.0
+	-rm $(LIBDIR)/$(LIBNAMEMPI).a
+
+ifdef MPICXX
+$(OBJDIR)/%.po: $(SRCDIR)/%.cpp $(INCLUDES)
+	$(MPICXX) $(CXXFLAGSLCL) $< -o $@
+endif
+
+$(OBJDIR)/%.so: $(SRCDIR)/%.cpp $(INCLUDES)
+	$(CXX) $(CXXFLAGSLCL) -fPIC $< -o $@
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(INCLUDES)
+	$(CXX) $(CXXFLAGSLCL) $< -o $@
+
+$(LIBDIR)/$(LIBNAME).a: $(OBJS)
+	-rm $(LIBDIR)/$(LIBNAME).a
+	ar -cvq $(LIBDIR)/$(LIBNAME).a $(OBJS)
+
+$(LIBDIR)/$(LIBNAME).so.1.0: $(SHAROBJS)
+	-rm $(LIBDIR)/$(LIBNAME).so.1.0
+	$(CXX) -shared -Wl,-soname,$(LIBDIR)/$(LIBNAME).so.1 -o $(LIBDIR)/$(LIBNAME).so.1.0 $(SHAROBJS)
+    
+ifdef MPICXX
+$(LIBDIR)/$(LIBNAMEMPI).a: $(PAROBJS)
+	-rm $(LIBDIR)/$(LIBNAMEMPI).a
+	ar -cvq $(LIBDIR)/$(LIBNAMEMPI).a $(PAROBJS)
+endif
+
+$(BARENAME): $(LIBDIR)/$(LIBNAME).a
+
+$(BARENAMESO): $(LIBDIR)/$(LIBNAME).so.1.0
+
+ifdef MPICXX
+$(BARENAMEMPI): $(LIBDIR)/$(LIBNAMEMPI).a
+endif

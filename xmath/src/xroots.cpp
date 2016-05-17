@@ -1,19 +1,39 @@
 #include "xroots.h"
 #define _USE_MATH_DEFINES
-#include <math.h>
+#include <cmath>
 #include <float.h>
 #include <stdlib.h>
 #include <memory.h>
 #include <malloc.h>
 
+#ifndef _isnan
+#define _isnan(a) isnan(a)
+#endif
+
+#ifndef _isinf
+#define _isinf(a) isinf(a)
+#endif
+
+#ifndef _finite
+#define _finite(a) isfinite(a)
+#endif
 
 #ifndef _min
 #define _min(a,b) (a < b)?(a):(b)
 #endif
 
+#ifndef __min
+#define __min(a,b) _min(a,b)
+#endif
+
 #ifndef _max
 #define _max(a,b) (a > b)?(a):(b)
 #endif
+
+#ifndef __max
+#define __max(a,b) _max(a,b)
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////////////
 //
 //	XROOTS.cpp

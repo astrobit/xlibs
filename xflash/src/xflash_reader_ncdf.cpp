@@ -5,6 +5,7 @@
 #ifndef NO_NCDF
 
 #include "mpi.h"
+
 #include "pnetcdf.h"
 #include "flash_reader.h"
 #include "options.h"

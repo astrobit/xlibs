@@ -1,3 +1,5 @@
+#ifndef NO_HDF4
+
 #include <stdlib.h>
 #include <string.h>
 #include "mfhdf.h"
@@ -152,3 +154,5 @@ FR_Block *FR_GetBlock_HDF4(FR_File *file, char *var, int block_no){
 
   return out;
 }
+#endif // ifndef NOHDF4
+
