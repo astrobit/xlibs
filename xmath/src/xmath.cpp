@@ -476,13 +476,13 @@ void XSPLINE_DATA::Initialize(const double * i_lpdX, const double * i_lpdY, unsi
 	{
 		m_lpdSecond_Derivatites[uiI] = 2.0 * ((m_lpdY[uiI + 2] - m_lpdY[uiI+1]) / (m_lpdX[uiI + 2] - m_lpdX[uiI+1]) - (m_lpdY[uiI] - m_lpdY[uiI+1]) / (m_lpdX[uiI] - m_lpdX[uiI+1])) / (m_lpdX[uiI+2] - m_lpdX[uiI]);
 		m_lpdFirst_Derivatives[uiI] = (m_lpdY[uiI+2] - m_lpdY[uiI+1])/(m_lpdX[uiI+2] - m_lpdX[uiI+1]) - m_lpdSecond_Derivatites[uiI] * 0.5 * (m_lpdX[uiI+2] - m_lpdX[uiI+1]);
-		if (isnan(m_lpdX[uiI]) || isinf(m_lpdX[uiI]))
+		if (std::isnan(m_lpdX[uiI]) || std::isinf(m_lpdX[uiI]))
 			fprintf(stderr,"XSPLINE: X value is invalid at %i\n",uiI);
-		if (isnan(m_lpdY[uiI]) || isinf(m_lpdY[uiI]))
+		if (std::isnan(m_lpdY[uiI]) || std::isinf(m_lpdY[uiI]))
 			fprintf(stderr,"XSPLINE: Y value is invalid at %i\n",uiI);
-		if (isnan(m_lpdFirst_Derivatives[uiI]) || isinf(m_lpdFirst_Derivatives[uiI]))
+		if (std::isnan(m_lpdFirst_Derivatives[uiI]) || std::isinf(m_lpdFirst_Derivatives[uiI]))
 			fprintf(stderr,"XSPLINE: First derivative is invalid at %i\n",uiI);
-		if (isnan(m_lpdSecond_Derivatites[uiI]) || isinf(m_lpdSecond_Derivatites[uiI]))
+		if (std::isnan(m_lpdSecond_Derivatites[uiI]) || std::isinf(m_lpdSecond_Derivatites[uiI]))
 			fprintf(stderr,"XSPLINE: Second derivative is invalid at %i\n",uiI);
 	}
 }

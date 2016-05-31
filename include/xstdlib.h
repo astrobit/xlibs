@@ -1,9 +1,10 @@
 #pragma once
 #include <stdlib.h>
-#include <string.h>
+#include <cstring>
 #include <stdarg.h>
 #include <wctype.h>
 #include <wchar.h>
+#include <string>
 
 // test if a number is prime
 bool xTest_Prime(unsigned int i_uiI);
@@ -264,3 +265,38 @@ unsigned char XMax_uc(unsigned int i_uiNum_Parameters,...);
 char XMax_c(unsigned int i_uiNum_Parameters,...);
 double XMax_d(unsigned int i_uiNum_Parameters,...);
 float XMax_f(unsigned int i_uiNum_Parameters,...);
+
+
+namespace xconsole
+{
+	extern std::string foreground_black;
+	extern std::string foreground_red;
+	extern std::string foreground_green;
+	extern std::string foreground_blue;
+	extern std::string foreground_yellow;
+	extern std::string foreground_cyan;
+	extern std::string foreground_magenta;
+	extern std::string foreground_gray;
+	extern std::string foreground_grey;
+	extern std::string foreground_white;
+
+	extern std::string background_black;
+	extern std::string background_red;
+	extern std::string background_green;
+	extern std::string background_blue;
+	extern std::string background_yellow;
+	extern std::string background_cyan;
+	extern std::string background_magenta;
+	extern std::string background_gray;
+	extern std::string background_grey;
+	extern std::string background_white;
+
+	extern std::string reset;
+	extern std::string bold;
+	extern std::string faint;
+	extern std::string italic;
+	extern std::string underline;
+	extern std::string blink_slow;
+	extern std::string blink_fast;
+	extern std::string invert;
+};

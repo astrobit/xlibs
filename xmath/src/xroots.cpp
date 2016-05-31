@@ -7,15 +7,15 @@
 #include <malloc.h>
 
 #ifndef _isnan
-#define _isnan(a) isnan(a)
+#define _isnan(a) std::isnan(a)
 #endif
 
 #ifndef _isinf
-#define _isinf(a) isinf(a)
+#define _isinf(a) std::isinf(a)
 #endif
 
 #ifndef _finite
-#define _finite(a) isfinite(a)
+#define _finite(a) std::isfinite(a)
 #endif
 
 #ifndef _min

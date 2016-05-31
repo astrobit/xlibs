@@ -1,6 +1,6 @@
 #include <xfit.h>
 #include <xpolynomial.h>
-
+#include <cmath>
 
 void PolynomialFit(const XVECTOR &i_vX, const XVECTOR &i_vY, const XVECTOR &i_vWeights, unsigned int i_uiDegree, XPOLYNOMIAL & o_polyFit, XSQUARE_MATRIX &o_cCovariance_Matrix)
 {
@@ -285,7 +285,7 @@ bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QF
 						double	dDeltaAi = vDelta_A.Get(uiI);
 						double dNi = mN.Get(uiI,uiI);
 						double	doAi = DBL_MAX;
-						if (dNi > 0.0 && !isnan(dNi) && !isinf(dNi))
+						if (dNi > 0.0 && !std::isnan(dNi) && !std::isinf(dNi))
 							doAi = sqrt(dNi);
 						frexp(dAi,&iE_A);
 						frexp(dDeltaAi,&iE_dA);
@@ -653,7 +653,7 @@ bool XFIT_Simplex_Roll(XVECTOR * io_lpvCurrent_Parameters, unsigned int i_uiNum_
 		if (!i_bQuiet)
 			printf("\t%e",dFit);
 
-		if (!isnan(dFit) && dFit < io_lpdChi_Squared_Fits[uiChange_Idx])
+		if (!std::isnan(dFit) && dFit < io_lpdChi_Squared_Fits[uiChange_Idx])
 		{
 			bImproved = true;
 			uiLast_Improved_Count = 0;
@@ -704,7 +704,7 @@ bool XFIT_Simplex_Scale_Individual(XVECTOR * io_lpvCurrent_Parameters, unsigned 
 		dFit = i_lpfvChi_Squared_Function(g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiI], i_lpvData);
 		if (!i_bQuiet)
 			printf("\t%e",dFit);
-		if (!isnan(dFit) && dFit < io_lpdChi_Squared_Fits[uiI])
+		if (!std::isnan(dFit) && dFit < io_lpdChi_Squared_Fits[uiI])
 		{
 			io_lpvCurrent_Parameters[uiI] = g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiI];
 			io_lpdChi_Squared_Fits[uiI] = dFit;
@@ -752,10 +752,10 @@ bool XFIT_Simplex_Scale(XVECTOR * io_lpvCurrent_Parameters, unsigned int i_uiNum
 		lpdNew_Chi_Squared_Fits[uiI] = i_lpfvChi_Squared_Function(lpvNew_Parameters[uiI], i_lpvData);
 		if (!i_bQuiet)
 			printf("\t%e",lpdNew_Chi_Squared_Fits[uiI]);
-		bImproved |= (!isnan(lpdNew_Chi_Squared_Fits[uiI]) && lpdNew_Chi_Squared_Fits[uiI] < io_lpdChi_Squared_Fits[uiI]);
+		bImproved |= (!std::isnan(lpdNew_Chi_Squared_Fits[uiI]) && lpdNew_Chi_Squared_Fits[uiI] < io_lpdChi_Squared_Fits[uiI]);
 		if (!i_bQuiet)
 		{
-			if (!isnan(lpdNew_Chi_Squared_Fits[uiI]) && lpdNew_Chi_Squared_Fits[uiI] < io_lpdChi_Squared_Fits[uiI])
+			if (!std::isnan(lpdNew_Chi_Squared_Fits[uiI]) && lpdNew_Chi_Squared_Fits[uiI] < io_lpdChi_Squared_Fits[uiI])
 				printf("\tI");
 			printf("\n");
 		}
@@ -764,7 +764,7 @@ bool XFIT_Simplex_Scale(XVECTOR * io_lpvCurrent_Parameters, unsigned int i_uiNum
 	{
 		for (unsigned int uiI = 0; uiI < i_uiNum_Parameters + 1; uiI++)
 		{
-			if (!isnan(lpdNew_Chi_Squared_Fits[uiI]))
+			if (!std::isnan(lpdNew_Chi_Squared_Fits[uiI]))
 			{
 				io_lpvCurrent_Parameters[uiI] = lpvNew_Parameters[uiI];
 				io_lpdChi_Squared_Fits[uiI] = lpdNew_Chi_Squared_Fits[uiI];

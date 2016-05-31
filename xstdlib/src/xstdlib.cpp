@@ -5,6 +5,39 @@
 #include <string>
 #include <unistd.h>
 
+
+std::string xconsole::foreground_black		= "\033[30m";
+std::string xconsole::foreground_red		= "\033[31m";
+std::string xconsole::foreground_green		= "\033[32m";
+std::string xconsole::foreground_blue		= "\033[34m";
+std::string xconsole::foreground_yellow		= "\033[33m";
+std::string xconsole::foreground_cyan 		= "\033[36m";
+std::string xconsole::foreground_magenta	= "\033[35m";
+std::string xconsole::foreground_gray		= "\033[37m";
+std::string xconsole::foreground_grey		= "\033[37m";
+std::string xconsole::foreground_white		= "\033[37m";
+
+std::string xconsole::background_black		= "\033[40m";
+std::string xconsole::background_red		= "\033[41m";
+std::string xconsole::background_green		= "\033[42m";
+std::string xconsole::background_blue		= "\033[44m";
+std::string xconsole::background_yellow		= "\033[43m";
+std::string xconsole::background_cyan 		= "\033[46m";
+std::string xconsole::background_magenta	= "\033[45m";
+std::string xconsole::background_gray		= "\033[47m";
+std::string xconsole::background_grey		= "\033[47m";
+std::string xconsole::background_white		= "\033[47m";
+
+std::string xconsole::reset					= "\033[0m";
+std::string xconsole::bold					= "\033[1m";
+std::string xconsole::faint					= "\033[2m";
+std::string xconsole::italic				= "\033[3m";
+std::string xconsole::underline				= "\033[4m";
+std::string xconsole::blink_slow			= "\033[5m";
+std::string xconsole::blink_fast			= "\033[6m";
+std::string xconsole::invert				= "\033[7m";
+
+
 unsigned int XRAND_get_sys_rand(void)
 {
 	unsigned int uiSeed;

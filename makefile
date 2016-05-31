@@ -1,5 +1,5 @@
 
-libs: astro math stdlib io time flash
+libs: astro math stdlib io time flash cpp
 
 all: libs xtools testing
 
@@ -10,7 +10,6 @@ MPICXX?=mpicxx
 export MPICXX
 
 astro: 
-	@echo $(MPICXX)
 	$(MAKE) -C xastro BARENAME=xastro
 
 io: 
@@ -27,6 +26,9 @@ flash:
 
 math: 
 	$(MAKE) -C xmath BARENAME=xmath
+
+cpp: 
+	$(MAKE) -C xcpp BARENAME=xcpp
 
 xtools: 
 	$(MAKE) -C xtools
@@ -46,6 +48,7 @@ clean:
 	$(MAKE) clean -C xtime BARENAME=xtime
 	$(MAKE) clean -C xflash BARENAME=xflash
 	$(MAKE) clean -C xmath BARENAME=xmath
+	$(MAKE) clean -C xcpp BARENAME=xcpp
 
 
 

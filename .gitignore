@@ -1,8 +1,13 @@
 *~
 *.o
+*.so
+*.po
 *.a
 bin/*
 obj/*
 lib/*
+*/obj/*.o
+*/obj/*.so
+*/obj/*.po
 *.log
 
