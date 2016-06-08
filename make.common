@@ -9,7 +9,9 @@ BARENAMEMPI = ${BARENAME}mpi
 LIBNAME = lib${BARENAME}
 LIBNAMEMPI = ${LIBNAME}mpi
 INCLUDES=$(wildcard $(INCDIR)/*.hpp) $(wildcard $(INCDIR)/*.h)
-
+ifdef TACC_HDF5_INC
+CXXFLAGSLCL += $(TACC_HDF5_INC)
+endif
 
 
 ifdef MPICXX
