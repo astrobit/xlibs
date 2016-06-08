@@ -10,35 +10,35 @@ MPICXX?=mpicxx
 export MPICXX
 
 astro: 
-	@if [ ! -d xastro/obj ]; then @mkdir xastro/obj; fi
+	@if [ ! -d xastro/obj ]; then mkdir xastro/obj; fi
 	$(MAKE) -C xastro BARENAME=xastro
 
 io: 
-	@if [ ! -d xio/obj ]; then @mkdir xio/obj; fi
+	@if [ ! -d xio/obj ]; then mkdir xio/obj; fi
 	$(MAKE) -C xio BARENAME=xio
 
 stdlib: 
-	@if [ ! -d xstdlib/obj ]; then @mkdir xstdlib/obj; fi
+	@if [ ! -d xstdlib/obj ]; then mkdir xstdlib/obj; fi
 	$(MAKE) -C xstdlib BARENAME=xstdlib
 
 time: 
-	@if [ ! -d xtime/obj ]; then @mkdir xtime/obj; fi
+	@if [ ! -d xtime/obj ]; then mkdir xtime/obj; fi
 	$(MAKE) -C xtime BARENAME=xtime
 
 flash: 
-	@if [ ! -d xflash/obj ]; then @mkdir xflash/obj; fi
+	@if [ ! -d xflash/obj ]; then mkdir xflash/obj; fi
 	$(MAKE) -C xflash BARENAME=xflash CXXFLAGS="-DNO_NCDF=1 -DNO_HDF4=1"
 
 math: 
-	@if [ ! -d xmath/obj ]; then @mkdir xmath/obj; fi
+	@if [ ! -d xmath/obj ]; then mkdir xmath/obj; fi
 	$(MAKE) -C xmath BARENAME=xmath
 
 cpp: 
-	@if [ ! -d xcpp/obj ]; then @mkdir xcpp/obj; fi
+	@if [ ! -d xcpp/obj ]; then mkdir xcpp/obj; fi
 	$(MAKE) -C xcpp BARENAME=xcpp
 
 xtools: 
-	@if [ ! -d xtools/obj ]; then @mkdir xtools/obj; fi
+	@if [ ! -d xtools/obj ]; then mkdir xtools/obj; fi
 	$(MAKE) -C xtools
 
 testing:
