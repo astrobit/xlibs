@@ -629,8 +629,7 @@ bool XFIT_Simplex_Roll(XVECTOR * io_lpvCurrent_Parameters, unsigned int i_uiNum_
 	{
 		uiLast_Improved_Count++;
 		// generate vector describing the centroid of remaining points
-		for (unsigned int uiJ = 0; uiJ < i_uiNum_Parameters; uiJ++)
-			vCentroid.Set(uiJ,0.0);
+		vCentroid.Zero();
 		for (unsigned int uiJ = 0; uiJ < i_uiNum_Parameters + 1; uiJ++)
 		{
 			if (uiChange_Idx != uiJ)
@@ -640,7 +639,26 @@ bool XFIT_Simplex_Roll(XVECTOR * io_lpvCurrent_Parameters, unsigned int i_uiNum_
 		vDelta = io_lpvCurrent_Parameters[uiChange_Idx] - vCentroid;
 		g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx] = vCentroid - vDelta;
 		if (XFIT_Simplex_Bounds(i_cBounds, vCentroid, g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx])) // make sure test point is not out of bounds
-			XFIT_Simplex_Planar_Test(g_cXfit_Simplex_Memory.m_lpvNew_Parameters,i_vEpsilon, uiChange_Idx); // make sure we didn't collapse the simplex
+		{
+			if (XFIT_Simplex_Planar_Test(g_cXfit_Simplex_Memory.m_lpvNew_Parameters,i_vEpsilon, uiChange_Idx)) // make sure we didn't collapse the simplex
+			{
+				for (unsigned int uiI = 0; uiI < i_uiNum_Parameters + 1; uiI++)
+				{
+					if (!i_bQuiet)
+					{
+						printf("Planar %i:",uiI);
+						for (unsigned int uiJ = 0; uiJ < g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiI].Get_Size(); uiJ++)
+							printf("\t%f",g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiI].Get(uiJ));
+					}
+					io_lpdChi_Squared_Fits[uiI] = i_lpfvChi_Squared_Function(g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiI], i_lpvData);
+					if (!i_bQuiet)
+					{
+						printf("\t%e",io_lpdChi_Squared_Fits[uiI]);
+						printf("\n");
+					}
+				}
+			}
+		}
 
 		// Find chi^2 at test point
 		if (!i_bQuiet)
@@ -694,7 +712,24 @@ bool XFIT_Simplex_Scale_Individual(XVECTOR * io_lpvCurrent_Parameters, unsigned 
 		vDelta = io_lpvCurrent_Parameters[uiI] - vCentroid;
 		g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiI] = vCentroid + vDelta * i_dScaling_Factor;
 		if (XFIT_Simplex_Bounds(i_cBounds, vCentroid, g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiI])) // make sure test point is not out of bounds
-			XFIT_Simplex_Planar_Test(g_cXfit_Simplex_Memory.m_lpvNew_Parameters,i_vEpsilon, uiI); // make sure we didn't collapse the simplex
+			if (XFIT_Simplex_Planar_Test(g_cXfit_Simplex_Memory.m_lpvNew_Parameters,i_vEpsilon, uiI)) // make sure we didn't collapse the simplex
+			{
+				for (unsigned int uiI = 0; uiI < i_uiNum_Parameters + 1; uiI++)
+				{
+					if (!i_bQuiet)
+					{
+						printf("Planar %i:",uiI);
+						for (unsigned int uiJ = 0; uiJ < g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiI].Get_Size(); uiJ++)
+							printf("\t%f",g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiI].Get(uiJ));
+					}
+					io_lpdChi_Squared_Fits[uiI] = i_lpfvChi_Squared_Function(g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiI], i_lpvData);
+					if (!i_bQuiet)
+					{
+						printf("\t%e",io_lpdChi_Squared_Fits[uiI]);
+						printf("\n");
+					}
+				}
+			}
 		if (!i_bQuiet)
 		{
 			printf("Trying %i:",uiI);
@@ -742,7 +777,24 @@ bool XFIT_Simplex_Scale(XVECTOR * io_lpvCurrent_Parameters, unsigned int i_uiNum
 		vDelta = io_lpvCurrent_Parameters[uiI] - vCentroid;
 		lpvNew_Parameters[uiI] = vCentroid + vDelta * i_dScaling_Factor;
 		if (XFIT_Simplex_Bounds(i_cBounds, vCentroid, lpvNew_Parameters[uiI])) // make sure test point is not out of bounds
-			XFIT_Simplex_Planar_Test(lpvNew_Parameters,i_vEpsilon, uiI); // make sure we didn't collapse the simplex
+			if (XFIT_Simplex_Planar_Test(lpvNew_Parameters,i_vEpsilon, uiI)) // make sure we didn't collapse the simplex
+			{
+				for (unsigned int uiI = 0; uiI < i_uiNum_Parameters + 1; uiI++)
+				{
+					if (!i_bQuiet)
+					{
+						printf("Planar %i:",uiI);
+						for (unsigned int uiJ = 0; uiJ < lpvNew_Parameters[uiI].Get_Size(); uiJ++)
+							printf("\t%f",lpvNew_Parameters[uiI].Get(uiJ));
+					}
+					lpdNew_Chi_Squared_Fits[uiI] = i_lpfvChi_Squared_Function(lpvNew_Parameters[uiI], i_lpvData);
+					if (!i_bQuiet)
+					{
+						printf("\t%e",io_lpdChi_Squared_Fits[uiI]);
+						printf("\n");
+					}
+				}
+			}
 		if (!i_bQuiet)
 		{
 			printf("Trying %i:",uiI);
@@ -838,8 +890,13 @@ void XFIT_Simplex(XVECTOR & io_vParameters, const XVECTOR & i_vParameters_Range_
 //	unsigned int uiLast_Worst_Point_Counter = 0;
 	// "roll" the simplex around until no reflections cause a improved fit
 
-	XFIT_Simplex_Roll(lpvCurrent_Parameters, uiNum_Parameters, lpdChi_Squared_Fits, i_vEpsilon, i_lpfvChi_Squared_Function, i_lpvData, cBounds, i_bQuiet);
-	unsigned int uiRoll_Fail = 0;
+	do 
+	{
+		XFIT_Simplex_Roll(lpvCurrent_Parameters, uiNum_Parameters, lpdChi_Squared_Fits, i_vEpsilon, i_lpfvChi_Squared_Function, i_lpvData, cBounds, i_bQuiet);
+		XFIT_Simplex_Scale(lpvCurrent_Parameters, uiNum_Parameters, lpdChi_Squared_Fits, i_vEpsilon, i_lpfvChi_Squared_Function, i_lpvData,0.5,true, cBounds,i_bQuiet);
+	} while (!XFIT_Simplex_Epsilon_Test(lpvCurrent_Parameters, i_vEpsilon));
+
+/*	unsigned int uiRoll_Fail = 0;
 	unsigned int uiDouble_Count = 0;
 	do
 	{
@@ -863,7 +920,7 @@ void XFIT_Simplex(XVECTOR & io_vParameters, const XVECTOR & i_vParameters_Range_
 			XFIT_Simplex_Scale(lpvCurrent_Parameters, uiNum_Parameters, lpdChi_Squared_Fits, i_vEpsilon, i_lpfvChi_Squared_Function, i_lpvData,dScalar,true, cBounds, i_bQuiet);
 			uiRoll_Fail = 0;
 		}
-	} while (!XFIT_Simplex_Epsilon_Test(lpvCurrent_Parameters, i_vEpsilon));
+	} while (!XFIT_Simplex_Epsilon_Test(lpvCurrent_Parameters, i_vEpsilon));*/
 	// do one more
 	XFIT_Simplex_Scale(lpvCurrent_Parameters, uiNum_Parameters, lpdChi_Squared_Fits, i_vEpsilon, i_lpfvChi_Squared_Function, i_lpvData, 0.5, true, cBounds, i_bQuiet);
 	XFIT_Simplex_Roll(lpvCurrent_Parameters, uiNum_Parameters, lpdChi_Squared_Fits, i_vEpsilon, i_lpfvChi_Squared_Function, i_lpvData, cBounds, i_bQuiet);
