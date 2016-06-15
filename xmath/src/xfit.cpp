@@ -499,7 +499,7 @@ bool XFIT_Simplex_Planar_Test(XVECTOR * io_lpvParameters, const XVECTOR & i_vEps
 			double	dDelta_Max = 0.0;
 			for (unsigned int uiI = 0; uiI < uiNum_Parameters + 1; uiI++)
 			{
-				for (unsigned int uiJ = uiI; uiJ < uiNum_Parameters + 1; uiJ++)
+				for (unsigned int uiJ = uiI + 1; uiJ < uiNum_Parameters + 1; uiJ++)
 				{
 					double	dDelta = fabs(io_lpvParameters[uiI].Get(uiK) - io_lpvParameters[uiJ].Get(uiK));
 					if (dDelta_Max < dDelta)
@@ -530,7 +530,80 @@ bool XFIT_Simplex_Planar_Test(XVECTOR * io_lpvParameters, const XVECTOR & i_vEps
 	}
 	return bChanged;
 }
+//------------------------------------------------------------------------------
+//
+// XFIT_Simplex_Planar_Hold
+//
+//------------------------------------------------------------------------------
+//
+// Goes though all vertices of the simplex, evaluates if the simplex is planar
+// in one or more 
+//
+//------------------------------------------------------------------------------
 
+void XFIT_Simplex_Planar_Hold(XVECTOR * io_lpvParameters, const XVECTOR & i_vEpsilon, std::vector<bool> & i_vbFixed_Points)
+{
+	unsigned int uiNum_Parameters = io_lpvParameters->Get_Size();
+	if (i_vbFixed_Points.size() != uiNum_Parameters + 1) 
+		i_vbFixed_Points.resize(uiNum_Parameters + 1,false);
+	std::vector<bool> vbPlanar_Paramter;
+	vbPlanar_Paramter.resize(uiNum_Parameters,false);
+	bool bReduce = false;
+	// go through list and see if any of the ranges are within epsilon of each other
+	for (unsigned int uiK = 0; uiK < uiNum_Parameters; uiK++)
+	{
+		double	dDelta_Max = 0.0;
+		double	dMin_Offset = max(min(1.0e-7,i_vEpsilon.Get(uiK)*1e-7),i_vEpsilon.Get(uiK)*1e-14);
+		for (unsigned int uiI = 0; uiI < uiNum_Parameters + 1; uiI++)
+		{
+			for (unsigned int uiJ = uiI + 1; uiJ < uiNum_Parameters + 1; uiJ++)
+			{
+				if (uiI != uiJ && !i_vbFixed_Points[uiI] && !i_vbFixed_Points[uiJ])
+				{
+					double	dDelta = fabs(io_lpvParameters[uiI].Get(uiK) - io_lpvParameters[uiJ].Get(uiK));
+					if (dDelta_Max < dDelta)
+						dDelta_Max = dDelta;
+				}
+			}
+		}
+		vbPlanar_Paramter[uiK] = (dDelta_Max < dMin_Offset);
+		bReduce |= (dDelta_Max < dMin_Offset);
+	}
+	if (bReduce) // there is at least one parameter in which the simplex has reduced to a plane
+	{
+		std::vector<bool> vbHasMinMax;
+		vbHasMinMax.resize(uiNum_Parameters + 1,false);
+		// go through each parameter and determine what the max and min values are of each parameter other than those that are planar
+		for (unsigned int uiK = 0; uiK < uiNum_Parameters; uiK++)
+		{
+			if (!vbPlanar_Paramter[uiK])
+			{
+				double dMin = DBL_MAX;
+				double dMax = DBL_MIN;
+				// first find the min and max
+				for (unsigned int uiJ = 0; uiJ < uiNum_Parameters + 1; uiJ++)
+				{
+					if (io_lpvParameters[uiJ][uiK] < dMin)
+						dMin = io_lpvParameters[uiJ][uiK];
+					if (io_lpvParameters[uiJ][uiK] > dMax)
+						dMax = io_lpvParameters[uiJ][uiK];
+				}
+				// for each parameter, flag vertices that have a minimum or maximum of any parameter
+				for (unsigned int uiJ = 0; uiJ < uiNum_Parameters + 1; uiJ++)
+				{
+					if (io_lpvParameters[uiJ][uiK] == dMin || io_lpvParameters[uiJ][uiK] == dMax)
+						vbHasMinMax[uiJ] = true;
+				}
+			}
+		}
+		// for any vertex that has a maximum or minimum in the non-planar parameters, continue adjusting that paramter, otherwise
+		// flag it as a static vertex - it is effectively interior to the other vertices
+		for (unsigned int uiK = 0; uiK < uiNum_Parameters + 1; uiK++)
+		{
+			i_vbFixed_Points[uiK] = !vbHasMinMax[uiK];
+		}
+	}
+}
 XFIT_SIMPLEX_MEMORY	g_cXfit_Simplex_Memory;
 
 class XFIT_SIMPLEX_BOUNDS
@@ -625,66 +698,64 @@ bool XFIT_Simplex_Roll(XVECTOR * io_lpvCurrent_Parameters, unsigned int i_uiNum_
 //	unsigned int uiLast_Idx = 0;
 	unsigned int uiLast_Improved_Count = 0;
 	unsigned int uiChange_Idx = 0;
-	while (uiLast_Improved_Count < (i_uiNum_Parameters + 1))
+	std::vector<bool> vbFixed_Points;
+	bool	bAll_Fixed = false;
+	while (!bAll_Fixed && uiLast_Improved_Count < (i_uiNum_Parameters + 1))
 	{
 		uiLast_Improved_Count++;
-		// generate vector describing the centroid of remaining points
-		vCentroid.Zero();
-		for (unsigned int uiJ = 0; uiJ < i_uiNum_Parameters + 1; uiJ++)
+		XFIT_Simplex_Planar_Hold(g_cXfit_Simplex_Memory.m_lpvNew_Parameters,i_vEpsilon,vbFixed_Points);
+		if (!vbFixed_Points[uiChange_Idx])
 		{
-			if (uiChange_Idx != uiJ)
-				vCentroid += io_lpvCurrent_Parameters[uiJ];
-		}
-		vCentroid /= (double)i_uiNum_Parameters;
-		vDelta = io_lpvCurrent_Parameters[uiChange_Idx] - vCentroid;
-		g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx] = vCentroid - vDelta;
-		if (XFIT_Simplex_Bounds(i_cBounds, vCentroid, g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx])) // make sure test point is not out of bounds
-		{
-			if (XFIT_Simplex_Planar_Test(g_cXfit_Simplex_Memory.m_lpvNew_Parameters,i_vEpsilon, uiChange_Idx)) // make sure we didn't collapse the simplex
+			// generate vector describing the centroid of remaining points
+			vCentroid.Zero();
+			unsigned int uiCentroid_Count = 0;
+			for (unsigned int uiJ = 0; uiJ < i_uiNum_Parameters + 1; uiJ++)
 			{
-				for (unsigned int uiI = 0; uiI < i_uiNum_Parameters + 1; uiI++)
+				if (uiChange_Idx != uiJ && !vbFixed_Points[uiJ])
 				{
-					if (!i_bQuiet)
-					{
-						printf("Planar %i:",uiI);
-						for (unsigned int uiJ = 0; uiJ < g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiI].Get_Size(); uiJ++)
-							printf("\t%f",g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiI].Get(uiJ));
-					}
-					io_lpdChi_Squared_Fits[uiI] = i_lpfvChi_Squared_Function(g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiI], i_lpvData);
-					if (!i_bQuiet)
-					{
-						printf("\t%e",io_lpdChi_Squared_Fits[uiI]);
-						printf("\n");
-					}
+					uiCentroid_Count++;
+					vCentroid += io_lpvCurrent_Parameters[uiJ];
 				}
 			}
-		}
+			vCentroid /= (double)uiCentroid_Count;
+			vDelta = io_lpvCurrent_Parameters[uiChange_Idx] - vCentroid;
+			g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx] = vCentroid - vDelta;
+			if (XFIT_Simplex_Bounds(i_cBounds, vCentroid, g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx])) // make sure test point is not out of bounds
+			{
+				XFIT_Simplex_Planar_Hold(g_cXfit_Simplex_Memory.m_lpvNew_Parameters,i_vEpsilon,vbFixed_Points);
+			}
 
-		// Find chi^2 at test point
-		if (!i_bQuiet)
-		{
-			printf("Trying %i:",uiChange_Idx);
-			for (unsigned int uiJ = 0; uiJ < g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx].Get_Size(); uiJ++)
-				printf("\t%f",g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx].Get(uiJ));
-		}
-		double dFit = i_lpfvChi_Squared_Function(g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx], i_lpvData);
-		if (!i_bQuiet)
-			printf("\t%e",dFit);
+			if (!vbFixed_Points[uiChange_Idx])
+			{
+				// Find chi^2 at test point
+				if (!i_bQuiet)
+				{
+					printf("Trying %i:",uiChange_Idx);
+					for (unsigned int uiJ = 0; uiJ < g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx].Get_Size(); uiJ++)
+						printf("\t%f",g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx].Get(uiJ));
+				}
+				double dFit = i_lpfvChi_Squared_Function(g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx], i_lpvData);
+				if (!i_bQuiet)
+					printf("\t%e",dFit);
 
-		if (!std::isnan(dFit) && dFit < io_lpdChi_Squared_Fits[uiChange_Idx])
-		{
-			bImproved = true;
-			uiLast_Improved_Count = 0;
-			io_lpdChi_Squared_Fits[uiChange_Idx] = dFit;
-			io_lpvCurrent_Parameters[uiChange_Idx] = g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx];
-			if (!i_bQuiet)
-				printf("\tI");
+				if (!std::isnan(dFit) && dFit < io_lpdChi_Squared_Fits[uiChange_Idx])
+				{
+					bImproved = true;
+					uiLast_Improved_Count = 0;
+					io_lpdChi_Squared_Fits[uiChange_Idx] = dFit;
+					io_lpvCurrent_Parameters[uiChange_Idx] = g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx];
+					if (!i_bQuiet)
+						printf("\tI");
+				}
+				if (!i_bQuiet)
+					printf("\n");
+			}
 		}
-		if (!i_bQuiet)
-			printf("\n");
 		uiChange_Idx++;
 		if (uiChange_Idx >= i_uiNum_Parameters + 1)
 			uiChange_Idx %= i_uiNum_Parameters + 1;
+		for (unsigned int uiI = 0; uiI < vbFixed_Points.size(); uiI++)
+			bAll_Fixed |= vbFixed_Points[uiI];
 	}
 	return bImproved;
 }
