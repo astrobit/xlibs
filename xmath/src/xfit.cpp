@@ -566,11 +566,13 @@ void XFIT_Simplex_Planar_Hold(XVECTOR * io_lpvParameters, const XVECTOR & i_vEps
 				}
 			}
 		}
+//		printf("%i %f %f\n",uiK,dDelta_Max , dMin_Offset);
 		vbPlanar_Paramter[uiK] = (dDelta_Max < dMin_Offset);
 		bReduce |= (dDelta_Max < dMin_Offset);
 	}
 	if (bReduce) // there is at least one parameter in which the simplex has reduced to a plane
 	{
+//		printf("Reducing\n");
 		std::vector<bool> vbHasMinMax;
 		vbHasMinMax.resize(uiNum_Parameters + 1,false);
 		// go through each parameter and determine what the max and min values are of each parameter other than those that are planar
@@ -601,6 +603,8 @@ void XFIT_Simplex_Planar_Hold(XVECTOR * io_lpvParameters, const XVECTOR & i_vEps
 		for (unsigned int uiK = 0; uiK < uiNum_Parameters + 1; uiK++)
 		{
 			i_vbFixed_Points[uiK] = !vbHasMinMax[uiK];
+			if (!vbHasMinMax[uiK])
+				printf("%i Fixed\n",uiK);
 		}
 	}
 }
@@ -703,7 +707,7 @@ bool XFIT_Simplex_Roll(XVECTOR * io_lpvCurrent_Parameters, unsigned int i_uiNum_
 	while (!bAll_Fixed && uiLast_Improved_Count < (i_uiNum_Parameters + 1))
 	{
 		uiLast_Improved_Count++;
-		XFIT_Simplex_Planar_Hold(g_cXfit_Simplex_Memory.m_lpvNew_Parameters,i_vEpsilon,vbFixed_Points);
+		XFIT_Simplex_Planar_Hold(io_lpvCurrent_Parameters,i_vEpsilon,vbFixed_Points);
 		if (!vbFixed_Points[uiChange_Idx])
 		{
 			// generate vector describing the centroid of remaining points
@@ -754,8 +758,9 @@ bool XFIT_Simplex_Roll(XVECTOR * io_lpvCurrent_Parameters, unsigned int i_uiNum_
 		uiChange_Idx++;
 		if (uiChange_Idx >= i_uiNum_Parameters + 1)
 			uiChange_Idx %= i_uiNum_Parameters + 1;
+		bAll_Fixed = true;
 		for (unsigned int uiI = 0; uiI < vbFixed_Points.size(); uiI++)
-			bAll_Fixed |= vbFixed_Points[uiI];
+			bAll_Fixed &= vbFixed_Points[uiI];
 	}
 	return bImproved;
 }
