@@ -33,7 +33,7 @@ public:
 	XVECTOR(const std::vector<double> &i_vRHO);
 	// get size of vector
 	inline unsigned int Get_Size(void) const{return m_uiN;}
-	inline size_t size(void){return m_uiN;}
+	inline size_t size(void) const{return m_uiN;}
 	// set size of vector
 	void	Set_Size(unsigned int i_uiN);
 	// set a vector element
