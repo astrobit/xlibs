@@ -737,6 +737,7 @@ bool XFIT_Simplex_Roll(XVECTOR * io_lpvCurrent_Parameters, unsigned int i_uiNum_
 					printf("Trying %i:",uiChange_Idx);
 					for (unsigned int uiJ = 0; uiJ < g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx].Get_Size(); uiJ++)
 						printf("\t%f",g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx].Get(uiJ));
+					fflush(stdout);
 				}
 				double dFit = i_lpfvChi_Squared_Function(g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx], i_lpvData);
 				if (!i_bQuiet)
@@ -797,6 +798,7 @@ bool XFIT_Simplex_Scale_Individual(XVECTOR * io_lpvCurrent_Parameters, unsigned 
 						printf("Planar %i:",uiI);
 						for (unsigned int uiJ = 0; uiJ < g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiI].Get_Size(); uiJ++)
 							printf("\t%f",g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiI].Get(uiJ));
+						fflush(stdout);
 					}
 					io_lpdChi_Squared_Fits[uiI] = i_lpfvChi_Squared_Function(g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiI], i_lpvData);
 					if (!i_bQuiet)
@@ -811,6 +813,7 @@ bool XFIT_Simplex_Scale_Individual(XVECTOR * io_lpvCurrent_Parameters, unsigned 
 			printf("Trying %i:",uiI);
 			for (unsigned int uiJ = 0; uiJ < g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiI].Get_Size(); uiJ++)
 				printf("\t%f",g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiI].Get(uiJ));
+			fflush(stdout);
 		}
 		dFit = i_lpfvChi_Squared_Function(g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiI], i_lpvData);
 		if (!i_bQuiet)
@@ -862,6 +865,7 @@ bool XFIT_Simplex_Scale(XVECTOR * io_lpvCurrent_Parameters, unsigned int i_uiNum
 						printf("Planar %i:",uiI);
 						for (unsigned int uiJ = 0; uiJ < lpvNew_Parameters[uiI].Get_Size(); uiJ++)
 							printf("\t%f",lpvNew_Parameters[uiI].Get(uiJ));
+						fflush(stdout);
 					}
 					lpdNew_Chi_Squared_Fits[uiI] = i_lpfvChi_Squared_Function(lpvNew_Parameters[uiI], i_lpvData);
 					if (!i_bQuiet)
@@ -876,6 +880,7 @@ bool XFIT_Simplex_Scale(XVECTOR * io_lpvCurrent_Parameters, unsigned int i_uiNum
 			printf("Trying %i:",uiI);
 			for (unsigned int uiJ = 0; uiJ < lpvNew_Parameters[uiI].Get_Size(); uiJ++)
 				printf("\t%f",lpvNew_Parameters[uiI].Get(uiJ));
+			fflush(stdout);
 		}
 		lpdNew_Chi_Squared_Fits[uiI] = i_lpfvChi_Squared_Function(lpvNew_Parameters[uiI], i_lpvData);
 		if (!i_bQuiet)
@@ -938,6 +943,7 @@ void XFIT_Simplex(XVECTOR & io_vParameters, const XVECTOR & i_vParameters_Range_
 			printf("Starting %i:",uiI);
 			for (unsigned int uiJ = 0; uiJ < lpvCurrent_Parameters[uiI].Get_Size(); uiJ++)
 				printf("\t%f",lpvCurrent_Parameters[uiI].Get(uiJ));
+			fflush(stdout);
 		}
 		lpdChi_Squared_Fits[uiI] = i_lpfvChi_Squared_Function(lpvCurrent_Parameters[uiI], i_lpvData);
 		printf("\t%.2e",lpdChi_Squared_Fits[uiI]);
@@ -951,6 +957,7 @@ void XFIT_Simplex(XVECTOR & io_vParameters, const XVECTOR & i_vParameters_Range_
 		printf("Starting %i:",uiNum_Parameters);
 		for (unsigned int uiI = 0; uiI < lpvCurrent_Parameters[uiNum_Parameters].Get_Size(); uiI++)
 			printf("\t%f",lpvCurrent_Parameters[uiNum_Parameters].Get(uiI));
+		fflush(stdout);
 	}
 	lpdChi_Squared_Fits[uiNum_Parameters] = i_lpfvChi_Squared_Function(lpvCurrent_Parameters[uiNum_Parameters], i_lpvData);
 	if (!i_bQuiet)
