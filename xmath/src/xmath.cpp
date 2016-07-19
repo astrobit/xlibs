@@ -85,6 +85,72 @@ double XM_Simpsons_Integration(QFunctionD lpfFn, const double &dStart, const dou
 	return dIntegral;
 }
 
+double	g_dXMNR_Trapezoid_Res(0.0);
+double XMNR_Trapezoid(QFunctionD lpfFn, const double &i_dStart, const double &i_dEnd, unsigned int uiN, const void * i_lpvData)
+{
+	double	dDelta = (i_dEnd - i_dStart);
+	if (uiN == 1)
+		g_dXMNR_Trapezoid_Res = 0.5 * dDelta * (lpfFn(i_dStart,i_lpvData) + lpfFn(i_dEnd,i_lpvData));
+	else
+	{
+		unsigned int uiIT = 1, uiJ;
+		for (uiJ = 1; uiJ < uiN - 1; uiJ++) uiIT <<= 1;
+		double dDel = dDelta / uiIT;
+		double dX0 = i_dStart + 0.5 * dDel;
+		double dSum = 0.0;
+		for (uiJ = 0; uiJ < uiIT; uiJ++) dSum += lpfFn(dDel * uiJ + dX0,i_lpvData);
+		g_dXMNR_Trapezoid_Res = 0.5 *(g_dXMNR_Trapezoid_Res + dDelta * dSum / uiIT);
+	}
+	return g_dXMNR_Trapezoid_Res;
+}
+double XMNR_Q_Trapezoid(QFunctionD lpfFn, const double &i_dStart, const double &i_dEnd, const void * i_lpvData)
+{
+	const unsigned int JMAX = 32;
+	double dS_Last;
+	bool bQuit = false;
+	for (unsigned int uiJ = 1; uiJ < JMAX && !bQuit; uiJ++)
+	{
+		double dS = XMNR_Trapezoid(lpfFn,i_dStart,i_dEnd,uiJ,i_lpvData);
+		if (uiJ > 5)
+		{
+			if (XMATH_Delta_Threshold_Test(dS,dS - dS_Last,15)) // check for value within 0.01 %
+			{
+				bQuit = true;
+			}
+		}
+		dS_Last = dS;
+	}
+	if (!bQuit)
+		dS_Last = 0.0;
+	return dS_Last;
+}
+
+double XM_Simpsons_Integration_Fast(QFunctionD lpfFn, const double &i_dStart, const double &i_dEnd, const void * i_lpvData)
+{
+	const unsigned int JMAX = 32;
+	double	dSt_Last(0.0);
+	double	dS_Last(0.0);
+	double	dS;
+	bool bQuit = false;
+	for (unsigned int uiJ = 1; uiJ <= JMAX && !bQuit; uiJ++)
+	{
+		double	dSt = XMNR_Trapezoid(lpfFn,i_dStart,i_dEnd,uiJ, i_lpvData);
+		dS = (4.0 * dSt - dSt_Last) / 3.0;
+		if (uiJ > 10)
+		{
+			if (XMATH_Delta_Threshold_Test(dS,dS - dS_Last,15)) // check for value within 0.01 %
+			{
+				bQuit = true;
+			}
+		}
+		dSt_Last = dSt;
+		dS_Last = dS;
+	}
+	if (!bQuit)
+		dS_Last = 0.0;
+	return dS_Last;
+}
+
 XCOMPLEX	g_XMNR_Trapezoid_Res(0.0,0.0);
 XCOMPLEX XMNR_Trapezoid(QFunctionC lpfFn, const XCOMPLEX &xcStart, const XCOMPLEX &xcEnd, unsigned int uiN, const void * i_lpvData)
 {
