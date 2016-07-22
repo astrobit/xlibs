@@ -492,39 +492,47 @@ bool XFIT_Simplex_Planar_Test(XVECTOR * io_lpvParameters, const XVECTOR & i_vEps
 	
 	if (io_lpvParameters)
 	{
-	// Test to see if all vertices of the simplex are within epsilon of each other
+		bool bBad_Value = false;
 		unsigned int uiNum_Parameters = io_lpvParameters->Get_Size();
-		for (unsigned int uiK = 0; uiK < uiNum_Parameters; uiK++)
+		for (unsigned int uiJ = 0; uiJ < uiNum_Parameters + 1 && !bBad_Value; uiJ++)
 		{
-			double	dDelta_Max = 0.0;
-			for (unsigned int uiI = 0; uiI < uiNum_Parameters + 1; uiI++)
+			bBad_Value = (io_lpvParameters[uiJ].is_nan() || io_lpvParameters[uiJ].is_inf());
+		}
+		if (!bBad_Value)
+		{
+		// Test to see if all vertices of the simplex are within epsilon of each other
+			for (unsigned int uiK = 0; uiK < uiNum_Parameters; uiK++)
 			{
-				for (unsigned int uiJ = uiI + 1; uiJ < uiNum_Parameters + 1; uiJ++)
+				double	dDelta_Max = 0.0;
+				for (unsigned int uiI = 0; uiI < uiNum_Parameters + 1; uiI++)
 				{
-					double	dDelta = fabs(io_lpvParameters[uiI].Get(uiK) - io_lpvParameters[uiJ].Get(uiK));
-					if (dDelta_Max < dDelta)
-						dDelta_Max = dDelta;
-				}
-			}
-			double	dMin_Offset = max(min(1.0e-7,i_vEpsilon.Get(uiK)*1e-7),i_vEpsilon.Get(uiK)*1e-14);
-			if (dDelta_Max < dMin_Offset)
-			{
-				unsigned char uiI = 0;
-				if (i_uiSuggested_Change != (unsigned int)(-1))
-					uiI = i_uiSuggested_Change;
-				else if (uiNum_Parameters <= 254)
-				{
-					// randomly select a vertex to move
-					FILE * fileRand = fopen("/dev/random","rb");
-					if (fileRand) 
+					for (unsigned int uiJ = uiI + 1; uiJ < uiNum_Parameters + 1; uiJ++)
 					{
-						fread(&uiI,sizeof(unsigned char),1,fileRand);
-						fclose(fileRand);
+						double	dDelta = fabs(io_lpvParameters[uiI].Get(uiK) - io_lpvParameters[uiJ].Get(uiK));
+						if (dDelta_Max < dDelta)
+							dDelta_Max = dDelta;
 					}
-					uiI %= (uiNum_Parameters + 1);
 				}
-				io_lpvParameters[uiI].Set(uiK,io_lpvParameters[uiI].Get(uiK) + i_vEpsilon.Get(uiK));
-				bChanged = true;
+				double	dMin_Offset = max(min(1.0e-7,i_vEpsilon.Get(uiK)*1e-7),i_vEpsilon.Get(uiK)*1e-14);
+				if (dDelta_Max < dMin_Offset)
+				{
+					unsigned char uiI = 0;
+					if (i_uiSuggested_Change != (unsigned int)(-1))
+						uiI = i_uiSuggested_Change;
+					else if (uiNum_Parameters <= 254)
+					{
+						// randomly select a vertex to move
+						FILE * fileRand = fopen("/dev/random","rb");
+						if (fileRand) 
+						{
+							fread(&uiI,sizeof(unsigned char),1,fileRand);
+							fclose(fileRand);
+						}
+						uiI %= (uiNum_Parameters + 1);
+					}
+					io_lpvParameters[uiI].Set(uiK,io_lpvParameters[uiI].Get(uiK) + i_vEpsilon.Get(uiK));
+					bChanged = true;
+				}
 			}
 		}
 	}
@@ -549,62 +557,70 @@ void XFIT_Simplex_Planar_Hold(XVECTOR * io_lpvParameters, const XVECTOR & i_vEps
 	std::vector<bool> vbPlanar_Paramter;
 	vbPlanar_Paramter.resize(uiNum_Parameters,false);
 	bool bReduce = false;
-	// go through list and see if any of the ranges are within epsilon of each other
-	for (unsigned int uiK = 0; uiK < uiNum_Parameters; uiK++)
+	bool bBad_Value = false;
+	for (unsigned int uiJ = 0; uiJ < uiNum_Parameters + 1 && !bBad_Value; uiJ++)
 	{
-		double	dDelta_Max = 0.0;
-		double	dMin_Offset = max(min(1.0e-7,i_vEpsilon.Get(uiK)*1e-7),i_vEpsilon.Get(uiK)*1e-14);
-		for (unsigned int uiI = 0; uiI < uiNum_Parameters + 1; uiI++)
-		{
-			for (unsigned int uiJ = uiI + 1; uiJ < uiNum_Parameters + 1; uiJ++)
-			{
-				if (uiI != uiJ && !i_vbFixed_Points[uiI] && !i_vbFixed_Points[uiJ])
-				{
-					double	dDelta = fabs(io_lpvParameters[uiI].Get(uiK) - io_lpvParameters[uiJ].Get(uiK));
-					if (dDelta_Max < dDelta)
-						dDelta_Max = dDelta;
-				}
-			}
-		}
-//		printf("%i %f %f\n",uiK,dDelta_Max , dMin_Offset);
-		vbPlanar_Paramter[uiK] = (dDelta_Max < dMin_Offset);
-		bReduce |= (dDelta_Max < dMin_Offset);
+		bBad_Value = (io_lpvParameters[uiJ].is_nan() || io_lpvParameters[uiJ].is_inf());
 	}
-	if (bReduce) // there is at least one parameter in which the simplex has reduced to a plane
+	if (!bBad_Value)
 	{
-//		printf("Reducing\n");
-		std::vector<bool> vbHasMinMax;
-		vbHasMinMax.resize(uiNum_Parameters + 1,false);
-		// go through each parameter and determine what the max and min values are of each parameter other than those that are planar
+		// go through list and see if any of the ranges are within epsilon of each other
 		for (unsigned int uiK = 0; uiK < uiNum_Parameters; uiK++)
 		{
-			if (!vbPlanar_Paramter[uiK])
+			double	dDelta_Max = 0.0;
+			double	dMin_Offset = max(min(1.0e-7,i_vEpsilon.Get(uiK)*1e-7),i_vEpsilon.Get(uiK)*1e-14);
+			for (unsigned int uiI = 0; uiI < uiNum_Parameters + 1; uiI++)
 			{
-				double dMin = DBL_MAX;
-				double dMax = DBL_MIN;
-				// first find the min and max
-				for (unsigned int uiJ = 0; uiJ < uiNum_Parameters + 1; uiJ++)
+				for (unsigned int uiJ = uiI + 1; uiJ < uiNum_Parameters + 1; uiJ++)
 				{
-					if (io_lpvParameters[uiJ][uiK] < dMin)
-						dMin = io_lpvParameters[uiJ][uiK];
-					if (io_lpvParameters[uiJ][uiK] > dMax)
-						dMax = io_lpvParameters[uiJ][uiK];
-				}
-				// for each parameter, flag vertices that have a minimum or maximum of any parameter
-				for (unsigned int uiJ = 0; uiJ < uiNum_Parameters + 1; uiJ++)
-				{
-					if (io_lpvParameters[uiJ][uiK] == dMin || io_lpvParameters[uiJ][uiK] == dMax)
-						vbHasMinMax[uiJ] = true;
+					if (uiI != uiJ && !i_vbFixed_Points[uiI] && !i_vbFixed_Points[uiJ])
+					{
+						double	dDelta = fabs(io_lpvParameters[uiI].Get(uiK) - io_lpvParameters[uiJ].Get(uiK));
+						if (dDelta_Max < dDelta)
+							dDelta_Max = dDelta;
+					}
 				}
 			}
+	//		printf("%i %f %f\n",uiK,dDelta_Max , dMin_Offset);
+			vbPlanar_Paramter[uiK] = (dDelta_Max < dMin_Offset);
+			bReduce |= (dDelta_Max < dMin_Offset);
 		}
-		// for any vertex that has a maximum or minimum in the non-planar parameters, continue adjusting that paramter, otherwise
-		// flag it as a static vertex - it is effectively interior to the other vertices
-		for (unsigned int uiK = 0; uiK < uiNum_Parameters + 1; uiK++)
+		if (bReduce) // there is at least one parameter in which the simplex has reduced to a plane
 		{
-			i_vbFixed_Points[uiK] = !vbHasMinMax[uiK];
-			if (!vbHasMinMax[uiK])
-				printf("%i Fixed\n",uiK);
+	//		printf("Reducing\n");
+			std::vector<bool> vbHasMinMax;
+			vbHasMinMax.resize(uiNum_Parameters + 1,false);
+			// go through each parameter and determine what the max and min values are of each parameter other than those that are planar
+			for (unsigned int uiK = 0; uiK < uiNum_Parameters; uiK++)
+			{
+				if (!vbPlanar_Paramter[uiK])
+				{
+					double dMin = DBL_MAX;
+					double dMax = DBL_MIN;
+					// first find the min and max
+					for (unsigned int uiJ = 0; uiJ < uiNum_Parameters + 1; uiJ++)
+					{
+						if (io_lpvParameters[uiJ][uiK] < dMin)
+							dMin = io_lpvParameters[uiJ][uiK];
+						if (io_lpvParameters[uiJ][uiK] > dMax)
+							dMax = io_lpvParameters[uiJ][uiK];
+					}
+					// for each parameter, flag vertices that have a minimum or maximum of any parameter
+					for (unsigned int uiJ = 0; uiJ < uiNum_Parameters + 1; uiJ++)
+					{
+						if (io_lpvParameters[uiJ][uiK] == dMin || io_lpvParameters[uiJ][uiK] == dMax)
+							vbHasMinMax[uiJ] = true;
+					}
+				}
+			}
+			// for any vertex that has a maximum or minimum in the non-planar parameters, continue adjusting that paramter, otherwise
+			// flag it as a static vertex - it is effectively interior to the other vertices
+			for (unsigned int uiK = 0; uiK < uiNum_Parameters + 1; uiK++)
+			{
+				i_vbFixed_Points[uiK] = !vbHasMinMax[uiK];
+				if (!vbHasMinMax[uiK])
+					printf("%i Fixed\n",uiK);
+			}
 		}
 	}
 }
@@ -654,6 +670,27 @@ bool XFIT_Simplex_Bounds(const XFIT_SIMPLEX_BOUNDS &i_cBounds, const XVECTOR & i
 		fprintf(stderr,"XFIT_Simplex_Bounds: X vector size does not match bound vector size.\n");
 		uiError = 5;
 	}
+	bool bBad_Value = false;
+	for (unsigned int uiJ = 0; uiJ < uiSize && !bBad_Value; uiJ++)
+	{
+		bBad_Value = (i_cBounds.lpvbLower_Bounds_Valid[0][uiJ] && (std::isnan(i_cBounds.lpvLower_Bounds[0][uiJ]) || std::isinf(i_cBounds.lpvLower_Bounds[0][uiJ])));
+	}
+	if (!bBad_Value)
+	{
+		fprintf(stderr,"XFIT_Simplex_Bounds: Lower bound constains invalid value (nan or inf).\n");
+		uiError = 6;
+	}
+	bBad_Value = false;
+	for (unsigned int uiJ = 0; uiJ < uiSize && !bBad_Value; uiJ++)
+	{
+		bBad_Value = (i_cBounds.lpvbUpper_Bounds_Valid[0][uiJ] && (std::isnan(i_cBounds.lpvUpper_Bounds[0][uiJ]) || std::isinf(i_cBounds.lpvUpper_Bounds[0][uiJ])));
+	}
+	if (!bBad_Value)
+	{
+		fprintf(stderr,"XFIT_Simplex_Bounds: Upper bound constains invalid value (nan or inf).\n");
+		uiError = 7;
+	}
+
 	if (uiError == 0)
 	{
 		XVECTOR	vDelta = io_vX - i_vCentroid;
@@ -704,6 +741,7 @@ bool XFIT_Simplex_Roll(XVECTOR * io_lpvCurrent_Parameters, unsigned int i_uiNum_
 	unsigned int uiChange_Idx = 0;
 	std::vector<bool> vbFixed_Points;
 	bool	bAll_Fixed = false;
+	unsigned int uiError = 0;
 	while (!bAll_Fixed && uiLast_Improved_Count < (i_uiNum_Parameters + 1))
 	{
 		uiLast_Improved_Count++;
@@ -721,47 +759,59 @@ bool XFIT_Simplex_Roll(XVECTOR * io_lpvCurrent_Parameters, unsigned int i_uiNum_
 					vCentroid += io_lpvCurrent_Parameters[uiJ];
 				}
 			}
-			vCentroid /= (double)uiCentroid_Count;
-			vDelta = io_lpvCurrent_Parameters[uiChange_Idx] - vCentroid;
-			g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx] = vCentroid - vDelta;
-			if (XFIT_Simplex_Bounds(i_cBounds, vCentroid, g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx])) // make sure test point is not out of bounds
+			if (uiCentroid_Count != 0) // if 0, the point being processed is the last remaining point that is not fixed
 			{
-				XFIT_Simplex_Planar_Hold(g_cXfit_Simplex_Memory.m_lpvNew_Parameters,i_vEpsilon,vbFixed_Points);
-			}
-
-			if (!vbFixed_Points[uiChange_Idx])
-			{
-				// Find chi^2 at test point
-				if (!i_bQuiet)
+				vCentroid /= (double)uiCentroid_Count;
+				if (vCentroid.is_nan() || vCentroid.is_inf())
 				{
-					printf("Trying %i:",uiChange_Idx);
-					for (unsigned int uiJ = 0; uiJ < g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx].Get_Size(); uiJ++)
-						printf("\t%f",g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx].Get(uiJ));
-					fflush(stdout);
+					uiError = 1;
 				}
-				double dFit = i_lpfvChi_Squared_Function(g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx], i_lpvData);
-				if (!i_bQuiet)
-					printf("\t%e",dFit);
-
-				if (!std::isnan(dFit) && dFit < io_lpdChi_Squared_Fits[uiChange_Idx])
+				if (uiError == 0)
 				{
-					bImproved = true;
-					uiLast_Improved_Count = 0;
-					io_lpdChi_Squared_Fits[uiChange_Idx] = dFit;
-					io_lpvCurrent_Parameters[uiChange_Idx] = g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx];
+					vDelta = io_lpvCurrent_Parameters[uiChange_Idx] - vCentroid;
+					g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx] = vCentroid - vDelta;
+					if (XFIT_Simplex_Bounds(i_cBounds, vCentroid, g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx])) // make sure test point is not out of bounds
+					{
+						XFIT_Simplex_Planar_Hold(g_cXfit_Simplex_Memory.m_lpvNew_Parameters,i_vEpsilon,vbFixed_Points);
+					}
+				}
+
+				if (!vbFixed_Points[uiChange_Idx])
+				{
+					// Find chi^2 at test point
 					if (!i_bQuiet)
-						printf("\tI");
+					{
+						printf("Trying %i:",uiChange_Idx);
+						for (unsigned int uiJ = 0; uiJ < g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx].Get_Size(); uiJ++)
+							printf("\t%f",g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx].Get(uiJ));
+						fflush(stdout);
+					}
+					double dFit = i_lpfvChi_Squared_Function(g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx], i_lpvData);
+					if (!i_bQuiet)
+						printf("\t%e",dFit);
+
+					if (!std::isnan(dFit) && dFit < io_lpdChi_Squared_Fits[uiChange_Idx])
+					{
+						bImproved = true;
+						uiLast_Improved_Count = 0;
+						io_lpdChi_Squared_Fits[uiChange_Idx] = dFit;
+						io_lpvCurrent_Parameters[uiChange_Idx] = g_cXfit_Simplex_Memory.m_lpvNew_Parameters[uiChange_Idx];
+						if (!i_bQuiet)
+							printf("\tI");
+					}
+					if (!i_bQuiet)
+						printf("\n");
 				}
-				if (!i_bQuiet)
-					printf("\n");
 			}
 		}
 		uiChange_Idx++;
 		if (uiChange_Idx >= i_uiNum_Parameters + 1)
 			uiChange_Idx %= i_uiNum_Parameters + 1;
-		bAll_Fixed = true;
+		unsigned int uiFixed_Count = 0;
 		for (unsigned int uiI = 0; uiI < vbFixed_Points.size(); uiI++)
-			bAll_Fixed &= vbFixed_Points[uiI];
+			if (vbFixed_Points[uiI])
+				uiFixed_Count++;
+		bAll_Fixed = (uiFixed_Count >= (vbFixed_Points.size() - 2)); // if only one point is  not fixed, we won't be able to compute a centroid
 	}
 	return bImproved;
 }
