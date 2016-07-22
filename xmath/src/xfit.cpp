@@ -675,7 +675,7 @@ bool XFIT_Simplex_Bounds(const XFIT_SIMPLEX_BOUNDS &i_cBounds, const XVECTOR & i
 	{
 		bBad_Value = (i_cBounds.lpvbLower_Bounds_Valid[0][uiJ] && (std::isnan(i_cBounds.lpvLower_Bounds[0][uiJ]) || std::isinf(i_cBounds.lpvLower_Bounds[0][uiJ])));
 	}
-	if (!bBad_Value)
+	if (bBad_Value)
 	{
 		fprintf(stderr,"XFIT_Simplex_Bounds: Lower bound constains invalid value (nan or inf).\n");
 		uiError = 6;
@@ -685,7 +685,7 @@ bool XFIT_Simplex_Bounds(const XFIT_SIMPLEX_BOUNDS &i_cBounds, const XVECTOR & i
 	{
 		bBad_Value = (i_cBounds.lpvbUpper_Bounds_Valid[0][uiJ] && (std::isnan(i_cBounds.lpvUpper_Bounds[0][uiJ]) || std::isinf(i_cBounds.lpvUpper_Bounds[0][uiJ])));
 	}
-	if (!bBad_Value)
+	if (bBad_Value)
 	{
 		fprintf(stderr,"XFIT_Simplex_Bounds: Upper bound constains invalid value (nan or inf).\n");
 		uiError = 7;
