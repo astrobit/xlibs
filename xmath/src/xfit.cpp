@@ -718,7 +718,7 @@ bool XFIT_Simplex_Bounds(const XFIT_SIMPLEX_BOUNDS &i_cBounds, const XVECTOR & i
 					dScalar = dTest;
 			}
 		}
-		if (dScalar < 1.0)
+		if (dScalar < 1.0 && !std::isnan(dScalar) && !std::isinf(dScalar))
 		{
 			vDelta *= dScalar;
 			io_vX = i_vCentroid + vDelta;
@@ -900,57 +900,66 @@ bool XFIT_Simplex_Scale(XVECTOR * io_lpvCurrent_Parameters, unsigned int i_uiNum
 		vCentroid += io_lpvCurrent_Parameters[uiJ];
 	}
 	vCentroid /= (double)(i_uiNum_Parameters + 1);
-
-	for (unsigned int uiI = 0; uiI < i_uiNum_Parameters + 1; uiI++)
+	if (vCentroid.is_nan() || vCentroid.is_inf())
 	{
-		vDelta = io_lpvCurrent_Parameters[uiI] - vCentroid;
-		lpvNew_Parameters[uiI] = vCentroid + vDelta * i_dScaling_Factor;
-		if (XFIT_Simplex_Bounds(i_cBounds, vCentroid, lpvNew_Parameters[uiI])) // make sure test point is not out of bounds
-			if (XFIT_Simplex_Planar_Test(lpvNew_Parameters,i_vEpsilon, uiI)) // make sure we didn't collapse the simplex
-			{
-				for (unsigned int uiI = 0; uiI < i_uiNum_Parameters + 1; uiI++)
-				{
-					if (!i_bQuiet)
-					{
-						printf("Planar %i:",uiI);
-						for (unsigned int uiJ = 0; uiJ < lpvNew_Parameters[uiI].Get_Size(); uiJ++)
-							printf("\t%f",lpvNew_Parameters[uiI].Get(uiJ));
-						fflush(stdout);
-					}
-					lpdNew_Chi_Squared_Fits[uiI] = i_lpfvChi_Squared_Function(lpvNew_Parameters[uiI], i_lpvData);
-					if (!i_bQuiet)
-					{
-						printf("\t%e",io_lpdChi_Squared_Fits[uiI]);
-						printf("\n");
-					}
-				}
-			}
-		if (!i_bQuiet)
-		{
-			printf("Trying %i:",uiI);
-			for (unsigned int uiJ = 0; uiJ < lpvNew_Parameters[uiI].Get_Size(); uiJ++)
-				printf("\t%f",lpvNew_Parameters[uiI].Get(uiJ));
-			fflush(stdout);
-		}
-		lpdNew_Chi_Squared_Fits[uiI] = i_lpfvChi_Squared_Function(lpvNew_Parameters[uiI], i_lpvData);
-		if (!i_bQuiet)
-			printf("\t%e",lpdNew_Chi_Squared_Fits[uiI]);
-		bImproved |= (!std::isnan(lpdNew_Chi_Squared_Fits[uiI]) && lpdNew_Chi_Squared_Fits[uiI] < io_lpdChi_Squared_Fits[uiI]);
-		if (!i_bQuiet)
-		{
-			if (!std::isnan(lpdNew_Chi_Squared_Fits[uiI]) && lpdNew_Chi_Squared_Fits[uiI] < io_lpdChi_Squared_Fits[uiI])
-				printf("\tI");
-			printf("\n");
-		}
+		fprintf(stderr,"XFIT_Simplex_Scale: centroid is invalid.\n");
+		fflush(stderr);
 	}
-	if (bImproved || i_bForce)
+	else
 	{
 		for (unsigned int uiI = 0; uiI < i_uiNum_Parameters + 1; uiI++)
 		{
-			if (!std::isnan(lpdNew_Chi_Squared_Fits[uiI]))
+			vDelta = io_lpvCurrent_Parameters[uiI] - vCentroid;
+			lpvNew_Parameters[uiI] = vCentroid + vDelta * i_dScaling_Factor;
+			if (XFIT_Simplex_Bounds(i_cBounds, vCentroid, lpvNew_Parameters[uiI])) // make sure test point is not out of bounds
 			{
-				io_lpvCurrent_Parameters[uiI] = lpvNew_Parameters[uiI];
-				io_lpdChi_Squared_Fits[uiI] = lpdNew_Chi_Squared_Fits[uiI];
+				if (XFIT_Simplex_Planar_Test(lpvNew_Parameters,i_vEpsilon, uiI)) // make sure we didn't collapse the simplex
+				{
+					for (unsigned int uiI = 0; uiI < i_uiNum_Parameters + 1; uiI++)
+					{
+						if (!i_bQuiet)
+						{
+							printf("Planar %i:",uiI);
+							for (unsigned int uiJ = 0; uiJ < lpvNew_Parameters[uiI].Get_Size(); uiJ++)
+								printf("\t%f",lpvNew_Parameters[uiI].Get(uiJ));
+							fflush(stdout);
+						}
+						lpdNew_Chi_Squared_Fits[uiI] = i_lpfvChi_Squared_Function(lpvNew_Parameters[uiI], i_lpvData);
+						if (!i_bQuiet)
+						{
+							printf("\t%e",io_lpdChi_Squared_Fits[uiI]);
+							printf("\n");
+						}
+					}
+				}
+			}
+			if (!i_bQuiet)
+			{
+				printf("Trying %i:",uiI);
+				for (unsigned int uiJ = 0; uiJ < lpvNew_Parameters[uiI].Get_Size(); uiJ++)
+					printf("\t%f",lpvNew_Parameters[uiI].Get(uiJ));
+				fflush(stdout);
+			}
+			lpdNew_Chi_Squared_Fits[uiI] = i_lpfvChi_Squared_Function(lpvNew_Parameters[uiI], i_lpvData);
+			if (!i_bQuiet)
+				printf("\t%e",lpdNew_Chi_Squared_Fits[uiI]);
+			bImproved |= (!std::isnan(lpdNew_Chi_Squared_Fits[uiI]) && lpdNew_Chi_Squared_Fits[uiI] < io_lpdChi_Squared_Fits[uiI]);
+			if (!i_bQuiet)
+			{
+				if (!std::isnan(lpdNew_Chi_Squared_Fits[uiI]) && lpdNew_Chi_Squared_Fits[uiI] < io_lpdChi_Squared_Fits[uiI])
+					printf("\tI");
+				printf("\n");
+			}
+		}
+		if (bImproved || i_bForce)
+		{
+			for (unsigned int uiI = 0; uiI < i_uiNum_Parameters + 1; uiI++)
+			{
+				if (!std::isnan(lpdNew_Chi_Squared_Fits[uiI]))
+				{
+					io_lpvCurrent_Parameters[uiI] = lpvNew_Parameters[uiI];
+					io_lpdChi_Squared_Fits[uiI] = lpdNew_Chi_Squared_Fits[uiI];
+				}
 			}
 		}
 	}
