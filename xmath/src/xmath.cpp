@@ -482,7 +482,7 @@ double XInterpolate_CSpline(const double & i_dX, const double i_lpdX[3], const d
 	}
 	return dY;
 }
-XSPLINE_DATA::XSPLINE_DATA(void)
+void XSPLINE_DATA::Clear_pointers(void)
 {
 	m_lpdX = 
 	m_lpdY = 
@@ -493,12 +493,7 @@ XSPLINE_DATA::XSPLINE_DATA(void)
 }
 XSPLINE_DATA::XSPLINE_DATA(const XSPLINE_DATA &i_cRHO)
 {
-	m_lpdX = 
-	m_lpdY = 
-	m_lpdFirst_Derivatives = 
-	m_lpdSecond_Derivatites = NULL;
-	m_uiNum_Points = 0;
-	m_uiNum_Points_Allocated = 0;
+	Clear_pointers(); 
 	Copy(i_cRHO);
 }
 void XSPLINE_DATA::Allocate(unsigned int i_uiNum_Data_Points)
@@ -538,7 +533,52 @@ void XSPLINE_DATA::Initialize(const double * i_lpdX, const double * i_lpdY, unsi
 	unsigned int uiSizeXY = m_uiNum_Points * sizeof(double);
 	memcpy(m_lpdX,i_lpdX,uiSizeXY);
 	memcpy(m_lpdY,i_lpdY,uiSizeXY);
-	for (uiI = 0; uiI < i_uiNum_Data_Points - 2; uiI++)
+	Initialize_Derivatives();
+}
+void XSPLINE_DATA::Initialize(const std::map<double, double> &i_mddData)
+{
+	unsigned int uiI = 0;
+	Allocate(i_mddData.size());
+	for (std::map<double, double>::const_iterator iterI = i_mddData.cbegin(); iterI != i_mddData.cend(); iterI++)
+	{
+		m_lpdX[uiI] = iterI->first;
+		m_lpdY[uiI] = iterI->second;
+		uiI++;
+	}
+	Initialize_Derivatives();
+}
+void XSPLINE_DATA::Initialize(const std::vector<double> i_vdX, std::vector<double> &i_vdY)
+{
+	if (i_vdX.size() == i_vdY.size())
+	{
+		unsigned int uiI = 0;
+		Allocate(i_vdX.size());
+		for (uiI = 0; uiI < i_vdX.size(); uiI++)
+		{
+			m_lpdX[uiI] = i_vdX[uiI];
+			m_lpdY[uiI] = i_vdY[uiI];
+		}
+		Initialize_Derivatives();
+	}
+	else
+		fprintf(stderr,"XSPLINE: X and Y have different sizes in (std::vector<double>, std::vector<double>) form.\n");
+}
+void XSPLINE_DATA::Initialize(const std::vector< std::pair<double, double> > &i_vdData)
+{
+	unsigned int uiI = 0;
+	Allocate(i_vdData.size());
+	for (std::vector< std::pair<double, double> >::const_iterator iterI = i_vdData.cbegin(); iterI != i_vdData.cend(); iterI++)
+	{
+		m_lpdX[uiI] = iterI->first;
+		m_lpdY[uiI] = iterI->second;
+		uiI++;
+	}
+	Initialize_Derivatives();
+}
+
+void XSPLINE_DATA::Initialize_Derivatives(void)
+{
+	for (unsigned int uiI = 0; uiI < m_uiNum_Points - 2; uiI++)
 	{
 		m_lpdSecond_Derivatites[uiI] = 2.0 * ((m_lpdY[uiI + 2] - m_lpdY[uiI+1]) / (m_lpdX[uiI + 2] - m_lpdX[uiI+1]) - (m_lpdY[uiI] - m_lpdY[uiI+1]) / (m_lpdX[uiI] - m_lpdX[uiI+1])) / (m_lpdX[uiI+2] - m_lpdX[uiI]);
 		m_lpdFirst_Derivatives[uiI] = (m_lpdY[uiI+2] - m_lpdY[uiI+1])/(m_lpdX[uiI+2] - m_lpdX[uiI+1]) - m_lpdSecond_Derivatites[uiI] * 0.5 * (m_lpdX[uiI+2] - m_lpdX[uiI+1]);

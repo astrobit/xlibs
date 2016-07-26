@@ -3,6 +3,9 @@
 #define XMATH_VER_0_0_1_C
 #include <cmath>
 #include <cstdlib>
+#include <vector>
+#include <map>
+#include <utility>
 
 class XMATH_CONSTANTS
 {
@@ -65,13 +68,21 @@ private:
 	unsigned int	m_uiNum_Points;
 	unsigned int	m_uiNum_Points_Allocated;
 
+	void		Clear_pointers(void);
 	void		Allocate(unsigned int i_uiNum_Data_Points);
+	void		Initialize_Derivatives(void);
 	void		Copy(const XSPLINE_DATA &i_cRHO);
 public:
 	XSPLINE_DATA(const XSPLINE_DATA &i_cRHO);
-	XSPLINE_DATA(void);
+	XSPLINE_DATA(void){ Clear_pointers(); };
+	void Initialize(const std::map<double, double> &i_mddData);
+	void Initialize(const std::vector<double> i_vdX, std::vector<double> &i_vdY);
+	void Initialize(const std::vector< std::pair<double, double> > &i_vdData);
 	void Initialize(const double * i_lpdX, const double * i_lpdY, unsigned int i_uiNum_Data_Points);
-	XSPLINE_DATA(const double * i_lpdX, const double * i_lpdY, unsigned int i_uiNum_Data_Points){Initialize(i_lpdX,i_lpdY,i_uiNum_Data_Points);}
+	XSPLINE_DATA(const double * i_lpdX, const double * i_lpdY, unsigned int i_uiNum_Data_Points){Clear_pointers(); Initialize(i_lpdX,i_lpdY,i_uiNum_Data_Points);}
+	XSPLINE_DATA(const std::vector<double> i_vdX, std::vector<double> &i_vdY){Clear_pointers(); Initialize(i_vdX,i_vdY);}
+	XSPLINE_DATA(const std::vector< std::pair<double, double> > &i_vdData){Clear_pointers(); Initialize(i_vdData);}
+	XSPLINE_DATA(const std::map<double, double> &i_mddData){Clear_pointers(); Initialize(i_mddData);}
 	double Interpolate(const double &i_dX) const;
 	XSPLINE_DATA & operator =(const XSPLINE_DATA & i_cRHO);
 };
