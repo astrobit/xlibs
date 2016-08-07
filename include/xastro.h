@@ -52,6 +52,33 @@ extern	XASTRO_CONSTS	g_XASTRO;
 double	XA_Jeans_Mass(const double &i_dTemp_K, const double &i_dNumber_Density_cmm3, const double &i_dMu);
 double	XA_Jeans_Density(const double &i_dTemp_K, const double &i_dMu, const double &i_dMass_g);
 
+class calendar_date
+{
+public:
+	int m_iYear;
+	unsigned int m_uiMonth; // 1 = January
+	unsigned int m_uiDay; // 1 = 1st of Month
+	enum calendar_type {Gregorian,Julian};
+	calendar_type	m_eCalendar_Type;
+};
+
+// Julian date calculators
+// proleptic and continuual Julian calendar to JD
+double XA_JD_pJulian(int i_iYear, unsigned int i_uiMonth, unsigned int i_uiDay);
+// proleptic Gregorian calendar to JD
+double XA_JD_pGregorian(int i_iYear, unsigned int i_uiMonth, unsigned int i_uiDay);
+// Gregorian on or after 15 Oct 1582, Julian on or before 5 Oct 1582
+double XA_JD(int i_iYear, unsigned int i_uiMonth, unsigned int i_uiDay);
+double XA_JD(calendar_date & i_cDate);
+// Modified Julian dates
+double XA_MJD(int i_iYear, unsigned int i_uiMonth, unsigned int i_uiDay);
+double XA_MJD(calendar_date & i_cDate);
+// Truncated Julian dates
+double XA_TJD(int i_iYear, unsigned int i_uiMonth, unsigned int i_uiDay);
+double XA_TJD(calendar_date & i_cDate);
+
+
+
 double XA_Compute_Magnitude(const double & i_dFlux, const double & i_dReference_Flux, const double & i_dReference_Magnitude);
 
 
