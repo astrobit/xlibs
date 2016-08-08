@@ -60,6 +60,14 @@ public:
 	unsigned int m_uiDay; // 1 = 1st of Month
 	enum calendar_type {Gregorian,Julian};
 	calendar_type	m_eCalendar_Type;
+
+	calendar_date(void)
+	{
+		m_iYear = 2000;
+		m_uiMonth = 1;
+		m_uiDay = 1;
+		m_eCalendar_Type = Gregorian;
+	}
 };
 
 // Julian date calculators
