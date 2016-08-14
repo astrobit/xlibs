@@ -8,7 +8,7 @@ XIODEP := $(LIBDIR)/libxio.a $(INCDIR)/xio.h
 XSTDLIBDEP := $(LIBDIR)/libxstdlib.a $(INCDIR)/xstdlib.h
 XSTDLIBDEP := $(LIBDIR)/libxcpp.a $(INCDIR)/xcpp.h
 
-all: xdatasettocsv xdatasetget xgenwiki
+all: xdatasettocsv xdatasetget xgenwiki textcol
 
 
 $(BINDIR)/xdatasettocsv: $(SRCDIR)/xdatasettocsv.cpp $(XSTDLIBDEP) $(XIODEP)
@@ -22,4 +22,8 @@ xdatasetget: $(BINDIR)/xdatasetget
 $(BINDIR)/xgenwiki: $(SRCDIR)/xgenwiki.cpp
 	$(CXX) $(CXXFLAGSLCL) $(SRCDIR)/xgenwiki.cpp -lxcpp -o $(BINDIR)/xgenwiki
 xgenwiki: $(BINDIR)/xgenwiki
- 
+
+$(BINDIR)/textcol: $(SRCDIR)/textcolumize.cpp
+	$(CXX) $(CXXFLAGSLCL) $(SRCDIR)/textcolumize.cpp -o $(BINDIR)/textcol
+textcol: $(BINDIR)/textcol
+
