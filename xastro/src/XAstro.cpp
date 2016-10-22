@@ -115,3 +115,12 @@ double XA_Compute_Magnitude(const double & i_dFlux, const double & i_dReference_
 	return 2.5 * log10(i_dReference_Flux / i_dFlux) + i_dReference_Magnitude;
 }
 
+double XA_Planck_Photon_Flux(const double & i_dX, const void * i_lpvData)
+{
+	double dTemperature = ((double *)i_lpvData)[0];
+
+	double dPlanck_Coeff = 2.0 * g_XASTRO.k_dpi * g_XASTRO.k_dc / (i_dX * i_dX * i_dX * i_dX);
+	double dExp = 1.0 / (exp(g_XASTRO.k_dhc / g_XASTRO.k_dKb / dTemperature / i_dX) - 1.0);
+	return (dPlanck_Coeff * dExp);
+}
+

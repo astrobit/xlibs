@@ -88,6 +88,8 @@ double XA_TJD(calendar_date & i_cDate);
 
 
 double XA_Compute_Magnitude(const double & i_dFlux, const double & i_dReference_Flux, const double & i_dReference_Magnitude);
+double XA_Planck_Photon_Flux(const double & i_dWavelength_cm, const void * i_lpvTemperature); // Blackbody photon specific flux [s^{-1} cm^{-1}]. Second paramter is blackbody temperature, passed as a void pointer (for easier use with XM_Simpsons_Integration).
+
 
 
 class XASTRO_FILTER
