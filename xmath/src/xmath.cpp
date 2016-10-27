@@ -58,6 +58,7 @@ XCOMPLEX XM_Simpsons_Integration(QFunctionC lpfFn, const XCOMPLEX &xcStart, cons
 
 	
 	xcIntegral = lpfFn(xcStart,i_lpvData) + lpfFn(xcEnd,i_lpvData);
+//#pragma omp parallel for reduction(+:xcIntegral)
 	for (unsigned int uiIndex = 1; uiIndex < uiNumSteps; uiIndex++)
 	{
 		XCOMPLEX	xcX = xcStart + xcStep * uiIndex;
@@ -75,6 +76,7 @@ double XM_Simpsons_Integration(QFunctionD lpfFn, const double &dStart, const dou
 
 	
 	dIntegral = lpfFn(dStart,i_lpvData) + lpfFn(dEnd,i_lpvData);
+#pragma omp parallel for reduction(+:dIntegral)
 	for (unsigned int uiIndex = 1; uiIndex < uiNumSteps; uiIndex++)
 	{
 		double	dX = dStart + dStep * uiIndex;

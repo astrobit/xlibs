@@ -11,7 +11,7 @@ xastrodep := $(LIBDIR)/libxastro.a $(INCDIR)/xastro.h $(INCDIR)/xastroion.h $(IN
 xmathdep := $(LIBDIR)/libxmath.a $(INCDIR)/xmath.h $(INCDIR)/xfit.h $(INCDIR)/xlinalg.h $(INCDIR)/xpolynomial.h $(INCDIR)/xroots.h $(INCDIR)/xstat.h
 
 
-all: xrandtest xdatasettest flashtest astroiontest
+all: xrandtest xdatasettest flashtest astroiontest mathpar
 
 $(BINDIR)/xrandtest: $(SRCDIR)/xrand_test.cpp $(xstdlibdep)
 	$(CXX) $(CXXFLAGSLCL) $(SRCDIR)/xrand_test.cpp -lxstdlib -o $(BINDIR)/xrandtest
@@ -26,7 +26,10 @@ $(BINDIR)/FLASH_1D_Test: $(SRCDIR)/FLASH_1D_Test.cpp $(xflashdep)
 flashtest: $(BINDIR)/FLASH_1D_Test
 
 $(BINDIR)/xastroiontest: $(SRCDIR)/xastroion_test.cpp $(xiodep) $(xstdlibdep)  $(xastrodep) $(xmathdep)
-	$(CXX) $(CXXFLAGSLCL) $(SRCDIR)/xastroion_test.cpp -lxstdlib -lxastro -lxio -lxmath -o $(BINDIR)/xastroiontest
+	$(CXX) $(CXXFLAGSLCL) -fopenmp $(SRCDIR)/xastroion_test.cpp -lxstdlib -lxastro -lxio -lxmath -o $(BINDIR)/xastroiontest
 astroiontest: $(BINDIR)/xastroiontest
 
+$(BINDIR)/xmathpar: $(SRCDIR)/xmath_test_parallel.cpp $(xmathdep)
+	$(CXX) $(CXXFLAGSLCL) -fopenmp $(SRCDIR)/xmath_test_parallel.cpp -lxmath -o $(BINDIR)/xmathpar
+mathpar: $(BINDIR)/xmathpar
 
