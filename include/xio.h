@@ -114,6 +114,7 @@ public:
 #endif // ifndef OPEN_MPI
 #endif // ifdef PARALLEL
 };
+typedef XDATASET_ADVANCED xdataset_advanced;
 
 class XDATASET
 {
@@ -173,6 +174,7 @@ public:
 #endif // ifndef OPEN_MPI
 #endif // ifdef PARALLEL
 };
+typedef XDATASET xdataset;
 
 class XMAP // read a file containing key values (such as "a=b")
 {
@@ -199,4 +201,5 @@ public:
 	uint64_t	Get_Value_Uint64(const std::string & i_strKey) const;
 	std::string	Get_Value_String(const std::string & i_strKey) const;
 };
+typedef XMAP xmap;
 
