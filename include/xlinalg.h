@@ -89,6 +89,7 @@ public:
 	friend class	XTRIDIAG_MATRIX;
 };
 XVECTOR operator * (const double &i_dLHO, const XVECTOR &i_vRHO);
+typedef XVECTOR	xvector;
 
 
 class XINDEX_VECTOR
@@ -141,6 +142,7 @@ public:
 	friend class	XSQUARE_MATRIX;
 	friend class	XTRIDIAG_MATRIX;
 };
+typedef XINDEX_VECTOR	xindex_vector;
 
 //----------------------------------------------------------------------------
 //
@@ -180,6 +182,7 @@ public:
 	// get tensor element
 	double	Get(const XINDEX_VECTOR & i_uivElement_Index) const;
 };
+typedef XTENSOR	xtensor;
 //----------------------------------------------------------------------------
 //
 // SQUARE_MATRIX class
@@ -296,6 +299,7 @@ public:
 	bool is_inf(void) const;
 };
 XSQUARE_MATRIX operator * (const double &i_dLHO, const XSQUARE_MATRIX &i_vRHO);
+typedef XSQUARE_MATRIX	xsquare_matrix;
 
 //----------------------------------------------------------------------------
 //
@@ -364,4 +368,5 @@ public:
 	// print the matrix to file or console
 	void	Print(FILE * fileOut = NULL);
 };
+typedef XTRIDIAG_MATRIX	xtridiag_matrix;
 
