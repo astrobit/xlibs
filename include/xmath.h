@@ -86,3 +86,5 @@ public:
 	double Interpolate(const double &i_dX) const;
 	XSPLINE_DATA & operator =(const XSPLINE_DATA & i_cRHO);
 };
+
+inline int sign(const double & i_dVal) {if (i_dVal < 0.0) return -1; else return 1;}
