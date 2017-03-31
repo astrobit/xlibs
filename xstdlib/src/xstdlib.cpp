@@ -1931,3 +1931,111 @@ char *	xGetLastWordInString(const char * i_lpszString)
 	}
 	return (char *)lpszRet;
 }
+
+xstdlib::datatype xstdlib::identify_datatype(const std::string i_szString)
+{
+	bool bInteger = true;
+	bool bFloating_Point = true;
+	bool bHex = false;
+	bool bOctal = false;
+	bool bBinary = false;
+	xstdlib::datatype eType = xstdlib::empty;
+	if (!i_szString.empty())
+	{
+		if (i_szString == "-" || i_szString == "+" || i_szString == "b" || i_szString == "B")
+		{
+			bInteger = false;
+			bFloating_Point = false;
+		}
+		else if (i_szString == "nan" || i_szString == "NAN" || i_szString == "NaN" || 
+				i_szString == "inf" || i_szString == "-inf" || i_szString == "Inf" || i_szString == "-Inf" ||
+				i_szString == "INF" || i_szString == "-INF")
+		{ // special case to handle nan and infinity - these are considered to be floating point data
+			bInteger = false;
+			bFloating_Point = true;
+		}
+		else
+		{
+			auto iterI = i_szString.begin();
+			// check for possibilty of this string containing a hexadecimal or octal number
+			if ((*iterI) == '-' || (*iterI) == '+')
+				iterI++;
+			if (iterI != i_szString.end() && ((*iterI) == 'b' || (*iterI) == 'B'))
+			{
+				bBinary = true;
+				iterI++;
+			}
+			else if (iterI != i_szString.end() && (*iterI) == '0')
+			{
+				iterI++;
+				if (iterI != i_szString.end() && ((*iterI) == 'x' || (*iterI) == 'X'))
+				{
+					bHex = true;
+					iterI++;
+				}
+				else if (iterI != i_szString.end() && ((*iterI) >= '0' && (*iterI) <= '9'))
+				{
+					bOctal = true;
+					iterI++;
+				}
+			}
+
+			char chLast = 0;
+			bool bPast_Exponent = false;
+			bool bDots = false;
+			for (; iterI != i_szString.end() && bFloating_Point; iterI++)
+			{
+				if (bBinary && (*iterI) != '0' && (*iterI) != '1')
+				{
+					bBinary = bInteger = bFloating_Point = false;
+				}
+				else if ((*iterI) < '0' || (*iterI) > '9')
+				{
+					bInteger = false; // integer must contain a number 
+					if (bHex)
+						bFloating_Point = false;
+					else if ((*iterI) == '.')
+					{
+						if (bDots || bPast_Exponent) // already encountered decimal point
+							bFloating_Point = false;
+						bDots = true;
+					}
+					else if ((*iterI) == '-' || (*iterI) == '+')
+					{
+						if (chLast != 'e' && chLast != 'E') // '-' only allowed immediate after e or E
+							bFloating_Point = false;
+					}
+					else if ((*iterI) == 'e' || (*iterI) == 'E')
+					{
+						bFloating_Point = !bPast_Exponent;
+						bPast_Exponent = true;
+					}
+					else
+						bFloating_Point = false;
+				}
+
+				chLast = (*iterI);
+			}
+		}
+
+		if (bBinary)
+			eType = xstdlib::binary;
+		else if (bHex && bInteger)
+			eType = xstdlib::hex;
+		else if (bOctal && bInteger)
+			eType = xstdlib::octal;
+		else if (bInteger)
+			eType = xstdlib::integer;
+		else if (bFloating_Point)
+			eType = xstdlib::floating_point;
+		else
+		{
+			if (i_szString == "true" || i_szString == "false" || i_szString == "TRUE" || i_szString == "FALSE" || i_szString == "True" || i_szString == "False" || i_szString == "t" || i_szString == "f" || i_szString == "T" || i_szString == "F")
+				eType = xstdlib::logical;
+			else
+				eType = xstdlib::string;
+		}
+	}
+	return eType;
+}
+

@@ -300,3 +300,9 @@ namespace xconsole
 	extern std::string blink_fast;
 	extern std::string invert;
 };
+
+namespace xstdlib
+{
+	enum datatype {empty, logical, hex, octal, binary, integer, floating_point, string};
+	datatype identify_datatype(const std::string i_szString);
+}
