@@ -75,18 +75,32 @@ void xdataset_improved::Read_Data_File(std::string i_lpszFilename, bool i_bWhite
 double xdataset_improved::Get_Element_Double(size_t i_tRow, size_t i_tColumn) const
 {
 	double dRet = nan("");
-	if (Get_Element_Type(i_tRow,i_tColumn) == xstdlib::floating_point)
+	xstdlib::datatype eType = Get_Element_Type(i_tRow,i_tColumn);
+	switch (eType)
 	{
-		std::string szElem = Get_Element(i_tRow,i_tColumn);
-		if (szElem == "inf" || szElem == "Inf" || szElem == "INF")
-			dRet = INFINITY;
-		else if (szElem == "-inf" || szElem == "-Inf" || szElem == "-INF")
+	case xstdlib::floating_point:
 		{
-			dRet = INFINITY;
-			dRet *= -1;
+			std::string szElem = Get_Element(i_tRow,i_tColumn);
+			if (szElem == "inf" || szElem == "Inf" || szElem == "INF")
+				dRet = INFINITY;
+			else if (szElem == "-inf" || szElem == "-Inf" || szElem == "-INF")
+			{
+				dRet = INFINITY;
+				dRet *= -1;
+			}
+			else if (szElem != "nan" && szElem != "NaN" && szElem != "NAN")
+				dRet = std::stod(szElem);
 		}
-		else if (szElem != "nan" && szElem != "NaN" && szElem != "NAN")
-			dRet = std::stod(szElem);
+		break;
+	case xstdlib::integer:
+	case xstdlib::octal:
+	case xstdlib::binary:
+	case xstdlib::hex:
+		dRet = Get_Element_Int(i_tRow,i_tColumn);
+		break;
+	default:
+		std::cerr << "xdataset_improved::Get_Element_Double attempt to read floating point data from non-numeric entry at (" << i_tRow << ", " << i_tColumn << ")" << std::endl;
+		break;
 	}
 	return dRet;
 }
@@ -146,6 +160,9 @@ int xdataset_improved::Get_Element_Int(size_t i_tRow, size_t i_tColumn) const
 			if (szElem == "true" || szElem == "TRUE" || szElem == "True" || szElem == "t" || szElem == "T")
 				iRet =1;
 		}
+		break;
+	default:
+		std::cerr << "xdataset_improved::Get_Element_Int attempt to read integer data from non-integer entry at (" << i_tRow << ", " << i_tColumn << ")" << std::endl;
 		break;
 	}
 	return iRet;

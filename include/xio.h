@@ -36,6 +36,7 @@ public:
 	void Parse_String(const std::string & i_szFilename, bool i_bWhitespace_Separated = false, char i_chColumn_Seperator = ',');
 
 	size_t Get_Num_Columns(void) const {return m_tMax_Cols;}
+	size_t Get_Num_Columns_of_Row(size_t i_tRow) const {size_t tRet = 0; if (i_tRow < m_vvsData.size()) tRet = m_vvsData[i_tRow].size(); return tRet;}
 	size_t Get_Num_Rows(void) const {return m_vvsData.size();}
 	bool	All_Rows_Same_Size(void) const {return m_bAll_Rows_Same_Size;}
 	std::string Get_Element(size_t i_tRow, size_t i_tColumn) const
