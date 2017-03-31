@@ -9,6 +9,90 @@
 #include <string>
 #include <map>
 #include <stdint.h>
+
+#include <vector>
+
+// xdataparse
+// used for reading matrix data of any type from a file
+
+class xdataparse
+{
+protected:
+	std::vector< std::vector< std::string> > m_vvsData;
+	std::vector< std::vector< xstdlib::datatype> > m_vvsDatatypes;
+	size_t m_tMax_Cols;
+	bool m_bAll_Rows_Same_Size;
+public:
+	xdataparse(void)
+	{
+		m_tMax_Cols = 0;
+		m_bAll_Rows_Same_Size = true;
+	}
+	xdataparse(const std::string & i_szFilename, bool i_bWhitespace_Separated = false, char i_chColumn_Seperator = ',')
+	{
+		Read_File(i_szFilename, i_bWhitespace_Separated, i_chColumn_Seperator);
+	}
+	void Read_File(const std::string & i_szFilename, bool i_bWhitespace_Separated = false, char i_chColumn_Seperator = ',');
+	void Parse_String(const std::string & i_szFilename, bool i_bWhitespace_Separated = false, char i_chColumn_Seperator = ',');
+
+	size_t Get_Num_Columns(void) const {return m_tMax_Cols;}
+	size_t Get_Num_Rows(void) const {return m_vvsData.size();}
+	bool	All_Rows_Same_Size(void) const {return m_bAll_Rows_Same_Size;}
+	std::string Get_Element(size_t i_tRow, size_t i_tColumn) const
+	{
+		std::string sRet;
+		if (i_tRow < m_vvsData.size() && i_tColumn < m_vvsData[i_tRow].size())
+			sRet = m_vvsData[i_tRow][i_tColumn];
+		return sRet;
+	}
+	xstdlib::datatype Get_Element_Type(size_t i_tRow, size_t i_tColumn) const
+	{
+		xstdlib::datatype eRet = xstdlib::empty;
+		if (i_tRow < m_vvsDatatypes.size() && i_tColumn < m_vvsDatatypes[i_tRow].size())
+			eRet = m_vvsDatatypes[i_tRow][i_tColumn];
+		return eRet;
+	}
+};
+
+class xdataset_improved : public xdataparse
+{
+private:
+	std::vector<std::vector<std::string> > m_szHeader_Lines;
+public:
+	xstdlib::datatype Get_Column_Type(size_t i_uiColumn);
+
+	void Allocate(size_t i_tNum_Rows, size_t i_tNum_Columns);
+	void Read_Data_File(std::string i_lpszFilename, bool i_bWhitespace_Separated_Columns = false, char i_chColumn_Separator = ',', size_t i_tHeader_Lines = 1);
+
+	double Get_Element_Double(size_t i_tRow, size_t i_tColumn) const;
+	int Get_Element_Int(size_t i_tRow, size_t i_tColumn) const;
+
+	void Set_Element(size_t i_tRow, size_t i_tColumn, const std::string &i_szString);
+	void Set_Element(size_t i_tRow, size_t i_tColumn, const double & i_dValue);
+	void Set_Element(size_t i_tRow, size_t i_tColumn, int i_iValue);
+	void Set_Element(size_t i_tRow, size_t i_tColumn, unsigned int i_uiValue);
+	void Set_Element(size_t i_tRow, size_t i_tColumn, bool i_bValue);
+
+	inline void Set_Header_Lines(std::vector<std::vector<std::string> > i_vvszHeader_Lines) { m_szHeader_Lines = i_vvszHeader_Lines;}
+	inline std::vector<std::vector<std::string> > Get_Header_Lines(void) const {return m_szHeader_Lines;}
+	std::string Get_Header_Line_Entry(size_t i_tRow, size_t i_tColumn) const
+	{
+		std::string szRet;
+		if (i_tRow < m_szHeader_Lines.size() && i_tColumn < m_szHeader_Lines[i_tRow].size())
+			szRet = m_szHeader_Lines[i_tRow][i_tColumn];
+		return szRet;
+	}
+
+	void Save_Data_File_CSV(const std::string & i_szFilename, char i_chColumn_Separator = ',', char i_chString_Delimiter = '\"', const std::string i_szNumberFormatString = "%.17e") const;
+	void Save_Data_File_Binary(const std::string & i_szFilename) const;
+
+
+};
+
+
+	
+
+
 //
 // XDATASET and XDATASET_ADVANCED
 // Are containers for matrix-like data (e.g. a spreadsheet)
@@ -202,4 +286,5 @@ public:
 	std::string	Get_Value_String(const std::string & i_strKey) const;
 };
 typedef XMAP xmap;
+
 
