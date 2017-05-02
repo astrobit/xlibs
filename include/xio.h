@@ -6,6 +6,8 @@
 #include <mpi.h>
 #endif // ifdef PARALLEL
 
+#include <cmath>
+
 #include <string>
 #include <map>
 #include <stdint.h>
@@ -87,6 +89,22 @@ public:
 	void Save_Data_File_CSV(const std::string & i_szFilename, char i_chColumn_Separator = ',', char i_chString_Delimiter = '\"', const std::string i_szNumberFormatString = "%.17e") const;
 	void Save_Data_File_Binary(const std::string & i_szFilename) const;
 
+	std::vector<double> operator[] (size_t i_tColumn_Index) const
+	{
+		std::vector<double> vtRet;
+		if (m_bAll_Rows_Same_Size && i_tColumn_Index < Get_Num_Columns())
+		{
+			vtRet.resize(m_vvsData.size());
+			for (size_t tI = 0; tI < m_vvsData.size(); tI++)
+			{
+				if (m_vvsDatatypes[tI][i_tColumn_Index] == xstdlib::floating_point || m_vvsDatatypes[tI][i_tColumn_Index] == xstdlib::integer)
+					vtRet[tI] = std::stod(m_vvsData[tI][i_tColumn_Index]);
+				else
+					vtRet[tI] = std::nan("");
+			}
+		}
+		return vtRet;
+	}
 
 };
 
