@@ -2,7 +2,7 @@
 #include <xlinalg.h>
 #include <xstat.h>
 
-void XMATH_Compute_Stats(const XVECTOR & i_vData, double & o_dMean, double & o_dVariance)
+void XMATH_Compute_Stats(const xvector & i_vData, double & o_dMean, double & o_dVariance)
 {
 	o_dMean = 0.0;
 	o_dVariance = 0.0;
@@ -29,8 +29,8 @@ void XMATH_Compute_Stats(const XVECTOR & i_vData, double & o_dMean, double & o_d
 // of the power are optionally output.  Returned value is the
 // power in the data set at the user specified frequency.
 //----------------------------------------------------------------------------
-double	XMATH_LombScarglePower(const double &i_dFrequency, const XVECTOR &i_vX, 
-			const XVECTOR &i_vY, XVECTOR *o_vA, XVECTOR *o_vOa)
+double	XMATH_LombScarglePower(const double &i_dFrequency, const xvector &i_vX, 
+			const xvector &i_vY, xvector *o_vA, xvector *o_vOa)
 {
 	unsigned int uiI;
 	unsigned int uiNum_Data = i_vX.Get_Size();

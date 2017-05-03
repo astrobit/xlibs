@@ -3,21 +3,21 @@
 
 // class containing an n-vector
 // default constructor
-XVECTOR::XVECTOR(void)
+xvector::xvector(void)
 {
 	m_lpdValues = NULL;
 	m_uiN = 0;
 	m_uiN_Alloc = 0;
 }
 // constructor specifying size only
-XVECTOR::XVECTOR(unsigned int i_uiN)
+xvector::xvector(unsigned int i_uiN)
 {
 	m_lpdValues = new double[i_uiN];
 	m_uiN = i_uiN;
 	m_uiN_Alloc = i_uiN;
 }
 // copy constructor
-XVECTOR::XVECTOR(const XVECTOR &i_vRHO)
+xvector::xvector(const xvector &i_vRHO)
 {
 	m_lpdValues = NULL;
 	m_uiN = 0;
@@ -25,7 +25,7 @@ XVECTOR::XVECTOR(const XVECTOR &i_vRHO)
 	Copy(i_vRHO);
 }
 // copy constructor
-XVECTOR::XVECTOR(const std::vector<double> &i_vRHO)
+xvector::xvector(const std::vector<double> &i_vRHO)
 {
 	m_lpdValues = NULL;
 	m_uiN = 0;
@@ -33,7 +33,7 @@ XVECTOR::XVECTOR(const std::vector<double> &i_vRHO)
 	Copy(i_vRHO);
 }
 	// destructor
-XVECTOR::~XVECTOR(void)
+xvector::~xvector(void)
 {
 	if (m_lpdValues)
 		delete [] m_lpdValues;
@@ -43,7 +43,7 @@ XVECTOR::~XVECTOR(void)
 }
 
 // set size of vector
-void	XVECTOR::Set_Size(unsigned int i_uiN)
+void	xvector::Set_Size(unsigned int i_uiN)
 {
 	if (i_uiN >= m_uiN_Alloc)
 	{
@@ -58,7 +58,7 @@ void	XVECTOR::Set_Size(unsigned int i_uiN)
 	memset(m_lpdValues,0,sizeof(double) * m_uiN);
 }
 // set a vector element
-void	XVECTOR::Set(unsigned int i_uiRow, const double &i_dValue)
+void	xvector::Set(unsigned int i_uiRow, const double &i_dValue)
 {
 	if (m_lpdValues && i_uiRow < m_uiN)
 	{
@@ -66,7 +66,7 @@ void	XVECTOR::Set(unsigned int i_uiRow, const double &i_dValue)
 	}
 }
 // get a vector element
-double	XVECTOR::Get(unsigned int i_uiRow) const
+double	xvector::Get(unsigned int i_uiRow) const
 {
 	double	dRet = 0.0;
 	if (m_lpdValues && i_uiRow < m_uiN)
@@ -74,7 +74,7 @@ double	XVECTOR::Get(unsigned int i_uiRow) const
 	return dRet;
 }
 // swap elements
-void	XVECTOR::Swap_Rows(unsigned int i_uiRow_1, unsigned int i_uiRow_2)
+void	xvector::Swap_Rows(unsigned int i_uiRow_1, unsigned int i_uiRow_2)
 {
 	double	dTemp;
 	if (m_lpdValues && i_uiRow_1 < m_uiN && i_uiRow_2 < m_uiN)
@@ -85,7 +85,7 @@ void	XVECTOR::Swap_Rows(unsigned int i_uiRow_1, unsigned int i_uiRow_2)
 	}
 }
 // print the matrix to file or console
-void	XVECTOR::Print(FILE * fileOut) const
+void	xvector::Print(FILE * fileOut) const
 {
 	for (unsigned int uiRow = 0; uiRow < m_uiN; uiRow++)
 	{
@@ -97,7 +97,7 @@ void	XVECTOR::Print(FILE * fileOut) const
 }
 
 // Perform dot product
-double	XVECTOR::Dot(const XVECTOR & i_vRHO) const
+double	xvector::Dot(const xvector & i_vRHO) const
 {
 	double dRet = 0.0;
 	if (m_uiN == i_vRHO.m_uiN)
@@ -109,9 +109,9 @@ double	XVECTOR::Dot(const XVECTOR & i_vRHO) const
 }
 
 // Perform Cross product
-XVECTOR XVECTOR::Cross3d(const XVECTOR & i_vRHO) const
+xvector xvector::Cross3d(const xvector & i_vRHO) const
 {
-	XVECTOR vRet;
+	xvector vRet;
 	if (m_uiN == i_vRHO.m_uiN && m_uiN == 3)
 	{
 		vRet.Set_Size(3);
@@ -122,7 +122,7 @@ XVECTOR XVECTOR::Cross3d(const XVECTOR & i_vRHO) const
 	return vRet;
 }
 
-double XVECTOR::Cross2d(const XVECTOR & i_vRHO) const
+double xvector::Cross2d(const xvector & i_vRHO) const
 {
 	double	dRet=0.0;
 	if (m_uiN == i_vRHO.m_uiN && m_uiN == 2)
@@ -133,7 +133,7 @@ double XVECTOR::Cross2d(const XVECTOR & i_vRHO) const
 }
 
 /*
-XTENSOR	XVECTOR::Cross(const XVECTOR & i_vRHO) const
+XTENSOR	xvector::Cross(const xvector & i_vRHO) const
 {
 	XTENSOR	tRet;
 	if (m_uiN == i_vRHO.m_uiN)
@@ -145,13 +145,13 @@ XTENSOR	XVECTOR::Cross(const XVECTOR & i_vRHO) const
 */
 
 // Aritmetic operations
-XVECTOR &XVECTOR::operator =(const XVECTOR &i_vRHO)
+xvector &xvector::operator =(const xvector &i_vRHO)
 {
 	Copy(i_vRHO);
 	return *this;
 }
 
-XVECTOR &XVECTOR::operator =(const std::vector<double> &i_vRHO)
+xvector &xvector::operator =(const std::vector<double> &i_vRHO)
 {
 	Copy(i_vRHO);
 //	Set_Size(i_vRHO.size());
@@ -161,9 +161,9 @@ XVECTOR &XVECTOR::operator =(const std::vector<double> &i_vRHO)
 //	}
 	return *this;
 }
-XVECTOR XVECTOR::operator +(const XVECTOR &i_vRHO) const
+xvector xvector::operator +(const xvector &i_vRHO) const
 {
-	XVECTOR	vRet;
+	xvector	vRet;
 	if (m_uiN == i_vRHO.m_uiN)
 	{
 		vRet.Set_Size(m_uiN);
@@ -174,7 +174,7 @@ XVECTOR XVECTOR::operator +(const XVECTOR &i_vRHO) const
 	}
 	return vRet;
 }
-XVECTOR &XVECTOR::operator +=(const XVECTOR &i_vRHO)
+xvector &xvector::operator +=(const xvector &i_vRHO)
 {
 	if (m_uiN == i_vRHO.m_uiN)
 	{
@@ -185,9 +185,9 @@ XVECTOR &XVECTOR::operator +=(const XVECTOR &i_vRHO)
 	}
 	return *this;
 }
-XVECTOR XVECTOR::operator -(const XVECTOR &i_vRHO) const
+xvector xvector::operator -(const xvector &i_vRHO) const
 {
-	XVECTOR	vRet;
+	xvector	vRet;
 	if (m_uiN == i_vRHO.m_uiN)
 	{
 		vRet.Set_Size(m_uiN);
@@ -198,7 +198,7 @@ XVECTOR XVECTOR::operator -(const XVECTOR &i_vRHO) const
 	}
 	return vRet;
 }
-XVECTOR &XVECTOR::operator -=(const XVECTOR &i_vRHO)
+xvector &xvector::operator -=(const xvector &i_vRHO)
 {
 	if (m_uiN == i_vRHO.m_uiN)
 	{
@@ -210,18 +210,18 @@ XVECTOR &XVECTOR::operator -=(const XVECTOR &i_vRHO)
 	return *this;
 }
 // Scalar operatations
-XVECTOR XVECTOR::operator -(void)  const
+xvector xvector::operator -(void)  const
 {
-	XVECTOR	vRet(m_uiN);
+	xvector	vRet(m_uiN);
 	for (unsigned int uiI = 0; uiI < m_uiN; uiI++)
 	{
 		vRet.m_lpdValues[uiI] = -m_lpdValues[uiI];
 	}
 	return vRet;
 }
-XVECTOR XVECTOR::operator *(const double &i_dRHO)  const
+xvector xvector::operator *(const double &i_dRHO)  const
 {
-	XVECTOR	vRet(m_uiN);
+	xvector	vRet(m_uiN);
 	for (unsigned int uiI = 0; uiI < m_uiN; uiI++)
 	{
 		vRet.m_lpdValues[uiI] = m_lpdValues[uiI] * i_dRHO;
@@ -229,7 +229,7 @@ XVECTOR XVECTOR::operator *(const double &i_dRHO)  const
 	return vRet;
 }
 
-XVECTOR &XVECTOR::operator *=(const double &i_dRHO)
+xvector &xvector::operator *=(const double &i_dRHO)
 {
 	for (unsigned int uiI = 0; uiI < m_uiN; uiI++)
 	{
@@ -237,17 +237,17 @@ XVECTOR &XVECTOR::operator *=(const double &i_dRHO)
 	}
 	return *this;
 }
-XVECTOR XVECTOR::operator /(const double &i_dRHO)  const
+xvector xvector::operator /(const double &i_dRHO)  const
 {
 	double	d1_RHO = 1. / i_dRHO;
-	XVECTOR	vRet(m_uiN);
+	xvector	vRet(m_uiN);
 	for (unsigned int uiI = 0; uiI < m_uiN; uiI++)
 	{
 		vRet.m_lpdValues[uiI] = m_lpdValues[uiI] * d1_RHO;
 	}
 	return vRet;
 }
-XVECTOR &XVECTOR::operator /=(const double &i_dRHO)
+xvector &xvector::operator /=(const double &i_dRHO)
 {
 	double	d1_RHO = 1.0 / i_dRHO;
 	for (unsigned int uiI = 0; uiI < m_uiN; uiI++)
@@ -257,7 +257,7 @@ XVECTOR &XVECTOR::operator /=(const double &i_dRHO)
 	return *this;
 }
 // Boolean operations
-bool	XVECTOR::operator==(const XVECTOR &i_vRHO)  const
+bool	xvector::operator==(const xvector &i_vRHO)  const
 {
 	bool bRet = m_uiN == i_vRHO.m_uiN;
 	for (unsigned int uiI = 0; uiI < m_uiN && bRet; uiI++)
@@ -266,7 +266,7 @@ bool	XVECTOR::operator==(const XVECTOR &i_vRHO)  const
 	}
 	return bRet;
 }
-bool	XVECTOR::operator!=(const XVECTOR &i_vRHO)  const
+bool	xvector::operator!=(const xvector &i_vRHO)  const
 {
 	bool bRet = m_uiN == i_vRHO.m_uiN;
 	for (unsigned int uiI = 0; uiI < m_uiN && bRet; uiI++)
@@ -276,7 +276,7 @@ bool	XVECTOR::operator!=(const XVECTOR &i_vRHO)  const
 	return !bRet;
 }
 
-void XVECTOR::Copy(const XVECTOR &i_vRHO)
+void xvector::Copy(const xvector &i_vRHO)
 {
 	if (m_uiN_Alloc < i_vRHO.m_uiN)
 	{
@@ -289,7 +289,7 @@ void XVECTOR::Copy(const XVECTOR &i_vRHO)
 	memcpy(m_lpdValues,i_vRHO.m_lpdValues, i_vRHO.m_uiN * sizeof(double));
 }
 
-void XVECTOR::Copy(const std::vector<double> &i_vRHO)
+void xvector::Copy(const std::vector<double> &i_vRHO)
 {
 	if (m_uiN_Alloc < i_vRHO.size())
 	{
@@ -304,15 +304,15 @@ void XVECTOR::Copy(const std::vector<double> &i_vRHO)
 
 }
 
-XVECTOR operator * (const double &i_dLHO, const XVECTOR &i_vRHO)
+xvector operator * (const double &i_dLHO, const xvector &i_vRHO)
 {
 	return i_vRHO * i_dLHO;
 }
 
 // Vector multiply: x_i = l_i * r_i
-XVECTOR	XVECTOR::Vector_Multiply(const XVECTOR & i_vRHO) const
+xvector	xvector::Vector_Multiply(const xvector & i_vRHO) const
 {
-	XVECTOR vRet;
+	xvector vRet;
 	if (m_uiN == i_vRHO.m_uiN)
 	{
 		vRet.Set_Size(m_uiN);
@@ -325,7 +325,7 @@ XVECTOR	XVECTOR::Vector_Multiply(const XVECTOR & i_vRHO) const
 }
 
 // Normalize the vector
-void XVECTOR::Normalize(void)
+void xvector::Normalize(void)
 {
 	double dMag = Magnitude();
 	if (dMag != 0.0)
@@ -338,7 +338,7 @@ void XVECTOR::Normalize(void)
 	}
 }
 // Set all elements to zero
-void XVECTOR::Zero(void)
+void xvector::Zero(void)
 {
 	if (m_lpdValues)
 	{
@@ -347,13 +347,13 @@ void XVECTOR::Zero(void)
 }
 
 // Get the magnitude of a vector
-double	XVECTOR::Magnitude(void) const
+double	xvector::Magnitude(void) const
 {
 	double	dMagSqr = Dot(*this);
 	return sqrt(dMagSqr);
 }
 
-bool XVECTOR::is_nan(void) const
+bool xvector::is_nan(void) const
 {
 	bool bRet = false;
 	for (unsigned int uiI = 0; uiI < m_uiN && !bRet; uiI++)
@@ -361,7 +361,7 @@ bool XVECTOR::is_nan(void) const
 	return bRet;
 }
 
-bool XVECTOR::is_inf(void) const
+bool xvector::is_inf(void) const
 {
 	bool bRet = false;
 	for (unsigned int uiI = 0; uiI < m_uiN && !bRet; uiI++)

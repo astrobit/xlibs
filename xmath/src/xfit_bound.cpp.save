@@ -4,9 +4,9 @@
 #include <xio.h>
 
 
-bool Convergence_Point(const XVECTOR &i_lpVector, const XVECTOR &i_cThreshold)
+bool Convergence_Point(const xvector &i_lpVector, const xvector &i_cThreshold)
 {
-	XVECTOR cTest;
+	xvector cTest;
 	bool bRet = (i_cThreshold.Get_Size() == i_lpVector.Get_Size());
 	if (!bRet)
 		fprintf(stderr,"xfit: Convergence threshold size not the same as parameter vector size!\n");
@@ -18,9 +18,9 @@ bool Convergence_Point(const XVECTOR &i_lpVector, const XVECTOR &i_cThreshold)
 	return bRet;
 }
 
-bool Convergence(const XVECTOR * i_lpVectors, unsigned int i_uiNum_Points,const XVECTOR &i_cThreshold, XVECTOR * o_lpcConvergence_Fault = NULL)
+bool Convergence(const xvector * i_lpVectors, unsigned int i_uiNum_Points,const xvector &i_cThreshold, xvector * o_lpcConvergence_Fault = NULL)
 {
-	XVECTOR cTest;
+	xvector cTest;
 	bool bRet = true;
 	for(unsigned int uiI = 0; uiI < i_uiNum_Points; uiI++)
 		bRet &= (i_cThreshold.Get_Size() == i_lpVectors[uiI].Get_Size());
@@ -44,13 +44,13 @@ bool Convergence(const XVECTOR * i_lpVectors, unsigned int i_uiNum_Points,const 
 	}
 	return bRet;
 }
-bool BoundTest(const XVECTOR & i_cTest_Point, const XVECTOR * i_lpcBounds)
+bool BoundTest(const xvector & i_cTest_Point, const xvector * i_lpcBounds)
 {
 	bool bRet;
 	bRet = (i_cTest_Point.Get_Size() == i_lpcBounds[0].Get_Size() && i_cTest_Point.Get_Size() == i_lpcBounds[1].Get_Size());
 	if (!bRet)
 		fprintf(stderr,"xfit: Bounds size not the same as test point size!\n");
-	XVECTOR cTest = i_cTest_Point - i_lpcBounds[0];
+	xvector cTest = i_cTest_Point - i_lpcBounds[0];
 	for (unsigned int uiI = 0; uiI < i_cTest_Point.Get_Size() && bRet; uiI++)
 	{
 		bRet &= (cTest.Get(uiI) >= 0.0);
@@ -63,7 +63,7 @@ bool BoundTest(const XVECTOR & i_cTest_Point, const XVECTOR * i_lpcBounds)
 	return bRet;
 }
 
-void SavePointsCache(const char * i_lpszFilename, const XVECTOR * lpvPoints, unsigned int uiNum_Points, unsigned int uiNum_Parameters, const double * lpdFit)
+void SavePointsCache(const char * i_lpszFilename, const xvector * lpvPoints, unsigned int uiNum_Points, unsigned int uiNum_Parameters, const double * lpdFit)
 {
 	if (i_lpszFilename && i_lpszFilename[0] != 0)
 	{
@@ -77,7 +77,7 @@ void SavePointsCache(const char * i_lpszFilename, const XVECTOR * lpvPoints, uns
 		cDataset.SaveDataFileBin(i_lpszFilename,true);
 	}
 }
-bool ReadPointsCache(const char * i_lpszFilename, XVECTOR * lpvPoints, unsigned int uiNum_Points, unsigned int uiNum_Parameters, double * lpdFit)
+bool ReadPointsCache(const char * i_lpszFilename, xvector * lpvPoints, unsigned int uiNum_Points, unsigned int uiNum_Parameters, double * lpdFit)
 {
 	bool	bRet = false;
 	if (i_lpszFilename && i_lpszFilename[0] != 0)
@@ -101,7 +101,7 @@ bool ReadPointsCache(const char * i_lpszFilename, XVECTOR * lpvPoints, unsigned 
 }
 
 
-void xPerform_Fit_Bound(const XVECTOR &i_vLower_Bound,const XVECTOR &i_vUpper_Bound, const XVECTOR & i_lpvFit_Threshold, QFunctionV i_fUser_Function, XVECTOR & o_vResult, void * i_lpvUser_Data, char * i_lpszCache_Filename)
+void xPerform_Fit_Bound(const xvector &i_vLower_Bound,const xvector &i_vUpper_Bound, const xvector & i_lpvFit_Threshold, QFunctionV i_fUser_Function, xvector & o_vResult, void * i_lpvUser_Data, char * i_lpszCache_Filename)
 {
 	// use the following define to set the numberr of dimensions to test - value should be # dim + 1 (e.g. 3-d = 4 points)
 	
@@ -113,17 +113,17 @@ void xPerform_Fit_Bound(const XVECTOR &i_vLower_Bound,const XVECTOR &i_vUpper_Bo
 		double	dFit_Min = DBL_MAX;
 		double	*lpdFit;
 		// define tetrahedron spanning the search space
-		XVECTOR *lpcTest_Points;
-		XVECTOR cCentroid(uiNum_Parameters);
-		XVECTOR cTestOuter(uiNum_Parameters);
-		XVECTOR cTestInner(uiNum_Parameters);
-		XVECTOR cTest(uiNum_Parameters);
-		XVECTOR cDelta(uiNum_Parameters);
+		xvector *lpcTest_Points;
+		xvector cCentroid(uiNum_Parameters);
+		xvector cTestOuter(uiNum_Parameters);
+		xvector cTestInner(uiNum_Parameters);
+		xvector cTest(uiNum_Parameters);
+		xvector cDelta(uiNum_Parameters);
 		double dTest_Fit = 0.0;
 		unsigned int uiNum_Vertices;
 
 		uiNum_Vertices = 1 << uiNum_Parameters;
-		lpcTest_Points = new XVECTOR[uiNum_Vertices];
+		lpcTest_Points = new xvector[uiNum_Vertices];
 		lpdFit = new double[uiNum_Vertices];
 
 		for (unsigned int uiI = 0; uiI < uiNum_Vertices; uiI++)
@@ -181,7 +181,7 @@ void xPerform_Fit_Bound(const XVECTOR &i_vLower_Bound,const XVECTOR &i_vUpper_Bo
 			{
 				fprintf(stdout,"_");
 				fflush(stdout);
-				XVECTOR cDelta = cTestOuter - cCentroid;
+				xvector cDelta = cTestOuter - cCentroid;
 				cDelta *= 0.5;
 				cTest = cCentroid + cDelta;
 	//			cTest.Print();
@@ -266,7 +266,7 @@ void xPerform_Fit_Bound(const XVECTOR &i_vLower_Bound,const XVECTOR &i_vUpper_Bo
 				{
 					if (uiI != uiFit_Max_Point)
 					{
-						XVECTOR cTemp = lpcTest_Points[uiI];
+						xvector cTemp = lpcTest_Points[uiI];
 	//					lpcTest_Points[uiI].Print(NULL);
 	//					cTemp.Print(NULL);
 						if (lpdFit[uiI] > 1.0)
@@ -327,7 +327,7 @@ void xPerform_Fit_Bound(const XVECTOR &i_vLower_Bound,const XVECTOR &i_vUpper_Bo
 						dFit_Sum = 0.0;
 						for (unsigned int uiI = 0; uiI < uiNum_Vertices; uiI++)
 						{
-							XVECTOR cTemp = lpcTest_Points[uiI];
+							xvector cTemp = lpcTest_Points[uiI];
 							if (lpdFit[uiI] > 1.0)
 								cTemp *= lpdFit[uiI];
 							cCentroid += cTemp;
@@ -398,7 +398,7 @@ void xPerform_Fit_Bound(const XVECTOR &i_vLower_Bound,const XVECTOR &i_vUpper_Bo
 	o_vResult = cCentroid;
 }
 
-void xPerform_Fit_Bound_Simplex(const XVECTOR &i_vLower_Bound,const XVECTOR &i_vUpper_Bound, const XVECTOR & i_lpvFit_Threshold, QFunctionV i_fUser_Function, XVECTOR & o_vResult, void * i_lpvUser_Data, char * i_lpszCache_Filename)
+void xPerform_Fit_Bound_Simplex(const xvector &i_vLower_Bound,const xvector &i_vUpper_Bound, const xvector & i_lpvFit_Threshold, QFunctionV i_fUser_Function, xvector & o_vResult, void * i_lpvUser_Data, char * i_lpszCache_Filename)
 {
 	unsigned int uiNum_Parameters = i_vLower_Bound.Get_Size();
 	if (uiNum_Parameters != i_vUpper_Bound.Get_Size() || uiNum_Parameters != i_lpvFit_Threshold.Get_Size())
@@ -409,17 +409,17 @@ void xPerform_Fit_Bound_Simplex(const XVECTOR &i_vLower_Bound,const XVECTOR &i_v
 		double	*lpdFit;
 		unsigned int uiNum_Points = uiNum_Parameters + 1;
 		// define tetrahedron spanning the search space
-		XVECTOR *lpcTest_Points;
-		XVECTOR cCentroid(uiNum_Parameters);
-		XVECTOR cTestOuter(uiNum_Parameters);
-		XVECTOR cTestInner(uiNum_Parameters);
-		XVECTOR cTest(uiNum_Parameters);
-		XVECTOR cDelta(uiNum_Parameters);
-		XVECTOR cBounds[2];
+		xvector *lpcTest_Points;
+		xvector cCentroid(uiNum_Parameters);
+		xvector cTestOuter(uiNum_Parameters);
+		xvector cTestInner(uiNum_Parameters);
+		xvector cTest(uiNum_Parameters);
+		xvector cDelta(uiNum_Parameters);
+		xvector cBounds[2];
 		double dTest_Fit = 0.0;
 		unsigned int uiNum_Vertices;
 
-		lpcTest_Points = new XVECTOR[uiNum_Points];
+		lpcTest_Points = new xvector[uiNum_Points];
 		lpdFit = new double[uiNum_Points];
 
 		if (i_lpszCache_Filename && !ReadPointsCache(i_lpszCache_Filename,lpcTest_Points,uiNum_Vertices,uiNum_Parameters,lpdFit))
@@ -500,10 +500,10 @@ void xPerform_Fit_Bound_Simplex(const XVECTOR &i_vLower_Bound,const XVECTOR &i_v
 
 				double	dMod = -0.5;
 				double	dMod_Lcl;
-				XVECTOR cDelta = lpcTest_Points[uiFit_Max_Point] - cCentroid;
-				XVECTOR cDeltaTemp;
+				xvector cDelta = lpcTest_Points[uiFit_Max_Point] - cCentroid;
+				xvector cDeltaTemp;
 				double dFit_Test;
-				XVECTOR cTest;
+				xvector cTest;
 				if (Convergence_Point(cDelta , i_lpvFit_Threshold))
 				{
 	//				fprintf(stdout,"C");

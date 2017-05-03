@@ -2,7 +2,7 @@
 #include <xpolynomial.h>
 #include <cmath>
 
-void PolynomialFit(const XVECTOR &i_vX, const XVECTOR &i_vY, const XVECTOR &i_vWeights, unsigned int i_uiDegree, XPOLYNOMIAL & o_polyFit, XSQUARE_MATRIX &o_cCovariance_Matrix)
+void PolynomialFit(const xvector &i_vX, const xvector &i_vY, const xvector &i_vWeights, unsigned int i_uiDegree, xpolynomial & o_polyFit, xsquare_matrix &o_cCovariance_Matrix)
 {
 	if (i_vX.Get_Size() == i_vY.Get_Size() && i_vX.Get_Size() == i_vWeights.Get_Size() && i_uiDegree >= 1 && i_vX.Get_Size() >= (i_uiDegree + 1))
 	{
@@ -10,10 +10,10 @@ void PolynomialFit(const XVECTOR &i_vX, const XVECTOR &i_vY, const XVECTOR &i_vW
 		unsigned int uiData_Size = i_vX.Get_Size();
 		o_polyFit.Set_Allocated_Memory(i_uiDegree);
 		o_cCovariance_Matrix.Set_Size(uiMatrix_Size);
-		XVECTOR	vParameters(uiMatrix_Size);
-		XVECTOR	vY(uiMatrix_Size);
-		XVECTOR	vWX(uiData_Size);
-		XVECTOR	vWY(uiData_Size);
+		xvector	vParameters(uiMatrix_Size);
+		xvector	vY(uiMatrix_Size);
+		xvector	vWX(uiData_Size);
+		xvector	vWY(uiData_Size);
 		for (unsigned int uiI = 0; uiI < uiMatrix_Size; uiI++)
 		{
 			vY.Set(uiI,0.0);
@@ -54,15 +54,15 @@ void PolynomialFit(const XVECTOR &i_vX, const XVECTOR &i_vY, const XVECTOR &i_vW
 	}
 }
 
-bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QFunctionDA Fit_Function, XVECTOR_FNA i_vFit_Function_dA, XVECTOR & io_vFit_Parameters, XSQUARE_MATRIX &o_cCovariance_Matrix, double &o_dSmin, unsigned int i_uiMax_Iterations, int i_iConvergence_Criterion, unsigned int *o_lpiIterations)
+bool GeneralFit(const xvector &i_cX, const xvector &i_cY,const xvector &i_cW, QFunctionDA Fit_Function, xvector_FNA i_vFit_Function_dA, xvector & io_vFit_Parameters, xsquare_matrix &o_cCovariance_Matrix, double &o_dSmin, unsigned int i_uiMax_Iterations, int i_iConvergence_Criterion, unsigned int *o_lpiIterations)
 {
 	bool			bDone = false;
 	if (i_cX.Get_Size() == i_cY.Get_Size() && i_cX.Get_Size() == i_cW.Get_Size() && io_vFit_Parameters.Get_Size() == i_vFit_Function_dA.Get_Size())
 	{
-		XSQUARE_MATRIX	mN;
-		XVECTOR			vY;
-		XVECTOR			vDelta_A;
-		XVECTOR			vA = io_vFit_Parameters;
+		xsquare_matrix	mN;
+		xvector			vY;
+		xvector			vDelta_A;
+		xvector			vA = io_vFit_Parameters;
 		unsigned int	uiI_Max = io_vFit_Parameters.Get_Size();
 		unsigned int	uiK_Max = i_cX.Get_Size();
 		unsigned int	uiIterations = 0;
@@ -172,18 +172,18 @@ bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QF
 }
 
 
-bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QFunctionVA Fit_Function, XVECTOR & io_vFit_Parameters, XSQUARE_MATRIX &o_cCovariance_Matrix, double &o_dSmin, void * io_lpvData, unsigned int i_uiMax_Iterations, int i_iConvergence_Criterion, unsigned int *o_lpiIterations, XVECTOR * o_lpvEstimated_Fit_Parameters)
+bool GeneralFit(const xvector &i_cX, const xvector &i_cY,const xvector &i_cW, QFunctionVA Fit_Function, xvector & io_vFit_Parameters, xsquare_matrix &o_cCovariance_Matrix, double &o_dSmin, void * io_lpvData, unsigned int i_uiMax_Iterations, int i_iConvergence_Criterion, unsigned int *o_lpiIterations, xvector * o_lpvEstimated_Fit_Parameters)
 {
 	bool			bDone = false;
 	if (i_cX.Get_Size() == i_cY.Get_Size() && i_cX.Get_Size() == i_cW.Get_Size())
 	{
-		XSQUARE_MATRIX	mN;
-		XSQUARE_MATRIX	mDel_N;
-		XVECTOR			vY;
-		XVECTOR			vDel_Y;
-		XVECTOR			vDelta_A;
-		XVECTOR			vA = io_vFit_Parameters;
-		XVECTOR			vF;
+		xsquare_matrix	mN;
+		xsquare_matrix	mDel_N;
+		xvector			vY;
+		xvector			vDel_Y;
+		xvector			vDelta_A;
+		xvector			vA = io_vFit_Parameters;
+		xvector			vF;
 		unsigned int	uiI_Max = io_vFit_Parameters.Get_Size();
 		unsigned int	uiK_Max = i_cX.Get_Size();
 		unsigned int	uiIterations = 0;
@@ -308,7 +308,7 @@ bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QF
 		if (bDone)
 		{
 			bDone = false;
-			XVECTOR vAsave = vA;
+			xvector vAsave = vA;
 			double dS;
 			vA += vDelta_A; // update A
 			unsigned int uiCount = 0;
@@ -377,7 +377,7 @@ bool GeneralFit(const XVECTOR &i_cX, const XVECTOR &i_cY,const XVECTOR &i_cW, QF
 }
 
 
-double	UsePolynomialFit(const double &i_dX, const XPOLYNOMIAL & o_polyFit, const XSQUARE_MATRIX &o_cCovariance_Matrix, double &o_dError)
+double	UsePolynomialFit(const double &i_dX, const xpolynomial & o_polyFit, const xsquare_matrix &o_cCovariance_Matrix, double &o_dError)
 {
 	double	dY = o_polyFit.Eval(i_dX);
 	unsigned int uiDegree = o_polyFit.GetDegree();
@@ -403,7 +403,7 @@ double	UsePolynomialFit(const double &i_dX, const XPOLYNOMIAL & o_polyFit, const
 
 
 
-bool XFIT_Simplex_Epsilon_Test(const XVECTOR * i_lpvParameters, const XVECTOR & i_vEpsilon)
+bool XFIT_Simplex_Epsilon_Test(const xvector * i_lpvParameters, const xvector & i_vEpsilon)
 {
 	bool bEpsilon = true;
 	if (i_lpvParameters)
@@ -423,8 +423,8 @@ class XFIT_SIMPLEX_MEMORY
 {
 public:
 	double	* m_lpdNew_Chi_Squared_Fits;
-	XVECTOR	* m_lpvNew_Parameters;
-	XVECTOR *	m_lpvCurrent_Parameters;
+	xvector	* m_lpvNew_Parameters;
+	xvector *	m_lpvCurrent_Parameters;
 	double *	m_lpdChi_Squared_Fits;
 //	unsigned int * m_lpuiExclusions;
 	unsigned int m_uiNum_Parameters;
@@ -471,8 +471,8 @@ public:
 		{
 			Deallocate();
 			m_lpdNew_Chi_Squared_Fits = new double[i_uiNum_Parameters + 1];
-			m_lpvNew_Parameters = new XVECTOR[i_uiNum_Parameters + 1];
-			m_lpvCurrent_Parameters = new XVECTOR[i_uiNum_Parameters + 1];
+			m_lpvNew_Parameters = new xvector[i_uiNum_Parameters + 1];
+			m_lpvCurrent_Parameters = new xvector[i_uiNum_Parameters + 1];
 			m_lpdChi_Squared_Fits = new double[i_uiNum_Parameters + 1];
 //			m_lpuiExclusions = new unsigned int [i_uiNum_Parameters + 1];
 			m_uiNum_Parameters_Allocated = i_uiNum_Parameters;
@@ -486,7 +486,7 @@ public:
 	}
 };
 
-bool XFIT_Simplex_Planar_Test(XVECTOR * io_lpvParameters, const XVECTOR & i_vEpsilon, unsigned int i_uiSuggested_Change = -1)
+bool XFIT_Simplex_Planar_Test(xvector * io_lpvParameters, const xvector & i_vEpsilon, unsigned int i_uiSuggested_Change = -1)
 {
 	bool bChanged = false;
 	
@@ -549,7 +549,7 @@ bool XFIT_Simplex_Planar_Test(XVECTOR * io_lpvParameters, const XVECTOR & i_vEps
 //
 //------------------------------------------------------------------------------
 
-void XFIT_Simplex_Planar_Hold(XVECTOR * io_lpvParameters, const XVECTOR & i_vEpsilon, std::vector<bool> & i_vbFixed_Points)
+void XFIT_Simplex_Planar_Hold(xvector * io_lpvParameters, const xvector & i_vEpsilon, std::vector<bool> & i_vbFixed_Points)
 {
 	unsigned int uiNum_Parameters = io_lpvParameters->Get_Size();
 	if (i_vbFixed_Points.size() != uiNum_Parameters + 1) 
@@ -629,13 +629,13 @@ XFIT_SIMPLEX_MEMORY	g_cXfit_Simplex_Memory;
 class XFIT_SIMPLEX_BOUNDS
 {
 public:
-	XVECTOR * lpvLower_Bounds;
+	xvector * lpvLower_Bounds;
 	std::vector<bool>	* lpvbLower_Bounds_Valid;
-	XVECTOR * lpvUpper_Bounds;
+	xvector * lpvUpper_Bounds;
 	std::vector<bool>	* lpvbUpper_Bounds_Valid;
 };
 
-bool XFIT_Simplex_Bounds(const XFIT_SIMPLEX_BOUNDS &i_cBounds, const XVECTOR & i_vCentroid, XVECTOR & io_vX)
+bool XFIT_Simplex_Bounds(const XFIT_SIMPLEX_BOUNDS &i_cBounds, const xvector & i_vCentroid, xvector & io_vX)
 {
 	bool bChange = false;
 	unsigned int uiError = 0;
@@ -693,9 +693,9 @@ bool XFIT_Simplex_Bounds(const XFIT_SIMPLEX_BOUNDS &i_cBounds, const XVECTOR & i
 
 	if (uiError == 0)
 	{
-		XVECTOR	vDelta = io_vX - i_vCentroid;
-		XVECTOR	vLB_Delta;
-		XVECTOR	vUB_Delta;
+		xvector	vDelta = io_vX - i_vCentroid;
+		xvector	vLB_Delta;
+		xvector	vUB_Delta;
 		double	dScalar = 1.0;
 
 		if (i_cBounds.lpvLower_Bounds && i_cBounds.lpvbLower_Bounds_Valid)
@@ -729,12 +729,12 @@ bool XFIT_Simplex_Bounds(const XFIT_SIMPLEX_BOUNDS &i_cBounds, const XVECTOR & i
 }
 
 
-bool XFIT_Simplex_Roll(XVECTOR * io_lpvCurrent_Parameters, unsigned int i_uiNum_Parameters, double * io_lpdChi_Squared_Fits, const XVECTOR &i_vEpsilon, QFunctionV i_lpfvChi_Squared_Function, void * i_lpvData, const XFIT_SIMPLEX_BOUNDS & i_cBounds, bool i_bQuiet)
+bool XFIT_Simplex_Roll(xvector * io_lpvCurrent_Parameters, unsigned int i_uiNum_Parameters, double * io_lpdChi_Squared_Fits, const xvector &i_vEpsilon, QFunctionV i_lpfvChi_Squared_Function, void * i_lpvData, const XFIT_SIMPLEX_BOUNDS & i_cBounds, bool i_bQuiet)
 {
 	if (!i_bQuiet)
 		printf("Rolling\n");
-	XVECTOR vCentroid(io_lpvCurrent_Parameters[0]);
-	XVECTOR	vDelta;
+	xvector vCentroid(io_lpvCurrent_Parameters[0]);
+	xvector	vDelta;
 	bool bImproved = false;
 //	unsigned int uiLast_Idx = 0;
 	unsigned int uiLast_Improved_Count = 0;
@@ -816,14 +816,14 @@ bool XFIT_Simplex_Roll(XVECTOR * io_lpvCurrent_Parameters, unsigned int i_uiNum_
 	return bImproved;
 }
 // This funciton is similar to fit_scale, but will only change any vertex which shows an improvement after scaling
-bool XFIT_Simplex_Scale_Individual(XVECTOR * io_lpvCurrent_Parameters, unsigned int i_uiNum_Parameters, double * io_lpdChi_Squared_Fits, const XVECTOR &i_vEpsilon, QFunctionV i_lpfvChi_Squared_Function, void * i_lpvData, const double & i_dScaling_Factor, const XFIT_SIMPLEX_BOUNDS & i_cBounds, bool i_bQuiet)
+bool XFIT_Simplex_Scale_Individual(xvector * io_lpvCurrent_Parameters, unsigned int i_uiNum_Parameters, double * io_lpdChi_Squared_Fits, const xvector &i_vEpsilon, QFunctionV i_lpfvChi_Squared_Function, void * i_lpvData, const double & i_dScaling_Factor, const XFIT_SIMPLEX_BOUNDS & i_cBounds, bool i_bQuiet)
 {
 	if (!i_bQuiet)
 		printf("Scaling (individual) %f\n",i_dScaling_Factor);
 	bool bImproved = false;
-	XVECTOR vCentroid(io_lpvCurrent_Parameters[0]);
-	XVECTOR	vDelta;
-	XVECTOR vTest;
+	xvector vCentroid(io_lpvCurrent_Parameters[0]);
+	xvector	vDelta;
+	xvector vTest;
 	double	dFit;
 
 	for (unsigned int uiJ = 0; uiJ < i_uiNum_Parameters; uiJ++)
@@ -883,15 +883,15 @@ bool XFIT_Simplex_Scale_Individual(XVECTOR * io_lpvCurrent_Parameters, unsigned 
 	return bImproved;
 }
 
-bool XFIT_Simplex_Scale(XVECTOR * io_lpvCurrent_Parameters, unsigned int i_uiNum_Parameters, double * io_lpdChi_Squared_Fits, const XVECTOR &i_vEpsilon, QFunctionV i_lpfvChi_Squared_Function, void * i_lpvData, const double & i_dScaling_Factor, bool i_bForce, const XFIT_SIMPLEX_BOUNDS & i_cBounds, bool i_bQuiet)
+bool XFIT_Simplex_Scale(xvector * io_lpvCurrent_Parameters, unsigned int i_uiNum_Parameters, double * io_lpdChi_Squared_Fits, const xvector &i_vEpsilon, QFunctionV i_lpfvChi_Squared_Function, void * i_lpvData, const double & i_dScaling_Factor, bool i_bForce, const XFIT_SIMPLEX_BOUNDS & i_cBounds, bool i_bQuiet)
 {
 	if (!i_bQuiet)
 		printf("Scaling %f\n",i_dScaling_Factor);
 	bool bImproved = false;
 	double	* lpdNew_Chi_Squared_Fits = g_cXfit_Simplex_Memory.m_lpdNew_Chi_Squared_Fits;
-	XVECTOR * lpvNew_Parameters  = g_cXfit_Simplex_Memory.m_lpvNew_Parameters;
-	XVECTOR vCentroid(io_lpvCurrent_Parameters[0]);
-	XVECTOR	vDelta;
+	xvector * lpvNew_Parameters  = g_cXfit_Simplex_Memory.m_lpvNew_Parameters;
+	xvector vCentroid(io_lpvCurrent_Parameters[0]);
+	xvector	vDelta;
 
 	for (unsigned int uiJ = 0; uiJ < i_uiNum_Parameters; uiJ++)
 		vCentroid.Set(uiJ,0.0);
@@ -967,7 +967,7 @@ bool XFIT_Simplex_Scale(XVECTOR * io_lpvCurrent_Parameters, unsigned int i_uiNum
 }
 
 
-void XFIT_Simplex(XVECTOR & io_vParameters, const XVECTOR & i_vParameters_Range_Start, const XVECTOR & i_vEpsilon, QFunctionV i_lpfvChi_Squared_Function, void * i_lpvData, bool i_bQuiet, XVECTOR * i_lpvLower_Bounds, std::vector<bool> * i_lpvbLower_Bounds_Valid, XVECTOR * i_lpvUpper_Bounds, std::vector<bool> * i_lpvbUpper_Bounds_Valid)
+void XFIT_Simplex(xvector & io_vParameters, const xvector & i_vParameters_Range_Start, const xvector & i_vEpsilon, QFunctionV i_lpfvChi_Squared_Function, void * i_lpvData, bool i_bQuiet, xvector * i_lpvLower_Bounds, std::vector<bool> * i_lpvbLower_Bounds_Valid, xvector * i_lpvUpper_Bounds, std::vector<bool> * i_lpvbUpper_Bounds_Valid)
 {
 		
 	unsigned int uiNum_Parameters = io_vParameters.Get_Size();
@@ -980,10 +980,10 @@ void XFIT_Simplex(XVECTOR & io_vParameters, const XVECTOR & i_vParameters_Range_
 
 	g_cXfit_Simplex_Memory.Allocate(uiNum_Parameters); // prepare memory allocation
 
-	XVECTOR * lpvCurrent_Parameters = g_cXfit_Simplex_Memory.m_lpvCurrent_Parameters;
+	xvector * lpvCurrent_Parameters = g_cXfit_Simplex_Memory.m_lpvCurrent_Parameters;
 	double * lpdChi_Squared_Fits = g_cXfit_Simplex_Memory.m_lpdChi_Squared_Fits;
-	XVECTOR vCentroid(uiNum_Parameters);
-	XVECTOR vDelta(uiNum_Parameters);
+	xvector vCentroid(uiNum_Parameters);
+	xvector vDelta(uiNum_Parameters);
 //	unsigned int * lpuiExclusions = g_cXfit_Simplex_Memory.m_lpuiExclusions;
 //	unsigned int uiExclusion_Count = 0;
 //	for (unsigned int uiI = 0; uiI < uiNum_Parameters; uiI++)

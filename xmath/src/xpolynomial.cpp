@@ -17,9 +17,9 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////
 //
-//	XPOLYNOMIAL.cpp
+//	xpolynomial.cpp
 //
-//	Source code for XPOLYNOMIAL, as defined in xpolynomial.h
+//	Source code for xpolynomial, as defined in xpolynomial.h
 //
 //	Dependencies:
 //		xpolynomial.h
@@ -34,10 +34,10 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////
 //
-//	XPOLYNOMIAL::Collapse_Degree
+//	xpolynomial::Collapse_Degree
 //
 ////////////////////////////////////////////////////////////////////////////////////////
-void XPOLYNOMIAL::Collapse_Degree(void)
+void xpolynomial::Collapse_Degree(void)
 {
 	while (m_lpCoefficients[m_iDegree].dRe == 0 && m_lpCoefficients[m_iDegree].dIm == 0.0 && m_iDegree >= 0)
 		m_iDegree--;
@@ -48,20 +48,20 @@ void XPOLYNOMIAL::Collapse_Degree(void)
 
 ////////////////////////////////////////////////////////////////////////////////////////
 //
-//	XPOLYNOMIAL::Set_Allocated_Memory
+//	xpolynomial::Set_Allocated_Memory
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void XPOLYNOMIAL::Set_Allocated_Memory(int a_iDegree)
+void xpolynomial::Set_Allocated_Memory(int a_iDegree)
 {
 	if (m_iAllocated_Length < (a_iDegree + 1))
 	{
 		m_iAllocated_Length = (a_iDegree + 1);
-		XCOMPLEX * lpTemp = (XCOMPLEX *)malloc(m_iAllocated_Length * sizeof(XCOMPLEX));
-		memset(lpTemp,0,(m_iAllocated_Length * sizeof(XCOMPLEX)));
+		xcomplex * lpTemp = (xcomplex *)malloc(m_iAllocated_Length * sizeof(xcomplex));
+		memset(lpTemp,0,(m_iAllocated_Length * sizeof(xcomplex)));
 		if (m_lpCoefficients)
 		{
-			memcpy(lpTemp,m_lpCoefficients,(m_iDegree + 1) * sizeof(XCOMPLEX));
+			memcpy(lpTemp,m_lpCoefficients,(m_iDegree + 1) * sizeof(xcomplex));
 			free(m_lpCoefficients);
 		}
 		m_lpCoefficients = lpTemp;
@@ -70,15 +70,15 @@ void XPOLYNOMIAL::Set_Allocated_Memory(int a_iDegree)
 
 ////////////////////////////////////////////////////////////////////////////////////////
 //
-//	XPOLYNOMIAL::Copy_Polynomial
+//	xpolynomial::Copy_Polynomial
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void XPOLYNOMIAL::Copy_Polynomial(const double * a_lpCoefficients, int a_iDegree)
+void xpolynomial::Copy_Polynomial(const double * a_lpCoefficients, int a_iDegree)
 {
 	if (a_lpCoefficients)
 	{
-		memset(m_lpCoefficients,0,m_iAllocated_Length * sizeof(XCOMPLEX));
+		memset(m_lpCoefficients,0,m_iAllocated_Length * sizeof(xcomplex));
 		for (int uiIndex = 0; uiIndex <= a_iDegree; uiIndex++)
 		{
 			m_lpCoefficients[uiIndex].dRe = a_lpCoefficients[uiIndex];
@@ -91,16 +91,16 @@ void XPOLYNOMIAL::Copy_Polynomial(const double * a_lpCoefficients, int a_iDegree
 
 ////////////////////////////////////////////////////////////////////////////////////////
 //
-//	XPOLYNOMIAL::Copy_Polynomial
+//	xpolynomial::Copy_Polynomial
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void XPOLYNOMIAL::Copy_Polynomial(const XCOMPLEX * a_lpCoefficients, int a_iDegree)
+void xpolynomial::Copy_Polynomial(const xcomplex * a_lpCoefficients, int a_iDegree)
 {
 	if (a_lpCoefficients)
 	{
-		memset(m_lpCoefficients,0,m_iAllocated_Length * sizeof(XCOMPLEX));
-		memcpy(m_lpCoefficients,a_lpCoefficients,(a_iDegree + 1) * sizeof(XCOMPLEX));
+		memset(m_lpCoefficients,0,m_iAllocated_Length * sizeof(xcomplex));
+		memcpy(m_lpCoefficients,a_lpCoefficients,(a_iDegree + 1) * sizeof(xcomplex));
 		m_iDegree = a_iDegree;
 	}
 }
@@ -110,7 +110,7 @@ void XPOLYNOMIAL::Copy_Polynomial(const XCOMPLEX * a_lpCoefficients, int a_iDegr
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 
-XPOLYNOMIAL::XPOLYNOMIAL(void)
+xpolynomial::xpolynomial(void)
 {
 	m_iDegree = 0;
 	m_lpCoefficients = NULL;
@@ -118,7 +118,7 @@ XPOLYNOMIAL::XPOLYNOMIAL(void)
 	Set_Allocated_Memory(1);
 }
 
-XPOLYNOMIAL::XPOLYNOMIAL(const XPOLYNOMIAL &cRHO)
+xpolynomial::xpolynomial(const xpolynomial &cRHO)
 {
 	m_iDegree = 0;
 	m_lpCoefficients = NULL;
@@ -126,7 +126,7 @@ XPOLYNOMIAL::XPOLYNOMIAL(const XPOLYNOMIAL &cRHO)
 	Set_Allocated_Memory(cRHO.m_iDegree);
 	Copy_Polynomial(cRHO.m_lpCoefficients,cRHO.m_iDegree);
 }
-XPOLYNOMIAL::XPOLYNOMIAL(const double * a_lpCoefficients, int a_iDegree)
+xpolynomial::xpolynomial(const double * a_lpCoefficients, int a_iDegree)
 {
 	m_iDegree = 0;
 	m_lpCoefficients = NULL;
@@ -135,7 +135,7 @@ XPOLYNOMIAL::XPOLYNOMIAL(const double * a_lpCoefficients, int a_iDegree)
 	if (a_lpCoefficients)
 		Copy_Polynomial(a_lpCoefficients,a_iDegree);
 }
-XPOLYNOMIAL::XPOLYNOMIAL(const XCOMPLEX * a_lpCoefficients, int a_iDegree)
+xpolynomial::xpolynomial(const xcomplex * a_lpCoefficients, int a_iDegree)
 {
 	m_iDegree = 0;
 	m_lpCoefficients = NULL;
@@ -144,7 +144,7 @@ XPOLYNOMIAL::XPOLYNOMIAL(const XCOMPLEX * a_lpCoefficients, int a_iDegree)
 	if (a_lpCoefficients)
 		Copy_Polynomial(a_lpCoefficients,a_iDegree);
 }
-XPOLYNOMIAL::~XPOLYNOMIAL(void)
+xpolynomial::~xpolynomial(void)
 {
 	m_iDegree = 0;
 	m_iAllocated_Length = 0;
@@ -154,35 +154,35 @@ XPOLYNOMIAL::~XPOLYNOMIAL(void)
 
 ////////////////////////////////////////////////////////////////////////////////////////
 //
-//	XPOLYNOMIAL::Set
+//	xpolynomial::Set
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void XPOLYNOMIAL::Set(const double * a_lpCoefficients, int a_iDegree)
+void xpolynomial::Set(const double * a_lpCoefficients, int a_iDegree)
 {
-	XPOLYNOMIAL cTemp(a_lpCoefficients,a_iDegree);
+	xpolynomial cTemp(a_lpCoefficients,a_iDegree);
 
 	*this = cTemp;
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 //
-//	XPOLYNOMIAL::Set
+//	xpolynomial::Set
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 
-void XPOLYNOMIAL::Set(const XCOMPLEX * a_lpCoefficients, int a_iDegree)
+void xpolynomial::Set(const xcomplex * a_lpCoefficients, int a_iDegree)
 {
-	XPOLYNOMIAL cTemp(a_lpCoefficients,a_iDegree);
+	xpolynomial cTemp(a_lpCoefficients,a_iDegree);
 
 	*this = cTemp;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 //
-//	XPOLYNOMIAL::Set
+//	xpolynomial::Set
 //
 ////////////////////////////////////////////////////////////////////////////////////////
-void XPOLYNOMIAL::SetCoefficient(const double &dCoefficient, int iDegree)
+void xpolynomial::SetCoefficient(const double &dCoefficient, int iDegree)
 {
 	if (iDegree >= 0 && iDegree <= m_iDegree)
 	{
@@ -192,10 +192,10 @@ void XPOLYNOMIAL::SetCoefficient(const double &dCoefficient, int iDegree)
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 //
-//	XPOLYNOMIAL::Set
+//	xpolynomial::Set
 //
 ////////////////////////////////////////////////////////////////////////////////////////
-void XPOLYNOMIAL::SetCoefficient(const XCOMPLEX &xcCoefficient, int iDegree)
+void xpolynomial::SetCoefficient(const xcomplex &xcCoefficient, int iDegree)
 {
 	if (iDegree >= 0 && iDegree <= m_iDegree)
 	{
@@ -210,26 +210,26 @@ void XPOLYNOMIAL::SetCoefficient(const XCOMPLEX &xcCoefficient, int iDegree)
 ////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////
-//	XPOLYNOMIAL::operator += (double)
+//	xpolynomial::operator += (double)
 ////////////////////////////////////////////////////////////////////////////////////////
-XPOLYNOMIAL & XPOLYNOMIAL::operator += (const double & dRHO)
+xpolynomial & xpolynomial::operator += (const double & dRHO)
 {
 	m_lpCoefficients[0].dRe += dRHO;
 	return *this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
-//	XPOLYNOMIAL::operator -= (double)
+//	xpolynomial::operator -= (double)
 ////////////////////////////////////////////////////////////////////////////////////////
-XPOLYNOMIAL & XPOLYNOMIAL::operator -= (const double & dRHO)
+xpolynomial & xpolynomial::operator -= (const double & dRHO)
 {
 	m_lpCoefficients[0].dRe -= dRHO;
 	return *this;
 }
 ////////////////////////////////////////////////////////////////////////////////////////
-//	XPOLYNOMIAL::operator *= (double)
+//	xpolynomial::operator *= (double)
 ////////////////////////////////////////////////////////////////////////////////////////
-XPOLYNOMIAL & XPOLYNOMIAL::operator *= (const double & dRHO)
+xpolynomial & xpolynomial::operator *= (const double & dRHO)
 {
 	for (int iIndex = 0; iIndex <= m_iDegree; iIndex++)
 	{
@@ -239,9 +239,9 @@ XPOLYNOMIAL & XPOLYNOMIAL::operator *= (const double & dRHO)
 	return *this;
 }
 ////////////////////////////////////////////////////////////////////////////////////////
-//	XPOLYNOMIAL::operator /= (double)
+//	xpolynomial::operator /= (double)
 ////////////////////////////////////////////////////////////////////////////////////////
-XPOLYNOMIAL & XPOLYNOMIAL::operator /= (const double & dRHO)
+xpolynomial & xpolynomial::operator /= (const double & dRHO)
 {
 	for (int iIndex = 0; iIndex <= m_iDegree; iIndex++)
 	{
@@ -254,31 +254,31 @@ XPOLYNOMIAL & XPOLYNOMIAL::operator /= (const double & dRHO)
 
 ////////////////////////////////////////////////////////////////////////////////////////
 //
-//	operators    (XCOMPLEX)
+//	operators    (xcomplex)
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////
-//	XPOLYNOMIAL::operator += (double)
+//	xpolynomial::operator += (double)
 ////////////////////////////////////////////////////////////////////////////////////////
-XPOLYNOMIAL & XPOLYNOMIAL::operator += (const XCOMPLEX & dRHO)
+xpolynomial & xpolynomial::operator += (const xcomplex & dRHO)
 {
 	m_lpCoefficients[0] += dRHO;
 	return *this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
-//	XPOLYNOMIAL::operator -= (double)
+//	xpolynomial::operator -= (double)
 ////////////////////////////////////////////////////////////////////////////////////////
-XPOLYNOMIAL & XPOLYNOMIAL::operator -= (const XCOMPLEX & dRHO)
+xpolynomial & xpolynomial::operator -= (const xcomplex & dRHO)
 {
 	m_lpCoefficients[0] -= dRHO;
 	return *this;
 }
 ////////////////////////////////////////////////////////////////////////////////////////
-//	XPOLYNOMIAL::operator *= (double)
+//	xpolynomial::operator *= (double)
 ////////////////////////////////////////////////////////////////////////////////////////
-XPOLYNOMIAL & XPOLYNOMIAL::operator *= (const XCOMPLEX & dRHO)
+xpolynomial & xpolynomial::operator *= (const xcomplex & dRHO)
 {
 	for (int iIndex = 0; iIndex <= m_iDegree; iIndex++)
 	{
@@ -287,9 +287,9 @@ XPOLYNOMIAL & XPOLYNOMIAL::operator *= (const XCOMPLEX & dRHO)
 	return *this;
 }
 ////////////////////////////////////////////////////////////////////////////////////////
-//	XPOLYNOMIAL::operator /= (double)
+//	xpolynomial::operator /= (double)
 ////////////////////////////////////////////////////////////////////////////////////////
-XPOLYNOMIAL & XPOLYNOMIAL::operator /= (const XCOMPLEX & dRHO)
+xpolynomial & xpolynomial::operator /= (const xcomplex & dRHO)
 {
 	for (int iIndex = 0; iIndex <= m_iDegree; iIndex++)
 	{
@@ -299,14 +299,14 @@ XPOLYNOMIAL & XPOLYNOMIAL::operator /= (const XCOMPLEX & dRHO)
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 //
-//	operators    (XPOLYNOMIAL)
+//	operators    (xpolynomial)
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////
-//	XPOLYNOMIAL::operator = (XPOLYNOMIAL)
+//	xpolynomial::operator = (xpolynomial)
 ////////////////////////////////////////////////////////////////////////////////////////
-XPOLYNOMIAL &XPOLYNOMIAL::operator = (const XPOLYNOMIAL & cRHO)
+xpolynomial &xpolynomial::operator = (const xpolynomial & cRHO)
 {
 	Set_Allocated_Memory(cRHO.m_iDegree);
 
@@ -315,9 +315,9 @@ XPOLYNOMIAL &XPOLYNOMIAL::operator = (const XPOLYNOMIAL & cRHO)
 	return *this;
 }
 ////////////////////////////////////////////////////////////////////////////////////////
-//	XPOLYNOMIAL::operator += (XPOLYNOMIAL)
+//	xpolynomial::operator += (xpolynomial)
 ////////////////////////////////////////////////////////////////////////////////////////
-XPOLYNOMIAL & XPOLYNOMIAL::operator += (const XPOLYNOMIAL & cRHO)
+xpolynomial & xpolynomial::operator += (const xpolynomial & cRHO)
 {
 	Set_Allocated_Memory(cRHO.m_iDegree);
 
@@ -331,9 +331,9 @@ XPOLYNOMIAL & XPOLYNOMIAL::operator += (const XPOLYNOMIAL & cRHO)
 	return *this;
 }
 ////////////////////////////////////////////////////////////////////////////////////////
-//	XPOLYNOMIAL::operator -= (XPOLYNOMIAL)
+//	xpolynomial::operator -= (xpolynomial)
 ////////////////////////////////////////////////////////////////////////////////////////
-XPOLYNOMIAL & XPOLYNOMIAL::operator -= (const XPOLYNOMIAL & cRHO)
+xpolynomial & xpolynomial::operator -= (const xpolynomial & cRHO)
 {
 	Set_Allocated_Memory(cRHO.m_iDegree);
 
@@ -349,12 +349,12 @@ XPOLYNOMIAL & XPOLYNOMIAL::operator -= (const XPOLYNOMIAL & cRHO)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
-//	XPOLYNOMIAL::operator *= (XPOLYNOMIAL)
+//	xpolynomial::operator *= (xpolynomial)
 ////////////////////////////////////////////////////////////////////////////////////////
-XPOLYNOMIAL & XPOLYNOMIAL::operator *= (const XPOLYNOMIAL & cRHO)
+xpolynomial & xpolynomial::operator *= (const xpolynomial & cRHO)
 {
-	XCOMPLEX	*lpdTable_Out;
-	XCOMPLEX	dMult_Curr;
+	xcomplex	*lpdTable_Out;
+	xcomplex	dMult_Curr;
 	int iIndex;
 	int iIndex2;
 	bool	bUse_Out_Table = false;
@@ -364,18 +364,18 @@ XPOLYNOMIAL & XPOLYNOMIAL::operator *= (const XPOLYNOMIAL & cRHO)
 	if ((m_iDegree + cRHO.m_iDegree + 1) > m_iAllocated_Length)
 		bUse_Out_Table = true;
 
-	lpdTable_Out = (XCOMPLEX *)malloc((m_iDegree + cRHO.m_iDegree + 1) * sizeof(XCOMPLEX));
+	lpdTable_Out = (xcomplex *)malloc((m_iDegree + cRHO.m_iDegree + 1) * sizeof(xcomplex));
 	if (lpdTable_Out)
 	{
 		for (iIndex = 0; iIndex <= (m_iDegree + cRHO.m_iDegree); iIndex++)
 		{
-			lpdTable_Out[iIndex] = XCOMPLEX(0.0,0.0);
+			lpdTable_Out[iIndex] = xcomplex(0.0,0.0);
 			for (iIndex2 = 0; iIndex2 <= cRHO.m_iDegree; iIndex2++)
 			{
 				if ((iIndex - iIndex2) >= 0 && (iIndex - iIndex2) <= m_iDegree)
 					dMult_Curr = m_lpCoefficients[iIndex - iIndex2];
 				else
-					dMult_Curr = XCOMPLEX(0.0,0.0);
+					dMult_Curr = xcomplex(0.0,0.0);
 				lpdTable_Out[iIndex] += (dMult_Curr * cRHO.m_lpCoefficients[iIndex2]);
 			}
 		}
@@ -392,18 +392,18 @@ XPOLYNOMIAL & XPOLYNOMIAL::operator *= (const XPOLYNOMIAL & cRHO)
 
 ////////////////////////////////////////////////////////////////////////////////////////
 //
-//	XPOLYNOMIAL::Eval
+//	xpolynomial::Eval
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
-//	XPOLYNOMIAL::Eval(XCOMLPEX)
+//	xpolynomial::Eval(XCOMLPEX)
 ////////////////////////////////////////////////////////////////////////////////////////
-XCOMPLEX XPOLYNOMIAL::Eval(const XCOMPLEX &cX, unsigned int iDeriv) const
+xcomplex xpolynomial::Eval(const xcomplex &cX, unsigned int iDeriv) const
 {
-	XCOMPLEX cRes(0.0,0.0);
-	XCOMPLEX cTemp(1.0,0.0);
+	xcomplex cRes(0.0,0.0);
+	xcomplex cTemp(1.0,0.0);
 	double dDeriv = 1.0;
 	for (int iIndex = iDeriv; iIndex <= m_iDegree; iIndex++)
 	{
@@ -420,26 +420,26 @@ XCOMPLEX XPOLYNOMIAL::Eval(const XCOMPLEX &cX, unsigned int iDeriv) const
 	return cRes;
 }
 ////////////////////////////////////////////////////////////////////////////////////////
-//	XPOLYNOMIAL::Eval(double)
+//	xpolynomial::Eval(double)
 ////////////////////////////////////////////////////////////////////////////////////////
-double XPOLYNOMIAL::Eval(const double &dX, unsigned int iDeriv) const
+double xpolynomial::Eval(const double &dX, unsigned int iDeriv) const
 {
-	XCOMPLEX cX(dX,0.0);
-	XCOMPLEX cRes = Eval(cX,iDeriv);
+	xcomplex cX(dX,0.0);
+	xcomplex cRes = Eval(cX,iDeriv);
 	return cRes.dRe;
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
 //
-//	XPOLYNOMIAL::Normalize
+//	xpolynomial::Normalize
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 
-XCOMPLEX XPOLYNOMIAL::Normalize(void)
+xcomplex xpolynomial::Normalize(void)
 {
 	int iIndex;
-	XCOMPLEX dDivisor = m_lpCoefficients[m_iDegree];
+	xcomplex dDivisor = m_lpCoefficients[m_iDegree];
 	if ((dDivisor.dRe != 0.0 || dDivisor.dIm != 0.0) && dDivisor.dRe != 1.0)
 	{
 		for (iIndex = 0; iIndex <= m_iDegree; iIndex++)
@@ -452,11 +452,11 @@ XCOMPLEX XPOLYNOMIAL::Normalize(void)
 
 ////////////////////////////////////////////////////////////////////////////////////////
 //
-//	XPOLYNOMIAL::Get_Reduce_Coeff
+//	xpolynomial::Get_Reduce_Coeff
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 
-double XPOLYNOMIAL::Get_Reduce_Coeff(void) const
+double xpolynomial::Get_Reduce_Coeff(void) const
 {
 	int		iExp_Max = 0;
 	int		iExp_Min = 1000;
@@ -486,11 +486,11 @@ double XPOLYNOMIAL::Get_Reduce_Coeff(void) const
 
 ////////////////////////////////////////////////////////////////////////////////////////
 //
-//	XPOLYNOMIAL::GetMaxCoeff
+//	xpolynomial::GetMaxCoeff
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 
-double XPOLYNOMIAL::GetMaxCoeff(void) const
+double xpolynomial::GetMaxCoeff(void) const
 {
 	double dRet = 0.0;
 	double	dMan_Res = 0.0;
@@ -534,7 +534,7 @@ double XPOLYNOMIAL::GetMaxCoeff(void) const
 	return dRet;
 }
 
-unsigned int XPOLYNOMIAL::Get_Trivial_Zeros(void) const
+unsigned int xpolynomial::Get_Trivial_Zeros(void) const
 {
 	unsigned int uiCount = 0;
 	for (unsigned int uiIndex = 0; uiIndex < (unsigned int)m_iDegree; uiIndex++)
@@ -547,7 +547,7 @@ unsigned int XPOLYNOMIAL::Get_Trivial_Zeros(void) const
 	return uiCount;
 }
 
-unsigned int XPOLYNOMIAL::Trivial_Divide(unsigned int uiDegree)
+unsigned int xpolynomial::Trivial_Divide(unsigned int uiDegree)
 {
 	unsigned int uiMaxDivide = Get_Trivial_Zeros();
 	unsigned int uiRet = 0;
@@ -559,39 +559,39 @@ unsigned int XPOLYNOMIAL::Trivial_Divide(unsigned int uiDegree)
 	}
 
 	unsigned int uiNumToMove = (m_iDegree - uiShift + 1);
-	memmove(m_lpCoefficients,&m_lpCoefficients[uiShift],(uiNumToMove * sizeof(XCOMPLEX)));
+	memmove(m_lpCoefficients,&m_lpCoefficients[uiShift],(uiNumToMove * sizeof(xcomplex)));
 	m_iDegree -= uiShift;
 	return uiRet;
 }
-void XPOLYNOMIAL::Trivial_Multiply(unsigned int uiDegree)
+void xpolynomial::Trivial_Multiply(unsigned int uiDegree)
 {
 	if ((unsigned int)(m_iDegree + uiDegree) > (unsigned int)m_iAllocated_Length)
 	{
-		XCOMPLEX *lpNew = (XCOMPLEX *)malloc((m_iDegree + uiDegree + 1) * sizeof(XCOMPLEX));
-		memset(lpNew,0,(uiDegree * sizeof(XCOMPLEX)));
-		memcpy(&lpNew[uiDegree],m_lpCoefficients,(m_iDegree * sizeof(XCOMPLEX)));
+		xcomplex *lpNew = (xcomplex *)malloc((m_iDegree + uiDegree + 1) * sizeof(xcomplex));
+		memset(lpNew,0,(uiDegree * sizeof(xcomplex)));
+		memcpy(&lpNew[uiDegree],m_lpCoefficients,(m_iDegree * sizeof(xcomplex)));
 		free(m_lpCoefficients);
 		m_lpCoefficients = lpNew;
 		m_iAllocated_Length = (m_iDegree + uiDegree + 1);
 	}
 	else
 	{
-		memmove(&m_lpCoefficients[uiDegree],m_lpCoefficients,(m_iDegree * sizeof(XCOMPLEX)));
-		memset(m_lpCoefficients,0,(uiDegree * sizeof(XCOMPLEX)));
+		memmove(&m_lpCoefficients[uiDegree],m_lpCoefficients,(m_iDegree * sizeof(xcomplex)));
+		memset(m_lpCoefficients,0,(uiDegree * sizeof(xcomplex)));
 	}
 	m_iDegree += uiDegree;
 }
 
-XCOMPLEX	XPOLYNOMIAL::Synthetic_Division(const XCOMPLEX & xcRoot)
+xcomplex	xpolynomial::Synthetic_Division(const xcomplex & xcRoot)
 {
-	XCOMPLEX	xcRes = m_lpCoefficients[m_iDegree];
+	xcomplex	xcRes = m_lpCoefficients[m_iDegree];
 	if (m_iDegree > 0)
 	{
-		m_lpCoefficients[m_iDegree] = XCOMPLEX(0.0,0.0);
+		m_lpCoefficients[m_iDegree] = xcomplex(0.0,0.0);
 		for (unsigned int uiIndex = m_iDegree - 1; uiIndex < (unsigned int)m_iDegree; uiIndex--)
 		{
-			XCOMPLEX	xcRHO = xcRes * xcRoot;
-			XCOMPLEX	xcTemp = m_lpCoefficients[uiIndex] + xcRHO;
+			xcomplex	xcRHO = xcRes * xcRoot;
+			xcomplex	xcTemp = m_lpCoefficients[uiIndex] + xcRHO;
 			m_lpCoefficients[uiIndex] = xcRes;
 			xcRes = xcTemp;
 		}

@@ -11,26 +11,26 @@
 // indices for set and get are 0 referenced
 //
 //----------------------------------------------------------------------------
-class XVECTOR
+class xvector
 {
 private:
 	double	*		m_lpdValues;
 	unsigned int	m_uiN;
 	unsigned int	m_uiN_Alloc;
 	// copy function
-	void			Copy(const XVECTOR &i_vRHO);
+	void			Copy(const xvector &i_vRHO);
 	void			Copy(const std::vector<double> &i_vRHO);
 public:
 	// default constructor
-	XVECTOR(void);
+	xvector(void);
 	// constructor specifying size only
-	XVECTOR(unsigned int i_uiN);
+	xvector(unsigned int i_uiN);
 	// copy constructor
-	XVECTOR(const XVECTOR &i_cRHO);
+	xvector(const xvector &i_cRHO);
 	// destructor
-	~XVECTOR(void);
+	~xvector(void);
 	// contructor from c++ vector class
-	XVECTOR(const std::vector<double> &i_vRHO);
+	xvector(const std::vector<double> &i_vRHO);
 	// get size of vector
 	inline unsigned int Get_Size(void) const{return m_uiN;}
 	inline size_t size(void) const{return m_uiN;}
@@ -45,13 +45,13 @@ public:
 	// print the matrix to file or console
 	void	Print(FILE * fileOut = NULL)  const;
 	// Perform dot product
-	double	Dot(const XVECTOR & i_vRHO) const;
+	double	Dot(const xvector & i_vRHO) const;
 	// Perform Cross product
-	XVECTOR Cross3d(const XVECTOR & i_vRHO) const;
-	double Cross2d(const XVECTOR & i_vRHO) const;
-	//XTENSOR	Cross(const XVECTOR & i_vRHO) const; // need to figure out math
+	xvector Cross3d(const xvector & i_vRHO) const;
+	double Cross2d(const xvector & i_vRHO) const;
+	//xtensor	Cross(const xvector & i_vRHO) const; // need to figure out math
 	// Vector multiply: x_i = l_i * r_i
-	XVECTOR	Vector_Multiply(const XVECTOR & i_vRHO) const;
+	xvector	Vector_Multiply(const xvector & i_vRHO) const;
 	// Normalize the vector (make magnitude of the vector = 1)
 	void Normalize(void);
 	// Set all elements to zero
@@ -60,21 +60,21 @@ public:
 	double	Magnitude(void) const;
 
 	// Aritmetic operations
-	XVECTOR &operator =(const XVECTOR &i_vRHO);
-	XVECTOR operator +(const XVECTOR &i_vRHO) const;
-	XVECTOR &operator +=(const XVECTOR &i_vRHO);
-	XVECTOR operator -(const XVECTOR &i_vRHO) const;
-	XVECTOR &operator -=(const XVECTOR &i_vRHO);
-	XVECTOR &operator =(const std::vector<double> &i_vRHO);
+	xvector &operator =(const xvector &i_vRHO);
+	xvector operator +(const xvector &i_vRHO) const;
+	xvector &operator +=(const xvector &i_vRHO);
+	xvector operator -(const xvector &i_vRHO) const;
+	xvector &operator -=(const xvector &i_vRHO);
+	xvector &operator =(const std::vector<double> &i_vRHO);
 	// Scalar operatations
-	XVECTOR operator -(void)  const;
-	XVECTOR operator *(const double &i_dRHO)  const;
-	XVECTOR &operator *=(const double &i_dRHO);
-	XVECTOR operator /(const double &i_dRHO)  const;
-	XVECTOR &operator /=(const double &i_dRHO);
+	xvector operator -(void)  const;
+	xvector operator *(const double &i_dRHO)  const;
+	xvector &operator *=(const double &i_dRHO);
+	xvector operator /(const double &i_dRHO)  const;
+	xvector &operator /=(const double &i_dRHO);
 	// Boolean operations
-	bool	operator==(const XVECTOR &i_vRHO)  const;
-	bool	operator!=(const XVECTOR &i_vRHO)  const;
+	bool	operator==(const xvector &i_vRHO)  const;
+	bool	operator!=(const xvector &i_vRHO)  const;
 
 	inline double	operator[](int i_iIndex) const {return Get(i_iIndex);};
 	inline double	operator[](unsigned int i_iIndex) const {return Get(i_iIndex);};
@@ -84,31 +84,31 @@ public:
 
 	// allow SQUARE_MATRIX and TRIDIAG_MATRIX classes access
 	// to private data members for efficiency
-	friend class	XTENSOR;
-	friend class	XSQUARE_MATRIX;
-	friend class	XTRIDIAG_MATRIX;
+	friend class	xtensor;
+	friend class	xsquare_matrix;
+	friend class	xtridiag_matrix;
 };
-XVECTOR operator * (const double &i_dLHO, const XVECTOR &i_vRHO);
-typedef XVECTOR	xvector;
+xvector operator * (const double &i_dLHO, const xvector &i_vRHO);
+typedef xvector	XVECTOR;
 
 
-class XINDEX_VECTOR
+class xindex_vector
 {
 private:
 	unsigned int *	m_lpuiValues;
 	unsigned int	m_uiN;
 	unsigned int	m_uiN_Alloc;
 	// copy function
-	void			Copy(const XINDEX_VECTOR &i_vRHO);
+	void			Copy(const xindex_vector &i_vRHO);
 public:
 	// default constructor
-	XINDEX_VECTOR(void);
+	xindex_vector(void);
 	// constructor specifying size only
-	XINDEX_VECTOR(unsigned int i_uiN);
+	xindex_vector(unsigned int i_uiN);
 	// copy constructor
-	XINDEX_VECTOR(const XINDEX_VECTOR &i_cRHO);
+	xindex_vector(const xindex_vector &i_cRHO);
 	// destructor
-	~XINDEX_VECTOR(void);
+	~xindex_vector(void);
 	// get size of vector
 	inline unsigned int Get_Size(void) const{return m_uiN;}
 	inline size_t size(void) const {return m_uiN;}
@@ -123,26 +123,26 @@ public:
 	// print the matrix to file or console
 	void	Print(FILE * fileOut = NULL);
 	// Aritmetic operations
-	XINDEX_VECTOR &operator =(const XINDEX_VECTOR &i_vRHO);
-	XINDEX_VECTOR operator +(const XINDEX_VECTOR &i_vRHO) const;
-	XINDEX_VECTOR &operator +=(const XINDEX_VECTOR &i_vRHO);
-	XINDEX_VECTOR operator -(const XINDEX_VECTOR &i_vRHO) const;
-	XINDEX_VECTOR &operator -=(const XINDEX_VECTOR &i_vRHO);
+	xindex_vector &operator =(const xindex_vector &i_vRHO);
+	xindex_vector operator +(const xindex_vector &i_vRHO) const;
+	xindex_vector &operator +=(const xindex_vector &i_vRHO);
+	xindex_vector operator -(const xindex_vector &i_vRHO) const;
+	xindex_vector &operator -=(const xindex_vector &i_vRHO);
 	// Scalar operatations
-	XINDEX_VECTOR operator -(void)  const;
+	xindex_vector operator -(void)  const;
 	// Boolean operations
-	bool	operator==(const XINDEX_VECTOR &i_vRHO)  const;
-	bool	operator!=(const XINDEX_VECTOR &i_vRHO)  const;
+	bool	operator==(const xindex_vector &i_vRHO)  const;
+	bool	operator!=(const xindex_vector &i_vRHO)  const;
 	// Set all elements to zero
 	void Zero(void);
 
 	// allow SQUARE_MATRIX and TRIDIAG_MATRIX classes access
 	// to private data members for efficiency
-	friend class	XTENSOR;
-	friend class	XSQUARE_MATRIX;
-	friend class	XTRIDIAG_MATRIX;
+	friend class	xtensor;
+	friend class	xsquare_matrix;
+	friend class	xtridiag_matrix;
 };
-typedef XINDEX_VECTOR	xindex_vector;
+typedef xindex_vector	XINDEX_VECTOR;
 
 //----------------------------------------------------------------------------
 //
@@ -151,44 +151,44 @@ typedef XINDEX_VECTOR	xindex_vector;
 // Generalized tensor container
 //
 //----------------------------------------------------------------------------
-class XTENSOR
+class xtensor
 {
 private:
 	double *		m_lpdValues;
 	unsigned int	m_uiRank;
-	XINDEX_VECTOR	m_uivDimensions;
-	XINDEX_VECTOR	m_uivIndexing_Vector;
+	xindex_vector	m_uivDimensions;
+	xindex_vector	m_uivIndexing_Vector;
 	unsigned int	m_uiNum_Entries;
 	unsigned int	m_uiSize_Alloc;
-	void			Copy(const XTENSOR &i_tRHO);
-	void			Allocate(const XINDEX_VECTOR	&i_uivDimensions);
-	unsigned int	ComputeIndex(const XINDEX_VECTOR	&i_uivElement_Index) const;
+	void			Copy(const xtensor &i_tRHO);
+	void			Allocate(const xindex_vector	&i_uivDimensions);
+	unsigned int	ComputeIndex(const xindex_vector	&i_uivElement_Index) const;
 public:
 	// default constructor
-	XTENSOR(void);
+	xtensor(void);
 	// constructor sith specified size
-	XTENSOR(const XINDEX_VECTOR &i_vDimensions);
+	xtensor(const xindex_vector &i_vDimensions);
 	// copy constructor
-	XTENSOR(const XTENSOR &i_cRHO);
+	xtensor(const xtensor &i_cRHO);
 	// destructor
-	~XTENSOR(void);
+	~xtensor(void);
 	// get size of tensor
 	inline size_t Get_Rank(void) const {return m_uiRank;}
-	inline XINDEX_VECTOR Get_Dimensions(void) const {return m_uivDimensions;}
+	inline xindex_vector Get_Dimensions(void) const {return m_uivDimensions;}
 	// set size of tensor
-	void	Set_Size(const XINDEX_VECTOR & i_uivDimensions);
+	void	Set_Size(const xindex_vector & i_uivDimensions);
 	// set tensor element
-	void	Set(const XINDEX_VECTOR & i_uivElement_Index, const double &i_dValue);
+	void	Set(const xindex_vector & i_uivElement_Index, const double &i_dValue);
 	// get tensor element
-	double	Get(const XINDEX_VECTOR & i_uivElement_Index) const;
+	double	Get(const xindex_vector & i_uivElement_Index) const;
 };
-typedef XTENSOR	xtensor;
+typedef xtensor	XTENSOR;
 //----------------------------------------------------------------------------
 //
 // SQUARE_MATRIX class
 //
 //----------------------------------------------------------------------------
-class	XSQUARE_MATRIX
+class	xsquare_matrix
 {
 private:
 	double *		m_lpdValues;
@@ -202,13 +202,13 @@ private:
 
 public:
 	// default constructor
-	XSQUARE_MATRIX(void);
+	xsquare_matrix(void);
 	// constructor sith specified size
-	XSQUARE_MATRIX(unsigned int i_uiN);
+	xsquare_matrix(unsigned int i_uiN);
 	// copy constructor
-	XSQUARE_MATRIX(const XSQUARE_MATRIX &i_cRHO);
+	xsquare_matrix(const xsquare_matrix &i_cRHO);
 	// destructor
-	~XSQUARE_MATRIX(void);
+	~xsquare_matrix(void);
 	// set size of matrix
 	void	Set_Size(unsigned int i_uiN);
 	// get size of matrix
@@ -220,7 +220,7 @@ public:
 				unsigned int i_uiCol, 
 				const double &i_dValue);
 	// set column vector
-	void	Set(unsigned int i_uiCol, const XVECTOR &i_vCol);
+	void	Set(unsigned int i_uiCol, const xvector &i_vCol);
 	// add a value to an element
 	void	Element_Add(
 			unsigned int i_uiRow, 
@@ -229,24 +229,24 @@ public:
 	// retrieve an element value
 	double	Get(unsigned int i_uiRow, unsigned int i_uiCol) const;
 	// get a column
-	XVECTOR	GetColumn(unsigned int i_uiCol) const;
+	xvector	GetColumn(unsigned int i_uiCol) const;
 	// = operator: copy matrix
-	XSQUARE_MATRIX & operator =(const XSQUARE_MATRIX &i_cRHO);
+	xsquare_matrix & operator =(const xsquare_matrix &i_cRHO);
 	// matrix multiplication
-	XSQUARE_MATRIX & operator *=(const XSQUARE_MATRIX &i_cRHO);
+	xsquare_matrix & operator *=(const xsquare_matrix &i_cRHO);
 	// matrix multiplication
-	XSQUARE_MATRIX operator *(const XSQUARE_MATRIX &i_cRHO)  const;
+	xsquare_matrix operator *(const xsquare_matrix &i_cRHO)  const;
 	// vector multiplication: matrix A, vector x:  r = Ax
-	XVECTOR operator * (const XVECTOR &i_cRHO)  const;
+	xvector operator * (const xvector &i_cRHO)  const;
 	// scalar multiplication
-	XSQUARE_MATRIX & operator *=(const double &i_dRHO);
+	xsquare_matrix & operator *=(const double &i_dRHO);
 	// scalar multiplication
-	XSQUARE_MATRIX operator *(const double &i_dRHO)  const;
+	xsquare_matrix operator *(const double &i_dRHO)  const;
 	// matrix addition
-	XSQUARE_MATRIX & operator +=(const XSQUARE_MATRIX &i_cRHO);
-	XSQUARE_MATRIX operator +(const XSQUARE_MATRIX &i_cRHO) const;
-	XSQUARE_MATRIX & operator -=(const XSQUARE_MATRIX &i_cRHO);
-	XSQUARE_MATRIX operator -(const XSQUARE_MATRIX &i_cRHO) const;
+	xsquare_matrix & operator +=(const xsquare_matrix &i_cRHO);
+	xsquare_matrix operator +(const xsquare_matrix &i_cRHO) const;
+	xsquare_matrix & operator -=(const xsquare_matrix &i_cRHO);
+	xsquare_matrix operator -(const xsquare_matrix &i_cRHO) const;
 
 	// set the matrix to the idenity matrix
 	void	Identity(void);
@@ -270,18 +270,18 @@ public:
 	// Invert a matrix using Gauss-Jordan elimination
 	void	Inverse_GJ(void);
 	// Using a specified set, perform back substitution
-	XVECTOR	Back_Substituion(const double * lpdValue_set, const XVECTOR &i_vB);
+	xvector	Back_Substituion(const double * lpdValue_set, const xvector &i_vB);
 	// using the U matrix, perform forward substituion
-	XVECTOR	Forward_Substituion(const XVECTOR &i_vB);
+	xvector	Forward_Substituion(const xvector &i_vB);
 
 	// Perform Gaussian elimination with back substituion, given vector b,
 	// find vector X such that Ax = b
-	XVECTOR	Solve_GEb(const XVECTOR &i_vB);
+	xvector	Solve_GEb(const xvector &i_vB);
 	// Generate the L and U matrices for this matrix
 	// warning: Pivoting not implemented at this time
 	void Perform_LU_Decomposition(void);
 	// Solves Ax = b, using LU method
-	XVECTOR	Solve_LU(const XVECTOR &i_vB);
+	xvector	Solve_LU(const xvector &i_vB);
 	// Inverts a matrix using LU decomposition method
 	void Invert_LUD(void);
 	enum WHICH {MAT_A,MAT_L,MAT_U};
@@ -297,9 +297,11 @@ public:
 	// test for nan or inf
 	bool is_nan(void) const;
 	bool is_inf(void) const;
+
+	xvector	Get_Eigenvector(const double & i_dLambda = 1.0) const;
 };
-XSQUARE_MATRIX operator * (const double &i_dLHO, const XSQUARE_MATRIX &i_vRHO);
-typedef XSQUARE_MATRIX	xsquare_matrix;
+xsquare_matrix operator * (const double &i_dLHO, const xsquare_matrix &i_vRHO);
+typedef xsquare_matrix XSQUARE_MATRIX;
 
 //----------------------------------------------------------------------------
 //
@@ -312,7 +314,7 @@ typedef XSQUARE_MATRIX	xsquare_matrix;
 // [0 ... 0      a_(n-1) b_(n-1)]
 //
 //----------------------------------------------------------------------------
-class	XTRIDIAG_MATRIX
+class	xtridiag_matrix
 {
 private:
 	double *		m_lpdValues;
@@ -325,13 +327,13 @@ public:
 	// Set size n of matrix
 	void	Set_Size(unsigned int i_uiN);
 	// default constructor
-	XTRIDIAG_MATRIX(void);
+	xtridiag_matrix(void);
 	// constructor to set size
-	XTRIDIAG_MATRIX(unsigned int i_uiN);
+	xtridiag_matrix(unsigned int i_uiN);
 	// copy constructor
-	XTRIDIAG_MATRIX(const XTRIDIAG_MATRIX &i_cRHO);
+	xtridiag_matrix(const xtridiag_matrix &i_cRHO);
 	// destructor
-	~XTRIDIAG_MATRIX(void);
+	~xtridiag_matrix(void);
 	// Get size
 	inline unsigned int Get_Size(void) const {return m_uiN;}
 	inline size_t size(void) const {return m_uiN;}
@@ -357,16 +359,16 @@ public:
 	// get g,h for a row
 	void	Get_GH(unsigned int i_uiRow, double &o_dGi, double &o_dHi);
 	// = operator (copy another tridiagonal matrix)
-	XTRIDIAG_MATRIX & operator =(const XTRIDIAG_MATRIX &i_cRHO);
+	xtridiag_matrix & operator =(const xtridiag_matrix &i_cRHO);
 	// multiply a vector x into the matrix, such that r = Ax
-	XVECTOR operator * (const XVECTOR &i_cRHO);
+	xvector operator * (const xvector &i_cRHO);
 
 	// scale a row by a given value
 	void	Scale_Row(unsigned int i_uiRow, const double &i_dScalar);
 	// For the expression Ax = b, compute x given b.
-	XVECTOR	Compute_Inverse(const XVECTOR &i_vB);
+	xvector	Compute_Inverse(const xvector &i_vB);
 	// print the matrix to file or console
 	void	Print(FILE * fileOut = NULL);
 };
-typedef XTRIDIAG_MATRIX	xtridiag_matrix;
+typedef xtridiag_matrix	XTRIDIAG_MATRIX;
 

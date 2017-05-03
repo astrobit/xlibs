@@ -6,9 +6,9 @@
 #include <string.h>
 #include <cmath>
 
-XMATH_CONSTANTS	g_cConstants;
+xmath_constants	g_cConstants;
 
-XMATH_CONSTANTS::XMATH_CONSTANTS(void)
+xmath_constants::xmath_constants(void)
 {
 	dPi = acos(-1.0);
 	dE = exp(1.0);
@@ -39,11 +39,11 @@ inline bool XMATH_Delta_Threshold_Test(const double &i_dX, const double  &i_dDel
 	return (i_dDelta == 0.0 || (i_dX != 0.0 && (unsigned int)abs(iXP - iDeltaP) >= uiMaximum_Log_Diff));
 }
 
-inline bool XMATH_Delta_Threshold_Test(const XCOMPLEX &cX, const XCOMPLEX &cDelta)
+inline bool XMATH_Delta_Threshold_Test(const xcomplex &cX, const xcomplex &cDelta)
 {
 	return (XMATH_Delta_Threshold_Test(cX.dRe,cDelta.dRe) && XMATH_Delta_Threshold_Test(cX.dIm,cDelta.dIm));
 }
-inline bool XMATH_Threshold_Test(const XCOMPLEX &xcX1, const XCOMPLEX &xcX2, const double &dThreshold_Pct)
+inline bool XMATH_Threshold_Test(const xcomplex &xcX1, const xcomplex &xcX2, const double &dThreshold_Pct)
 {
 	double	dMod_X1 = xcX1.modulus();
 	double	dDelta_Mod = (xcX2 - xcX1).modulus();
@@ -51,17 +51,17 @@ inline bool XMATH_Threshold_Test(const XCOMPLEX &xcX1, const XCOMPLEX &xcX2, con
 	return (dErr < dThreshold_Pct);
 }
 
-XCOMPLEX XM_Simpsons_Integration(QFunctionC lpfFn, const XCOMPLEX &xcStart, const XCOMPLEX &xcEnd, unsigned int uiNumSteps, const void * i_lpvData)
+xcomplex XM_Simpsons_Integration(QFunctionC lpfFn, const xcomplex &xcStart, const xcomplex &xcEnd, unsigned int uiNumSteps, const void * i_lpvData)
 {
-	XCOMPLEX	xcStep = (xcEnd - xcStart) / uiNumSteps;
-	XCOMPLEX	xcIntegral(0.0,0.0);
+	xcomplex	xcStep = (xcEnd - xcStart) / uiNumSteps;
+	xcomplex	xcIntegral(0.0,0.0);
 
 	
 	xcIntegral = lpfFn(xcStart,i_lpvData) + lpfFn(xcEnd,i_lpvData);
 //#pragma omp parallel for reduction(+:xcIntegral)
 	for (unsigned int uiIndex = 1; uiIndex < uiNumSteps; uiIndex++)
 	{
-		XCOMPLEX	xcX = xcStart + xcStep * uiIndex;
+		xcomplex	xcX = xcStart + xcStep * uiIndex;
 		xcIntegral += ((uiIndex & 1) * 2 + 2) * lpfFn(xcX,i_lpvData);
 	}
 	xcIntegral *= xcStep / 3.0;
@@ -153,32 +153,32 @@ double XM_Simpsons_Integration_Fast(QFunctionD lpfFn, const double &i_dStart, co
 	return dS_Last;
 }
 
-XCOMPLEX	g_XMNR_Trapezoid_Res(0.0,0.0);
-XCOMPLEX XMNR_Trapezoid(QFunctionC lpfFn, const XCOMPLEX &xcStart, const XCOMPLEX &xcEnd, unsigned int uiN, const void * i_lpvData)
+xcomplex	g_XMNR_Trapezoid_Res(0.0,0.0);
+xcomplex XMNR_Trapezoid(QFunctionC lpfFn, const xcomplex &xcStart, const xcomplex &xcEnd, unsigned int uiN, const void * i_lpvData)
 {
-	XCOMPLEX	xcDelta = (xcEnd - xcStart);
+	xcomplex	xcDelta = (xcEnd - xcStart);
 	if (uiN == 1)
 		g_XMNR_Trapezoid_Res = 0.5 * xcDelta * (lpfFn(xcStart,i_lpvData) + lpfFn(xcEnd,i_lpvData));
 	else
 	{
 		unsigned int uiIT = 1, uiJ;
 		for (uiJ = 1; uiJ < uiN - 1; uiJ++) uiIT <<= 1;
-		XCOMPLEX xcDel = xcDelta / uiIT;
-		XCOMPLEX xcX0 = xcStart + 0.5 * xcDel;
-		XCOMPLEX xcSum = XCOMPLEX(0.0,0.0);
+		xcomplex xcDel = xcDelta / uiIT;
+		xcomplex xcX0 = xcStart + 0.5 * xcDel;
+		xcomplex xcSum = xcomplex(0.0,0.0);
 		for (uiJ = 0; uiJ < uiIT; uiJ++) xcSum += lpfFn(xcDel * uiJ + xcX0,i_lpvData);
 		g_XMNR_Trapezoid_Res = 0.5 *(g_XMNR_Trapezoid_Res + xcDelta * xcSum / uiIT);
 	}
 	return g_XMNR_Trapezoid_Res;
 }
-XCOMPLEX XMNR_Q_Trapezoid(QFunctionC lpfFn, const XCOMPLEX &xcStart, const XCOMPLEX &xcEnd, const void * i_lpvData)
+xcomplex XMNR_Q_Trapezoid(QFunctionC lpfFn, const xcomplex &xcStart, const xcomplex &xcEnd, const void * i_lpvData)
 {
 	const unsigned int JMAX = 32;
-	XCOMPLEX xcS_Last;
+	xcomplex xcS_Last;
 	bool bQuit = false;
 	for (unsigned int uiJ = 1; uiJ < JMAX && !bQuit; uiJ++)
 	{
-		XCOMPLEX xcS = XMNR_Trapezoid(lpfFn,xcStart,xcEnd,uiJ,i_lpvData);
+		xcomplex xcS = XMNR_Trapezoid(lpfFn,xcStart,xcEnd,uiJ,i_lpvData);
 		if (uiJ > 5)
 		{
 			if (XMATH_Threshold_Test(xcS,xcS_Last,g_dConvergence_Threhold)) // check for value within 0.01 %
@@ -189,20 +189,20 @@ XCOMPLEX XMNR_Q_Trapezoid(QFunctionC lpfFn, const XCOMPLEX &xcStart, const XCOMP
 		xcS_Last = xcS;
 	}
 	if (!bQuit)
-		xcS_Last = XCOMPLEX(0.0,0.0);
+		xcS_Last = xcomplex(0.0,0.0);
 	return xcS_Last;
 }
 
-XCOMPLEX XM_Simpsons_Integration_Fast(QFunctionC lpfFn, const XCOMPLEX &xcStart, const XCOMPLEX &xcEnd, const void * i_lpvData)
+xcomplex XM_Simpsons_Integration_Fast(QFunctionC lpfFn, const xcomplex &xcStart, const xcomplex &xcEnd, const void * i_lpvData)
 {
 	const unsigned int JMAX = 32;
-	XCOMPLEX	xcSt_Last(0.0,0.0);
-	XCOMPLEX	xcS_Last(0.0,0.0);
-	XCOMPLEX	xcS;
+	xcomplex	xcSt_Last(0.0,0.0);
+	xcomplex	xcS_Last(0.0,0.0);
+	xcomplex	xcS;
 	bool bQuit = false;
 	for (unsigned int uiJ = 1; uiJ <= JMAX && !bQuit; uiJ++)
 	{
-		XCOMPLEX	xcSt = XMNR_Trapezoid(lpfFn,xcStart,xcEnd,uiJ, i_lpvData);
+		xcomplex	xcSt = XMNR_Trapezoid(lpfFn,xcStart,xcEnd,uiJ, i_lpvData);
 		xcS = (4.0 * xcSt - xcSt_Last) / 3.0;
 		if (uiJ > 10)
 		{
@@ -215,40 +215,40 @@ XCOMPLEX XM_Simpsons_Integration_Fast(QFunctionC lpfFn, const XCOMPLEX &xcStart,
 		xcS_Last = xcS;
 	}
 	if (!bQuit)
-		xcS_Last = XCOMPLEX(0.0,0.0);
+		xcS_Last = xcomplex(0.0,0.0);
 	return xcS_Last;
 }
 
 
-double	XM_Runge_Kutte(const XCOMPLEX &xcX, QFunctionC lpfFn, const double &dStep, const void * i_lpvData)
+double	XM_Runge_Kutte(const xcomplex &xcX, QFunctionC lpfFn, const double &dStep, const void * i_lpvData)
 {
 	double	dRes;
-	XCOMPLEX	cF = lpfFn( xcX,i_lpvData ).sqrt();
+	xcomplex	cF = lpfFn( xcX,i_lpvData ).sqrt();
 	double		dPhi1 = cF.argument();
-	XCOMPLEX	xcX2 = xcX + XCOMPLEX(cos(dPhi1),sin(-dPhi1)) * dStep * 0.5;
-	XCOMPLEX	cF2 = lpfFn( xcX2,i_lpvData ).sqrt();
+	xcomplex	xcX2 = xcX + xcomplex(cos(dPhi1),sin(-dPhi1)) * dStep * 0.5;
+	xcomplex	cF2 = lpfFn( xcX2,i_lpvData ).sqrt();
 	double		dPhi2 = cF2.argument();
-	XCOMPLEX	xcX3 = xcX + XCOMPLEX(cos(dPhi2),sin(-dPhi2)) * dStep * 0.5;
-	XCOMPLEX	cF3 = lpfFn( xcX3,i_lpvData ).sqrt();
+	xcomplex	xcX3 = xcX + xcomplex(cos(dPhi2),sin(-dPhi2)) * dStep * 0.5;
+	xcomplex	cF3 = lpfFn( xcX3,i_lpvData ).sqrt();
 	double		dPhi3 = cF3.argument();
-	XCOMPLEX	xcX4 = xcX + XCOMPLEX(cos(dPhi3),sin(-dPhi3)) * dStep;
-	XCOMPLEX	cF4 = lpfFn( xcX4,i_lpvData ).sqrt();
+	xcomplex	xcX4 = xcX + xcomplex(cos(dPhi3),sin(-dPhi3)) * dStep;
+	xcomplex	cF4 = lpfFn( xcX4,i_lpvData ).sqrt();
 	double		dPhi4 = cF4.argument();
 	dRes = -(dPhi1 + 2.0 * (dPhi2 + dPhi3) + dPhi4) / 6.0;
 
 	return dRes;
 }
-double	XM_Runge_Kutte_Init(const XCOMPLEX &xcX, QFunctionC lpfFn, const double &dPhi1, const double &dStep, const void * i_lpvData)
+double	XM_Runge_Kutte_Init(const xcomplex &xcX, QFunctionC lpfFn, const double &dPhi1, const double &dStep, const void * i_lpvData)
 {
 	double	dRes;
-	XCOMPLEX	xcX2 = xcX + XCOMPLEX(cos(dPhi1),sin(-dPhi1)) * dStep * 0.5;
-	XCOMPLEX	cF2 = lpfFn( xcX2,i_lpvData ).sqrt();
+	xcomplex	xcX2 = xcX + xcomplex(cos(dPhi1),sin(-dPhi1)) * dStep * 0.5;
+	xcomplex	cF2 = lpfFn( xcX2,i_lpvData ).sqrt();
 	double		dPhi2 = cF2.argument();
-	XCOMPLEX	xcX3 = xcX + XCOMPLEX(cos(dPhi2),sin(-dPhi2)) * dStep * 0.5;
-	XCOMPLEX	cF3 = lpfFn( xcX3,i_lpvData ).sqrt();
+	xcomplex	xcX3 = xcX + xcomplex(cos(dPhi2),sin(-dPhi2)) * dStep * 0.5;
+	xcomplex	cF3 = lpfFn( xcX3,i_lpvData ).sqrt();
 	double		dPhi3 = cF3.argument();
-	XCOMPLEX	xcX4 = xcX + XCOMPLEX(cos(dPhi3),sin(-dPhi3)) * dStep;
-	XCOMPLEX	cF4 = lpfFn( xcX4,i_lpvData ).sqrt();
+	xcomplex	xcX4 = xcX + xcomplex(cos(dPhi3),sin(-dPhi3)) * dStep;
+	xcomplex	cF4 = lpfFn( xcX4,i_lpvData ).sqrt();
 	double		dPhi4 = cF4.argument();
 	dRes = -(dPhi1 + 2.0 * (dPhi2 + dPhi3) + dPhi4) / 6.0;
 	return dRes;
@@ -484,7 +484,7 @@ double XInterpolate_CSpline(const double & i_dX, const double i_lpdX[3], const d
 	}
 	return dY;
 }
-void XSPLINE_DATA::Clear_pointers(void)
+void xspline_data::Clear_pointers(void)
 {
 	m_lpdX = 
 	m_lpdY = 
@@ -493,12 +493,12 @@ void XSPLINE_DATA::Clear_pointers(void)
 	m_uiNum_Points = 0;
 	m_uiNum_Points_Allocated = 0;
 }
-XSPLINE_DATA::XSPLINE_DATA(const XSPLINE_DATA &i_cRHO)
+xspline_data::xspline_data(const xspline_data &i_cRHO)
 {
 	Clear_pointers(); 
 	Copy(i_cRHO);
 }
-void XSPLINE_DATA::Allocate(unsigned int i_uiNum_Data_Points)
+void xspline_data::Allocate(unsigned int i_uiNum_Data_Points)
 {
 	if (i_uiNum_Data_Points > m_uiNum_Points_Allocated)
 	{
@@ -518,7 +518,7 @@ void XSPLINE_DATA::Allocate(unsigned int i_uiNum_Data_Points)
 	}
 	m_uiNum_Points = i_uiNum_Data_Points;
 }
-void XSPLINE_DATA::Copy(const XSPLINE_DATA &i_cRHO)
+void xspline_data::Copy(const xspline_data &i_cRHO)
 {
 	unsigned int uiSizeXY = m_uiNum_Points * sizeof(double);
 	unsigned int uiSizeD = (m_uiNum_Points - 2) * sizeof(double);
@@ -528,7 +528,7 @@ void XSPLINE_DATA::Copy(const XSPLINE_DATA &i_cRHO)
 	memcpy(m_lpdFirst_Derivatives,i_cRHO.m_lpdFirst_Derivatives,uiSizeD);
 	memcpy(m_lpdSecond_Derivatites,i_cRHO.m_lpdSecond_Derivatites,uiSizeD);
 }
-void XSPLINE_DATA::Initialize(const double * i_lpdX, const double * i_lpdY, unsigned int i_uiNum_Data_Points)
+void xspline_data::Initialize(const double * i_lpdX, const double * i_lpdY, unsigned int i_uiNum_Data_Points)
 {
 	unsigned int uiI;
 	Allocate(i_uiNum_Data_Points);
@@ -537,7 +537,7 @@ void XSPLINE_DATA::Initialize(const double * i_lpdX, const double * i_lpdY, unsi
 	memcpy(m_lpdY,i_lpdY,uiSizeXY);
 	Initialize_Derivatives();
 }
-void XSPLINE_DATA::Initialize(const std::map<double, double> &i_mddData)
+void xspline_data::Initialize(const std::map<double, double> &i_mddData)
 {
 	unsigned int uiI = 0;
 	Allocate(i_mddData.size());
@@ -549,7 +549,7 @@ void XSPLINE_DATA::Initialize(const std::map<double, double> &i_mddData)
 	}
 	Initialize_Derivatives();
 }
-void XSPLINE_DATA::Initialize(const std::vector<double> i_vdX, std::vector<double> &i_vdY)
+void xspline_data::Initialize(const std::vector<double> i_vdX, std::vector<double> &i_vdY)
 {
 	if (i_vdX.size() == i_vdY.size())
 	{
@@ -565,7 +565,7 @@ void XSPLINE_DATA::Initialize(const std::vector<double> i_vdX, std::vector<doubl
 	else
 		fprintf(stderr,"XSPLINE: X and Y have different sizes in (std::vector<double>, std::vector<double>) form.\n");
 }
-void XSPLINE_DATA::Initialize(const std::vector< std::pair<double, double> > &i_vdData)
+void xspline_data::Initialize(const std::vector< std::pair<double, double> > &i_vdData)
 {
 	unsigned int uiI = 0;
 	Allocate(i_vdData.size());
@@ -578,7 +578,7 @@ void XSPLINE_DATA::Initialize(const std::vector< std::pair<double, double> > &i_
 	Initialize_Derivatives();
 }
 
-void XSPLINE_DATA::Initialize_Derivatives(void)
+void xspline_data::Initialize_Derivatives(void)
 {
 	for (unsigned int uiI = 0; uiI < m_uiNum_Points - 2; uiI++)
 	{
@@ -594,7 +594,7 @@ void XSPLINE_DATA::Initialize_Derivatives(void)
 			fprintf(stderr,"XSPLINE: Second derivative is invalid at %i\n",uiI);
 	}
 }
-double XSPLINE_DATA::Interpolate(const double &i_dX) const
+double xspline_data::Interpolate(const double &i_dX) const
 {
 	double	dY = g_kcNAN.k_dNAN;
 	if (m_uiNum_Points >= 3)
@@ -627,7 +627,7 @@ double XSPLINE_DATA::Interpolate(const double &i_dX) const
 		fprintf(stderr,"XSPLINE: Not enough data to interpolate.\n");
 	return dY;
 }
-XSPLINE_DATA & XSPLINE_DATA::operator =(const XSPLINE_DATA &i_cRHO)
+xspline_data & xspline_data::operator =(const xspline_data &i_cRHO)
 {
 	Copy(i_cRHO);
 	return *this;

@@ -2,12 +2,12 @@
 #include <math.h>
 #include "xcomplex.h"
 
-XCOMPLEX	xI(0.0,1.0);
+xcomplex	xI(0.0,1.0);
 ////////////////////////////////////////////////////////////////////////////////////////
 //
-//	XCOMPLEX.cpp
+//	xcomplex.cpp
 //
-//	Source code for XCOMPLEX, as defined in xcomplex.h
+//	Source code for xcomplex, as defined in xcomplex.h
 //
 //	Dependencies:
 //		xcomplex.h
@@ -24,30 +24,30 @@ XCOMPLEX	xI(0.0,1.0);
 ////////////////////////////////////////////////////////////////////////////////////////
 //	operator + (double,XPOLYNOMIAL)
 ////////////////////////////////////////////////////////////////////////////////////////
-XCOMPLEX operator +(const double &dLHO, const XCOMPLEX &cRHO)
+xcomplex operator +(const double &dLHO, const xcomplex &cRHO)
 {
 	return (cRHO + dLHO);
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 //	operator - (double,XPOLYNOMIAL)
 ////////////////////////////////////////////////////////////////////////////////////////
-XCOMPLEX operator -(const double &dLHO, const XCOMPLEX &cRHO)
+xcomplex operator -(const double &dLHO, const xcomplex &cRHO)
 {
 	return (cRHO * -1 + dLHO);
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 //	operator * (double,XPOLYNOMIAL)
 ////////////////////////////////////////////////////////////////////////////////////////
-XCOMPLEX operator *(const double &dLHO, const XCOMPLEX &cRHO)
+xcomplex operator *(const double &dLHO, const xcomplex &cRHO)
 {
 	return (cRHO * dLHO);
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 //	operator / (double,XPOLYNOMIAL)
 ////////////////////////////////////////////////////////////////////////////////////////
-XCOMPLEX operator /(const double &dLHO, const XCOMPLEX &cRHO)
+xcomplex operator /(const double &dLHO, const xcomplex &cRHO)
 {
-	XCOMPLEX cLHO(dLHO,0.0);
+	xcomplex cLHO(dLHO,0.0);
 	return (cLHO / cRHO);
 }
 
@@ -57,16 +57,16 @@ XCOMPLEX operator /(const double &dLHO, const XCOMPLEX &cRHO)
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 
-XCOMPLEX	sqrt_c(const double &dValue)
+xcomplex	sqrt_c(const double &dValue)
 {
-	XCOMPLEX cRet(0,0);
+	xcomplex cRet(0,0);
 	if (dValue < 0.0)
 		cRet.dIm = sqrt(-dValue);
 	else
 		cRet.dRe = sqrt(dValue);
 	return cRet;
 }
-double		XCOMPLEX::argument( void ) const 
+double		xcomplex::argument( void ) const 
 {
 	double	dRet;
 /*	if( dRe == 0.0)
@@ -92,7 +92,7 @@ double		XCOMPLEX::argument( void ) const
 }
 
 
-ostream& operator<<( ostream &out, const XCOMPLEX &xC ) {
+ostream& operator<<( ostream &out, const xcomplex &xC ) {
 
 	//out << c.real << ( c.imag >= 0 ? "+" : "" ) << c.imag << "I";
 	out << xC.dRe << "," << xC.dIm;
@@ -101,9 +101,9 @@ ostream& operator<<( ostream &out, const XCOMPLEX &xC ) {
 
 }
 
-XCOMPLEX	exp(const XCOMPLEX &xcExp)
+xcomplex	exp(const xcomplex &xcExp)
 {
-	XCOMPLEX	xcRet(cos(xcExp.dIm),sin(xcExp.dIm));
+	xcomplex	xcRet(cos(xcExp.dIm),sin(xcExp.dIm));
 	xcRet *= exp(xcExp.dRe);
 	return xcRet;
 }

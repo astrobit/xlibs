@@ -8,7 +8,7 @@
 //
 //----------------------------------------------------------------------------
 // default constructor
-XSQUARE_MATRIX::XSQUARE_MATRIX(void)
+xsquare_matrix::xsquare_matrix(void)
 {
 	m_lpdValues = NULL;
 	m_bLU_Initialized = false;
@@ -18,7 +18,7 @@ XSQUARE_MATRIX::XSQUARE_MATRIX(void)
 	m_uiN_Alloc = 0;
 }
 // constructor sith specified size
-XSQUARE_MATRIX::XSQUARE_MATRIX(unsigned int i_uiN)
+xsquare_matrix::xsquare_matrix(unsigned int i_uiN)
 {
 	m_lpdValues = new double[i_uiN * i_uiN];
 	m_bLU_Initialized = false;
@@ -28,7 +28,7 @@ XSQUARE_MATRIX::XSQUARE_MATRIX(unsigned int i_uiN)
 	m_uiN_Alloc = i_uiN;
 }
 // copy constructor
-XSQUARE_MATRIX::XSQUARE_MATRIX(const XSQUARE_MATRIX &i_cRHO)
+xsquare_matrix::xsquare_matrix(const xsquare_matrix &i_cRHO)
 {
 	m_lpdValues = new double[i_cRHO.m_uiN * i_cRHO.m_uiN];
 	m_lpuiPivot_Table = NULL;
@@ -41,7 +41,7 @@ XSQUARE_MATRIX::XSQUARE_MATRIX(const XSQUARE_MATRIX &i_cRHO)
 	Perform_LU_Decomposition();
 }
 // desructor
-XSQUARE_MATRIX::~XSQUARE_MATRIX(void)
+xsquare_matrix::~xsquare_matrix(void)
 {
 	if (m_lpdValues)
 		delete [] m_lpdValues;
@@ -59,7 +59,7 @@ XSQUARE_MATRIX::~XSQUARE_MATRIX(void)
 	m_lpdL_Values = m_lpdU_Values = NULL;
 }
 // set size of matrix
-void	XSQUARE_MATRIX::Set_Size(unsigned int i_uiN)
+void	xsquare_matrix::Set_Size(unsigned int i_uiN)
 {
 	if (i_uiN >= m_uiN_Alloc)
 	{
@@ -74,7 +74,7 @@ void	XSQUARE_MATRIX::Set_Size(unsigned int i_uiN)
 	memset(m_lpdValues,0,sizeof(double) * m_uiN * m_uiN);
 }
 // set matrix element
-void	XSQUARE_MATRIX::Set(
+void	xsquare_matrix::Set(
 			unsigned int i_uiRow, 
 			unsigned int i_uiCol, 
 			const double &i_dValue)
@@ -86,7 +86,7 @@ void	XSQUARE_MATRIX::Set(
 	}
 }
 // set column vector
-void	XSQUARE_MATRIX::Set(unsigned int i_uiCol, const XVECTOR &i_vCol)
+void	xsquare_matrix::Set(unsigned int i_uiCol, const XVECTOR &i_vCol)
 {
 	if (m_lpdValues && i_uiCol < m_uiN && 
 		i_vCol.m_lpdValues && i_vCol.m_uiN == m_uiN)
@@ -100,7 +100,7 @@ void	XSQUARE_MATRIX::Set(unsigned int i_uiCol, const XVECTOR &i_vCol)
 	}
 }
 // add a value to an element
-void	XSQUARE_MATRIX::Element_Add(
+void	xsquare_matrix::Element_Add(
 		unsigned int i_uiRow, 
 		unsigned int i_uiCol, 
 		const double &i_dValue)
@@ -112,14 +112,14 @@ void	XSQUARE_MATRIX::Element_Add(
 	}
 }
 // retrieve an element value
-double	XSQUARE_MATRIX::Get(unsigned int i_uiRow, unsigned int i_uiCol) const
+double	xsquare_matrix::Get(unsigned int i_uiRow, unsigned int i_uiCol) const
 {
 	double	dRet = 0.0;
 	if (m_lpdValues && i_uiRow < m_uiN && i_uiCol < m_uiN)
 		dRet =  m_lpdValues[i_uiRow * m_uiN + i_uiCol];
 	return dRet;
 }
-XVECTOR	XSQUARE_MATRIX::GetColumn(unsigned int i_uiCol) const
+XVECTOR	xsquare_matrix::GetColumn(unsigned int i_uiCol) const
 {
 	XVECTOR	vRet;
 	unsigned int uiRow;
@@ -134,7 +134,7 @@ XVECTOR	XSQUARE_MATRIX::GetColumn(unsigned int i_uiCol) const
 	return vRet;
 }
 // = operator: copy matrix
-XSQUARE_MATRIX & XSQUARE_MATRIX::operator =(const XSQUARE_MATRIX &i_cRHO)
+xsquare_matrix & xsquare_matrix::operator =(const xsquare_matrix &i_cRHO)
 {
 	m_bLU_Initialized = false;
 	if (m_uiN_Alloc < i_cRHO.m_uiN)
@@ -159,7 +159,7 @@ XSQUARE_MATRIX & XSQUARE_MATRIX::operator =(const XSQUARE_MATRIX &i_cRHO)
 	return *this;
 }
 // matrix multiplication
-XSQUARE_MATRIX & XSQUARE_MATRIX::operator *=(const XSQUARE_MATRIX &i_cRHO)
+xsquare_matrix & xsquare_matrix::operator *=(const xsquare_matrix &i_cRHO)
 {
 	if (m_uiN == i_cRHO.m_uiN && m_uiN > 0)
 	{
@@ -178,14 +178,14 @@ XSQUARE_MATRIX & XSQUARE_MATRIX::operator *=(const XSQUARE_MATRIX &i_cRHO)
 	return *this;
 }
 // matrix multiplication
-XSQUARE_MATRIX XSQUARE_MATRIX::operator *(const XSQUARE_MATRIX &i_cRHO) const
+xsquare_matrix xsquare_matrix::operator *(const xsquare_matrix &i_cRHO) const
 {
-	XSQUARE_MATRIX cMatrix(*this);
+	xsquare_matrix cMatrix(*this);
 	cMatrix *= i_cRHO;
 	return cMatrix;
 }
 // vector multiplication: matrix A, vector x:  r = Ax
-XVECTOR XSQUARE_MATRIX::operator * (const XVECTOR &i_cRHO) const
+XVECTOR xsquare_matrix::operator * (const XVECTOR &i_cRHO) const
 {
 	XVECTOR	cRes(i_cRHO.m_uiN);
 
@@ -206,7 +206,7 @@ XVECTOR XSQUARE_MATRIX::operator * (const XVECTOR &i_cRHO) const
 }
 
 // scalar multiplication
-XSQUARE_MATRIX & XSQUARE_MATRIX::operator *=(const double &i_dRHO)
+xsquare_matrix & xsquare_matrix::operator *=(const double &i_dRHO)
 {
 	if (m_lpdValues)
 	{
@@ -219,19 +219,19 @@ XSQUARE_MATRIX & XSQUARE_MATRIX::operator *=(const double &i_dRHO)
 	return *this;
 }
 // scalar multiplication
-XSQUARE_MATRIX XSQUARE_MATRIX::operator *(const double &i_dRHO)  const
+xsquare_matrix xsquare_matrix::operator *(const double &i_dRHO)  const
 {
-	XSQUARE_MATRIX cRet(*this);
+	xsquare_matrix cRet(*this);
 	cRet *= i_dRHO;
 	return cRet;
 }
 // scalar multiplication
-XSQUARE_MATRIX operator * (const double &i_dLHO, const XSQUARE_MATRIX &i_vRHO)
+xsquare_matrix operator * (const double &i_dLHO, const xsquare_matrix &i_vRHO)
 {
 	return i_vRHO * i_dLHO;
 }
 	// matrix addition
-XSQUARE_MATRIX & XSQUARE_MATRIX::operator +=(const XSQUARE_MATRIX &i_cRHO)
+xsquare_matrix & xsquare_matrix::operator +=(const xsquare_matrix &i_cRHO)
 {
 	if (m_uiN == i_cRHO.m_uiN)
 	{
@@ -244,13 +244,13 @@ XSQUARE_MATRIX & XSQUARE_MATRIX::operator +=(const XSQUARE_MATRIX &i_cRHO)
 	}
 	return *this;
 }
-XSQUARE_MATRIX XSQUARE_MATRIX::operator +(const XSQUARE_MATRIX &i_cRHO) const
+xsquare_matrix xsquare_matrix::operator +(const xsquare_matrix &i_cRHO) const
 {
-	XSQUARE_MATRIX cMatrixOut = *this;
+	xsquare_matrix cMatrixOut = *this;
 	cMatrixOut += i_cRHO;
 	return cMatrixOut;
 }
-XSQUARE_MATRIX & XSQUARE_MATRIX::operator -=(const XSQUARE_MATRIX &i_cRHO)
+xsquare_matrix & xsquare_matrix::operator -=(const xsquare_matrix &i_cRHO)
 {
 	if (m_uiN == i_cRHO.m_uiN)
 	{
@@ -263,15 +263,15 @@ XSQUARE_MATRIX & XSQUARE_MATRIX::operator -=(const XSQUARE_MATRIX &i_cRHO)
 	}
 	return *this;
 }
-XSQUARE_MATRIX XSQUARE_MATRIX::operator -(const XSQUARE_MATRIX &i_cRHO)  const
+xsquare_matrix xsquare_matrix::operator -(const xsquare_matrix &i_cRHO)  const
 {
-	XSQUARE_MATRIX cMatrixOut = *this;
+	xsquare_matrix cMatrixOut = *this;
 	cMatrixOut -= i_cRHO;
 	return cMatrixOut;
 }
 
 // set the matrix to the idenity matrix
-void	XSQUARE_MATRIX::Identity(void)
+void	xsquare_matrix::Identity(void)
 {
 	if (m_lpdValues)
 	{
@@ -283,7 +283,7 @@ void	XSQUARE_MATRIX::Identity(void)
 	}
 }
 // set all elements to zero
-void	XSQUARE_MATRIX::Zero(void)
+void	xsquare_matrix::Zero(void)
 {
 	if (m_lpdValues)
 	{
@@ -298,7 +298,7 @@ void	XSQUARE_MATRIX::Zero(void)
 }
 
 // scale an entire matrix row by a value
-void	XSQUARE_MATRIX::Scale_Row(unsigned int i_uiRow, const double &i_dScalar)
+void	xsquare_matrix::Scale_Row(unsigned int i_uiRow, const double &i_dScalar)
 {
 	if (m_lpdValues && i_uiRow < m_uiN)
 	{
@@ -316,7 +316,7 @@ void	XSQUARE_MATRIX::Scale_Row(unsigned int i_uiRow, const double &i_dScalar)
 // operand' row before the addition.  If the Assume RR flag is true,
 // only columns > right hand operand are modified. (the matrix is
 // assumed to be 0 in the RHO row to the left of this column.
-void	XSQUARE_MATRIX::Add_Rows(
+void	xsquare_matrix::Add_Rows(
 			unsigned int i_uiRow_LHO, 
 			unsigned int i_uiRow_RHO, 
 			const double &i_dRHO_Scalar, 
@@ -338,7 +338,7 @@ void	XSQUARE_MATRIX::Add_Rows(
 }
 
 // Swap two rows
-void	XSQUARE_MATRIX::Swap_Rows(unsigned int i_uiRow_1, unsigned int i_uiRow_2)
+void	xsquare_matrix::Swap_Rows(unsigned int i_uiRow_1, unsigned int i_uiRow_2)
 {
 	if (m_lpdValues && i_uiRow_1 < m_uiN && i_uiRow_2 < m_uiN)
 	{
@@ -355,11 +355,11 @@ void	XSQUARE_MATRIX::Swap_Rows(unsigned int i_uiRow_1, unsigned int i_uiRow_2)
 
 // perform Guass-Jordanian elimination:  The matrix will become
 // it's inverse
-void	XSQUARE_MATRIX::Inverse_GJ(void)
+void	xsquare_matrix::Inverse_GJ(void)
 {
 	if (m_lpdValues)
 	{
-		XSQUARE_MATRIX	cI(m_uiN);
+		xsquare_matrix	cI(m_uiN);
 		cI.Identity();
 		// allocate work space
 		double	dScalar;
@@ -403,7 +403,7 @@ void	XSQUARE_MATRIX::Inverse_GJ(void)
 	}
 }
 
-XVECTOR	XSQUARE_MATRIX::Back_Substituion(const double * lpdValue_set, const XVECTOR &i_vB)
+XVECTOR	xsquare_matrix::Back_Substituion(const double * lpdValue_set, const XVECTOR &i_vB)
 {
 	XVECTOR vX(m_uiN);
 	unsigned int uiRow;
@@ -424,7 +424,7 @@ XVECTOR	XSQUARE_MATRIX::Back_Substituion(const double * lpdValue_set, const XVEC
 	return vX;
 }
 
-XVECTOR	XSQUARE_MATRIX::Forward_Substituion(const XVECTOR &i_vB)
+XVECTOR	xsquare_matrix::Forward_Substituion(const XVECTOR &i_vB)
 {
 	XVECTOR vX(m_uiN);
 	unsigned int uiRow;
@@ -452,7 +452,7 @@ XVECTOR	XSQUARE_MATRIX::Forward_Substituion(const XVECTOR &i_vB)
 
 // Perform Gaussian elimination with back substituion, given vector b,
 // find vector X such that Ax = b
-XVECTOR	XSQUARE_MATRIX::Solve_GEb(const XVECTOR &i_vB)
+XVECTOR	xsquare_matrix::Solve_GEb(const XVECTOR &i_vB)
 {
 	XVECTOR	vX;
 	XVECTOR	vBlcl = i_vB;
@@ -506,7 +506,7 @@ XVECTOR	XSQUARE_MATRIX::Solve_GEb(const XVECTOR &i_vB)
 	}
 	return vX;
 }
-void XSQUARE_MATRIX::Perform_LU_Decomposition(void)
+void xsquare_matrix::Perform_LU_Decomposition(void)
 {// Perform LU Decomposition using Crout's method
 	unsigned int uiRow, uiCol, uiK;
 	if (!m_bLU_Initialized && m_lpdValues)
@@ -559,7 +559,7 @@ void XSQUARE_MATRIX::Perform_LU_Decomposition(void)
 	}
 }
 
-XVECTOR	XSQUARE_MATRIX::Solve_LU(const XVECTOR &i_vB)
+XVECTOR	xsquare_matrix::Solve_LU(const XVECTOR &i_vB)
 {
 	XVECTOR	vX;
 	Perform_LU_Decomposition();
@@ -590,7 +590,7 @@ public:
 };
 
 DUMMY g_cDummy;
-void XSQUARE_MATRIX::Invert_LUD(void)
+void xsquare_matrix::Invert_LUD(void)
 { // Invert the matrix using LU decomposition
 	Perform_LU_Decomposition();
 	if (m_lpdValues && m_bLU_Initialized)
@@ -625,7 +625,7 @@ void XSQUARE_MATRIX::Invert_LUD(void)
 }
 
 // print the matrix to file or console
-void	XSQUARE_MATRIX::Print(const char * lpszFormat, char chSeparator, FILE * i_fileOut, WHICH i_eWhich)
+void	xsquare_matrix::Print(const char * lpszFormat, char chSeparator, FILE * i_fileOut, WHICH i_eWhich)
 {
 	if ((i_eWhich == MAT_U || i_eWhich == MAT_L) && !m_bLU_Initialized)
 		Perform_LU_Decomposition();
@@ -668,7 +668,7 @@ void	XSQUARE_MATRIX::Print(const char * lpszFormat, char chSeparator, FILE * i_f
 }
 
 	// Transpose the matrix
-void	XSQUARE_MATRIX::Transpose(void)
+void	xsquare_matrix::Transpose(void)
 {
 	unsigned int uiRow, uiCol;
 	for (uiRow = 0; uiRow < m_uiN; uiRow++)
@@ -685,7 +685,7 @@ void	XSQUARE_MATRIX::Transpose(void)
 }
 
 	// Generate rotation matrix, given Euler angles phi (x), theta (y), and psi (z)
-void	XSQUARE_MATRIX::Create_Rotation_Matrix(const double & i_dPhi_Rad,const double &i_dTheta_Rad, const double & i_dPsi_Rad)
+void	xsquare_matrix::Create_Rotation_Matrix(const double & i_dPhi_Rad,const double &i_dTheta_Rad, const double & i_dPsi_Rad)
 {
 
 	if (m_uiN == 0)
@@ -718,7 +718,7 @@ void	XSQUARE_MATRIX::Create_Rotation_Matrix(const double & i_dPhi_Rad,const doub
 }
 
 
-bool XSQUARE_MATRIX::is_nan(void) const
+bool xsquare_matrix::is_nan(void) const
 {
 	bool bRet = false;
 	unsigned int uiN = m_uiN * m_uiN;
@@ -728,7 +728,7 @@ bool XSQUARE_MATRIX::is_nan(void) const
 	}
 	return bRet;
 }
-bool XSQUARE_MATRIX::is_inf(void) const
+bool xsquare_matrix::is_inf(void) const
 {
 	bool bRet = false;
 	unsigned int uiN = m_uiN * m_uiN;
@@ -737,5 +737,11 @@ bool XSQUARE_MATRIX::is_inf(void) const
 		bRet = isinf(m_lpdValues[uiI]);
 	}
 	return bRet;
+}
+
+xvector	xsquare_matrix::Get_Eigenvector(const double & i_dLambda) const
+{
+	xvector vRet;
+	return vRet;
 }
 

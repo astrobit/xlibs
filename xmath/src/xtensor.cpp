@@ -2,7 +2,7 @@
 #include <string.h>
 
 
-void XTENSOR::Allocate(const XINDEX_VECTOR	&i_uivDimensions)
+void xtensor::Allocate(const xindex_vector	&i_uivDimensions)
 {
 	unsigned int uiRank = i_uivDimensions.Get_Size();
 	unsigned int uiSize = 1;
@@ -59,7 +59,7 @@ void XTENSOR::Allocate(const XINDEX_VECTOR	&i_uivDimensions)
 
 }
 
-void			XTENSOR::Copy(const XTENSOR &i_tRHO)
+void			xtensor::Copy(const xtensor &i_tRHO)
 {
 	// ensure allocatioj is sufficient
 	Allocate(i_tRHO.m_uivDimensions);
@@ -68,7 +68,7 @@ void			XTENSOR::Copy(const XTENSOR &i_tRHO)
 }
 
 // 
-unsigned int	XTENSOR::ComputeIndex(const XINDEX_VECTOR	&i_uivElement_Index) const
+unsigned int	xtensor::ComputeIndex(const xindex_vector	&i_uivElement_Index) const
 {
 	unsigned int uiIndex = 0x0ffffffff;
 	if (m_uiRank > 0)
@@ -85,7 +85,7 @@ unsigned int	XTENSOR::ComputeIndex(const XINDEX_VECTOR	&i_uivElement_Index) cons
 }
 
 // default constructor
-XTENSOR::XTENSOR(void)
+xtensor::xtensor(void)
 {
 	m_lpdValues = NULL;
 	m_uiRank = 0;
@@ -93,7 +93,7 @@ XTENSOR::XTENSOR(void)
 	m_uiSize_Alloc = 0;
 }
 // constructor sith specified size
-XTENSOR::XTENSOR(const XINDEX_VECTOR &i_vDimensions)
+xtensor::xtensor(const xindex_vector &i_vDimensions)
 {
 	m_lpdValues = NULL;
 	m_uiRank = 0;
@@ -102,7 +102,7 @@ XTENSOR::XTENSOR(const XINDEX_VECTOR &i_vDimensions)
 	Allocate(i_vDimensions);
 }
 // copy constructor
-XTENSOR::XTENSOR(const XTENSOR &i_tRHO)
+xtensor::xtensor(const xtensor &i_tRHO)
 {
 	m_lpdValues = NULL;
 	m_uiRank = 0;
@@ -111,7 +111,7 @@ XTENSOR::XTENSOR(const XTENSOR &i_tRHO)
 	Copy(i_tRHO);
 }
 // destructor
-XTENSOR::~XTENSOR(void)
+xtensor::~xtensor(void)
 {
 	if (m_lpdValues)
 		delete [] m_lpdValues;
@@ -124,19 +124,19 @@ XTENSOR::~XTENSOR(void)
 }
 
 // set size of tensor
-void	XTENSOR::Set_Size(const XINDEX_VECTOR & i_uivDimensions)
+void	xtensor::Set_Size(const xindex_vector & i_uivDimensions)
 {
 	Allocate(i_uivDimensions);
 }
 // set tensor element
-void	XTENSOR::Set(const XINDEX_VECTOR & i_uivElement_Index, const double &i_dValue)
+void	xtensor::Set(const xindex_vector & i_uivElement_Index, const double &i_dValue)
 {
 	unsigned int uiIndex = ComputeIndex(i_uivElement_Index);
 	if (uiIndex < m_uiNum_Entries)
 		m_lpdValues[uiIndex] = i_dValue;
 }
 // get tensor element
-double	XTENSOR::Get(const XINDEX_VECTOR & i_uivElement_Index) const
+double	xtensor::Get(const xindex_vector & i_uivElement_Index) const
 {
 	double	dRet = 0.0;
 	unsigned int uiIndex = ComputeIndex(i_uivElement_Index);

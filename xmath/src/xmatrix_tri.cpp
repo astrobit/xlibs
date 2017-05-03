@@ -13,7 +13,7 @@
 //
 //----------------------------------------------------------------------------
 // Set size n of matrix
-void	XTRIDIAG_MATRIX::Set_Size(unsigned int i_uiN)
+void	xtridiag_matrix::Set_Size(unsigned int i_uiN)
 {
 	if (i_uiN >= m_uiN_Alloc)
 	{
@@ -29,7 +29,7 @@ void	XTRIDIAG_MATRIX::Set_Size(unsigned int i_uiN)
 	memset(m_lpdValues,0,sizeof(double) * m_uiN * 3);
 }
 // default constructor
-XTRIDIAG_MATRIX::XTRIDIAG_MATRIX(void)
+xtridiag_matrix::xtridiag_matrix(void)
 {
 	m_lpdValues = NULL;
 	m_lpdGH = NULL;
@@ -37,7 +37,7 @@ XTRIDIAG_MATRIX::XTRIDIAG_MATRIX(void)
 	m_uiN_Alloc = 0;
 }
 // constructor to set size
-XTRIDIAG_MATRIX::XTRIDIAG_MATRIX(unsigned int i_uiN)
+xtridiag_matrix::xtridiag_matrix(unsigned int i_uiN)
 {
 	m_lpdValues = NULL;
 	m_lpdGH = NULL;
@@ -46,7 +46,7 @@ XTRIDIAG_MATRIX::XTRIDIAG_MATRIX(unsigned int i_uiN)
 	Set_Size(i_uiN);
 }
 // copy constructor
-XTRIDIAG_MATRIX::XTRIDIAG_MATRIX(const XTRIDIAG_MATRIX &i_cRHO)
+xtridiag_matrix::xtridiag_matrix(const xtridiag_matrix &i_cRHO)
 {
 	m_lpdValues = NULL;
 	m_lpdGH = NULL;
@@ -56,7 +56,7 @@ XTRIDIAG_MATRIX::XTRIDIAG_MATRIX(const XTRIDIAG_MATRIX &i_cRHO)
 	memcpy(m_lpdValues,i_cRHO.m_lpdValues,i_cRHO.m_uiN * 3 * sizeof(double));
 }
 // destructor
-XTRIDIAG_MATRIX::~XTRIDIAG_MATRIX(void)
+xtridiag_matrix::~xtridiag_matrix(void)
 {
 	if (m_lpdValues)
 		delete [] m_lpdValues;
@@ -69,7 +69,7 @@ XTRIDIAG_MATRIX::~XTRIDIAG_MATRIX(void)
 }
 
 // set a particlar row/column
-void	XTRIDIAG_MATRIX::Set(
+void	xtridiag_matrix::Set(
 	unsigned int i_uiRow, 
 	unsigned int i_uiCol, 
 	const double &i_dValue)
@@ -85,7 +85,7 @@ void	XTRIDIAG_MATRIX::Set(
 }
 
 // set a row
-void	XTRIDIAG_MATRIX::Set(
+void	xtridiag_matrix::Set(
 	unsigned int i_uiRow, 
 	const double &i_dValue_Alpha, 
 	const double &i_dValue_Beta, 
@@ -105,7 +105,7 @@ void	XTRIDIAG_MATRIX::Set(
 	}
 }
 // add a value to a particular row/column element
-void	XTRIDIAG_MATRIX::Element_Add(
+void	xtridiag_matrix::Element_Add(
 	unsigned int i_uiRow, 
 	unsigned int i_uiCol, 
 	const double &i_dValue)
@@ -118,7 +118,7 @@ void	XTRIDIAG_MATRIX::Element_Add(
 	}
 }
 // get a row/column element
-double	XTRIDIAG_MATRIX::Get(unsigned int i_uiRow, unsigned int i_uiCol)
+double	xtridiag_matrix::Get(unsigned int i_uiRow, unsigned int i_uiCol)
 {
 	double	dRet = 0.0;
 	if (m_lpdValues && i_uiRow < m_uiN && i_uiCol < 3)
@@ -126,7 +126,7 @@ double	XTRIDIAG_MATRIX::Get(unsigned int i_uiRow, unsigned int i_uiCol)
 	return dRet;
 }
 // get g,h for a row
-void	XTRIDIAG_MATRIX::Get_GH(unsigned int i_uiRow, double &o_dGi, double &o_dHi)
+void	xtridiag_matrix::Get_GH(unsigned int i_uiRow, double &o_dGi, double &o_dHi)
 {
 	o_dGi = 0.0;
 	o_dHi = 0.0;
@@ -137,7 +137,7 @@ void	XTRIDIAG_MATRIX::Get_GH(unsigned int i_uiRow, double &o_dGi, double &o_dHi)
 	}
 }
 // = operator (copy another tridiagonal matrix)
-XTRIDIAG_MATRIX & XTRIDIAG_MATRIX::operator =(const XTRIDIAG_MATRIX &i_cRHO)
+xtridiag_matrix & xtridiag_matrix::operator =(const xtridiag_matrix &i_cRHO)
 {
 	if (m_uiN_Alloc < i_cRHO.m_uiN)
 	{
@@ -152,9 +152,9 @@ XTRIDIAG_MATRIX & XTRIDIAG_MATRIX::operator =(const XTRIDIAG_MATRIX &i_cRHO)
 	return *this;
 }
 // multiply a vector x into the matrix, such that r = Ax
-XVECTOR XTRIDIAG_MATRIX::operator * (const XVECTOR &i_cRHO)
+xvector xtridiag_matrix::operator * (const xvector &i_cRHO)
 {
-	XVECTOR	cRes(i_cRHO.m_uiN);
+	xvector	cRes(i_cRHO.m_uiN);
 
 	if (i_cRHO.m_lpdValues && m_lpdValues && m_uiN == i_cRHO.m_uiN)
 	{
@@ -175,7 +175,7 @@ XVECTOR XTRIDIAG_MATRIX::operator * (const XVECTOR &i_cRHO)
 }
 
 // scale a row by a given value
-void	XTRIDIAG_MATRIX::Scale_Row(unsigned int i_uiRow, const double &i_dScalar)
+void	xtridiag_matrix::Scale_Row(unsigned int i_uiRow, const double &i_dScalar)
 {
 	if (m_lpdValues && i_uiRow < m_uiN)
 	{
@@ -188,9 +188,9 @@ void	XTRIDIAG_MATRIX::Scale_Row(unsigned int i_uiRow, const double &i_dScalar)
 	}
 }
 // For the expression Ax = b, compute x given b.
-XVECTOR	XTRIDIAG_MATRIX::Compute_Inverse(const XVECTOR &i_vB)
+xvector	xtridiag_matrix::Compute_Inverse(const xvector &i_vB)
 {
-	XVECTOR	vRes(i_vB.m_uiN);
+	xvector	vRes(i_vB.m_uiN);
 	if (m_lpdValues && i_vB.m_lpdValues && i_vB.m_uiN == m_uiN)
 	{
 		m_lpdGH[(m_uiN - 2) * 2 + 0] = 
@@ -223,7 +223,7 @@ XVECTOR	XTRIDIAG_MATRIX::Compute_Inverse(const XVECTOR &i_vB)
 
 
 // print the matrix to file or console
-void	XTRIDIAG_MATRIX::Print(FILE * fileOut)
+void	xtridiag_matrix::Print(FILE * fileOut)
 {
 	for (unsigned int uiRow = 0; uiRow < m_uiN; uiRow++)
 	{
