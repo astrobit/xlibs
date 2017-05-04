@@ -741,7 +741,81 @@ bool xsquare_matrix::is_inf(void) const
 
 xvector	xsquare_matrix::Get_Eigenvector(const double & i_dLambda) const
 {
-	xvector vRet;
+	xvector vRet(m_uiN);
+	double *		lpdValues = new double[m_uiN * m_uiN];
+	memcpy(lpdValues,m_lpdValues,sizeof(double) * m_uiN * m_uiN);
+	// make the matrix right triangular -- since this is an eigenvalue problem, this is done
+	// using the relation a_{ii} x_i + Sum(j) a_{ij} x_j = lambda x_i
+	// and substituting x_i = 1/(lambda - a_{ii}) (Sum(j) a_{ij} x_j) in each lower row
+	for (size_t tRow = 0; tRow < m_uiN - 1; tRow++)
+	{
+		double dRow_Scalar = 1.0 / (i_dLambda - lpdValues[tRow * (m_uiN + 1)]);
+		for (size_t tRow_J = tRow + 1; tRow_J < m_uiN - 1; tRow_J++)
+		{
+			if (lpdValues[tRow_J * m_uiN + tRow] != 0.0)
+			{
+				double dRow_J_Scalar = lpdValues[tRow_J * m_uiN + tRow] * dRow_Scalar;
+				for (size_t tCol = tRow + 1; tCol < m_uiN; tCol++)
+				{
+					//printf("%i %i: %.2f -> ",tRow_J,tCol,lpdValues[tRow_J * m_uiN + tCol]);
+					lpdValues[tRow_J * m_uiN + tCol] += dRow_J_Scalar * lpdValues[tRow * m_uiN + tCol];
+					//printf("%.2f\n",lpdValues[tRow_J * m_uiN + tCol]);
+				}
+				lpdValues[tRow_J * m_uiN + tRow] = 0.0;
+			}
+		}
+	}
+	for (size_t tCol = 0; tCol < m_uiN; tCol++)
+		lpdValues[(m_uiN - 1) * m_uiN + tCol] = 0.0;
+	lpdValues[(m_uiN - 1) * m_uiN + (m_uiN - 1)] = 1.0;
+/*	printf("-------------------------------\n");
+	for (size_t tRow = 0; tRow < m_uiN; tRow++)
+	{
+		for (size_t tCol = 0; tCol < m_uiN; tCol++)
+		{
+			printf("\t%.2f",lpdValues[tRow * m_uiN + tCol]);
+		}
+		printf("\n");
+	}
+
+
+	printf("-------------------------------\n");*/
+	vRet[m_uiN - 1] = 1.0; // we are determining the values of all components relative to the last component
+	// determine value of x_{n-1} relative to x_{n}
+	for (size_t tRow = m_uiN - 2; tRow < m_uiN; tRow--)
+	{
+		double dA = i_dLambda - lpdValues[tRow * (m_uiN + 1)]; // 
+		lpdValues[tRow * m_uiN + m_uiN - 1] /= dA;
+		lpdValues[tRow * (m_uiN + 1)] = 0.0;
+		for (size_t tRow_J = tRow - 1; tRow_J < m_uiN; tRow_J--)
+		{
+//			printf("%i %i: %.2f -> ",tRow_J,tRow,lpdValues[tRow_J * m_uiN + m_uiN - 1]);
+			lpdValues[tRow_J * m_uiN + m_uiN - 1] += lpdValues[tRow * m_uiN + m_uiN - 1] * lpdValues[tRow_J * m_uiN + tRow];
+//			printf("%.2f\n",lpdValues[tRow_J * m_uiN + m_uiN - 1]);
+			lpdValues[tRow_J * m_uiN + tRow] = 0.0;
+		}
+	}
+/*	printf("-------------------------------\n");
+	for (size_t tRow = 0; tRow < m_uiN; tRow++)
+	{
+		for (size_t tCol = 0; tCol < m_uiN; tCol++)
+		{
+			printf("\t%.2f",lpdValues[tRow * m_uiN + tCol]);
+		}
+		printf("\n");
+	}*/
+	// place values relative to x_n into vector and sum them
+	double dSum = 0.0;
+	for (size_t tRow = 0; tRow < m_uiN; tRow++)
+	{
+		vRet[tRow] = lpdValues[tRow * m_uiN + m_uiN - 1];
+
+		dSum += (vRet[tRow]); // we are determining the values of all components relative to the last component
+	}
+	// normalize vector such that Sum (x_i) = 1
+	double dScalar = 1.0 / dSum;
+	for (size_t tRow = 0; tRow < m_uiN; tRow++)
+		vRet[tRow] *= dScalar;
 	return vRet;
 }
 
