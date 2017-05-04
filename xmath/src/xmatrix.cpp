@@ -750,6 +750,7 @@ xvector	xsquare_matrix::Get_Eigenvector(const double & i_dLambda) const
 	for (size_t tRow = 0; tRow < m_uiN - 1; tRow++)
 	{
 		double dRow_Scalar = 1.0 / (i_dLambda - lpdValues[tRow * (m_uiN + 1)]);
+#pragma omp for //shared(tRow,dRow_Scalar)
 		for (size_t tRow_J = tRow + 1; tRow_J < m_uiN - 1; tRow_J++)
 		{
 			if (lpdValues[tRow_J * m_uiN + tRow] != 0.0)
@@ -787,7 +788,8 @@ xvector	xsquare_matrix::Get_Eigenvector(const double & i_dLambda) const
 		double dA = i_dLambda - lpdValues[tRow * (m_uiN + 1)]; // 
 		lpdValues[tRow * m_uiN + m_uiN - 1] /= dA;
 		lpdValues[tRow * (m_uiN + 1)] = 0.0;
-		for (size_t tRow_J = tRow - 1; tRow_J < m_uiN; tRow_J--)
+#pragma omp for
+		for (size_t tRow_J = 0; tRow_J < tRow; tRow_J++)
 		{
 //			printf("%i %i: %.2f -> ",tRow_J,tRow,lpdValues[tRow_J * m_uiN + m_uiN - 1]);
 			lpdValues[tRow_J * m_uiN + m_uiN - 1] += lpdValues[tRow * m_uiN + m_uiN - 1] * lpdValues[tRow_J * m_uiN + tRow];
@@ -814,6 +816,7 @@ xvector	xsquare_matrix::Get_Eigenvector(const double & i_dLambda) const
 	}
 	// normalize vector such that Sum (x_i) = 1
 	double dScalar = 1.0 / dSum;
+#pragma omp for //shared(dScalar)
 	for (size_t tRow = 0; tRow < m_uiN; tRow++)
 		vRet[tRow] *= dScalar;
 	return vRet;
