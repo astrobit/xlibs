@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <vector>
-
+#include <cassert>
 //----------------------------------------------------------------------------
 //
 // VECTOR class
@@ -76,8 +76,12 @@ public:
 	bool	operator==(const xvector &i_vRHO)  const;
 	bool	operator!=(const xvector &i_vRHO)  const;
 
-	inline double	operator[](int i_iIndex) const {return Get(i_iIndex);};
-	inline double	operator[](unsigned int i_iIndex) const {return Get(i_iIndex);};
+	inline double operator[](int i_iIndex) const {assert(i_iIndex >= 0 && i_iIndex <= m_uiN && m_lpdValues != nullptr); return m_lpdValues[i_iIndex];};
+	inline double &operator[](int i_iIndex) {assert(i_iIndex >= 0 && i_iIndex <= m_uiN && m_lpdValues != nullptr); return m_lpdValues[i_iIndex];};
+	inline double operator[](unsigned int i_iIndex) const {assert(i_iIndex >= 0 && i_iIndex <= m_uiN && m_lpdValues != nullptr); return m_lpdValues[i_iIndex];};
+	inline double &operator[](unsigned int i_iIndex) {assert(i_iIndex >= 0 && i_iIndex <= m_uiN && m_lpdValues != nullptr); return m_lpdValues[i_iIndex];};
+	inline double operator[](size_t i_iIndex) const {assert(i_iIndex >= 0 && i_iIndex <= m_uiN && m_lpdValues != nullptr); return m_lpdValues[i_iIndex];};
+	inline double &operator[](size_t i_iIndex) {assert(i_iIndex >= 0 && i_iIndex <= m_uiN && m_lpdValues != nullptr); return m_lpdValues[i_iIndex];};
 
 	bool is_nan(void) const;
 	bool is_inf(void) const;
