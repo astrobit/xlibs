@@ -407,6 +407,605 @@ public:
 
 };
 
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// expdouble extended precision floating point class
+//
+// The expdouble class is a software implementation of 128 bit floating point
+// with 64 mantissa bits, 1 sign bit, and 63 exponent bits. It is intended to be
+// (but is not yet) compliant with the IEEE 754-2008 floating point standard.
+// At present, the +, -, and * operators are defined. The division operator is
+// not yet defined (coming soon!). Some standard functions are defined, most are
+// not. NaN and infinity are included, but aren't fully working in all 
+// circumstances.
+//
+// In order to extract the data in a printable format, there is a function
+//
+//	std::string get_b10_value(size_t i_nNum_Digits, bool i_bEngineering_Form)
+//
+// that returns a string with the value in base 10. The Num Digits input specifies
+// how many digits after the decimal point to include. i_bEngineering_Form specifies
+// that the value should be returned in the form m.mmmmmme+xxxxxxx
+// where m.mmmmm is the mantissa and xxxxx is the exponent.
+//
+// There is also a << operator defined that works with the std::ostream. This
+// operator works using the get_b10_value function
+// Note: the get_b10_value will try to expand really big numbers. If you
+// try to print EDBL_MAX, expect it to take a REALLY long time.
+
+//
+// License: LGPL 3.0. Full license included below
+// Copyright: (c) 2017 Brian W. Mulligan
+// This work is entirely self contained, and was not written using any existing code libraries or derived from the work of any person, living or dead.
+// History:
+//      11 May 2017 : Created by Brian W. Mulligan
+//
+
+class expdouble
+{
+private:
+	uint64_t m_nMantissa;
+	int64_t m_nExponent;
+	
+	char extract_digit(long double & io_lpdDigit)
+	{
+		char chRet = '0';
+		int iValue = fabs(io_lpdDigit);
+		if (iValue < 10)
+		{
+			chRet += iValue;
+			io_lpdDigit -= iValue;
+		}
+		return chRet;
+	}
+public:
+	void load(const long double & i_ldData)
+	{
+		// warning: this method does not use the ldexp and frexp functions that are part of the std c++ math library
+		// it is therefore architecture dependant. It probably doesn't work on anything other than x64 arch.
+		uint64_t * lptData = (uint64_t *) &i_ldData;
+		//short sExp = (lptData[1] & 0x7fff);
+		m_nMantissa = lptData[0];
+		if (lptData[1] & 0x4000)
+			m_nExponent = (lptData[1] & 0x3fff) | 0x4000000000000000;
+		else if ((lptData[1] & 0x7fff) != 0)
+			m_nExponent = (lptData[1] & 0x7fff) | 0x3fffffffffffc000;
+		else
+			m_nExponent = 0;
+		uint64_t nSign = (lptData[1] & 0x8000) << 48;
+		m_nExponent |= nSign;
+	}
+	long double unload(void) const
+	{
+		long double ldRet;
+		if (exponent() >= LDBL_MIN_EXP  && exponent() <= LDBL_MAX_EXP)
+		{
+			uint64_t nSign_Bit = m_nExponent & (0x8000000000000000);
+			uint64_t nSign = (nSign_Bit >> 48);
+			uint64_t * lptData = (uint64_t *) &ldRet;
+			lptData[0] = m_nMantissa;
+			int64_t tExp_Mod = m_nExponent & 0x7fffffffffffffff;
+			//tExp_Mod += 16382;
+			if (tExp_Mod & 0x4000000000000000)
+				lptData[1] = (m_nExponent & 0x3fff) | 0x4000 | nSign;
+			else
+				lptData[1] = (m_nExponent & 0x3fff) | nSign;
+		}
+		else if (m_nExponent < LDBL_MIN_EXP)
+			ldRet = 0.0; // underflow
+		else // exponent > 16384 -- overflow
+		{
+			uint64_t nSign_Bit = m_nExponent & (0x8000000000000000);
+			ldRet = std::numeric_limits<long double>::infinity();
+			if (nSign_Bit == 0x8000000000000000)
+				ldRet *= -1.0;
+		}
+
+		return ldRet;
+	}
+	expdouble(void){};
+	expdouble(const long double & i_ldLD){load(i_ldLD);};
+	expdouble(const uint64_t i_nMantissa,const uint64_t i_nExponent, bool i_bSign_Negative)
+	{
+		m_nMantissa = i_nMantissa;
+		m_nExponent = i_nExponent & 0x7fffffffffffffff; // clear sign bit
+		if (i_bSign_Negative)
+			m_nExponent |= 0x8000000000000000; // set sign bit
+	}
+	inline void nan(void) // quiet NaN
+	{
+		m_nExponent = (m_nExponent & 0x8000000000000000) | 0x7fffffffffffffff; // preserve sign bit, signal infinity or nan
+		m_nMantissa = 0xc000000000000000; // quiet NaN
+	}
+	inline void infinity(void)
+	{
+		m_nExponent = (m_nExponent & 0x8000000000000000) | 0x7fffffffffffffff; // preserve sign bit, signal infinity or nan
+		m_nMantissa = 0x8000000000000000; // infinity
+	}
+	inline bool iszero(void) const
+	{
+		return (m_nExponent == 0 || m_nExponent == 0x8000000000000000) && m_nMantissa == 0;
+	}
+	inline bool isnan(void) const
+	{
+		return ((m_nExponent & 0x7fffffffffffffff) == 0x7fffffffffffffff) && (m_nMantissa == 0xc000000000000000);
+	}
+	inline bool isinf(void) const
+	{
+		return ((m_nExponent & 0x7fffffffffffffff) == 0x7fffffffffffffff) && (m_nMantissa == 0x8000000000000000);
+	}
+	inline bool isfinite(void) const
+	{
+		return ((m_nExponent & 0x7fffffffffffffff) ^ 0x7fffffffffffffff) != 0;
+	}
+	inline bool isnormal(void) const
+	{
+		//pbin(m_nMantissa);
+		return (iszero() || (isfinite() && ((m_nMantissa & 0x8000000000000000) == 0x8000000000000000)));
+	}
+	inline bool signbit(void) const
+	{
+		return ((m_nExponent & 0x8000000000000000) == 0x8000000000000000);
+	}
+	inline expdouble abs(void) const
+	{
+		expdouble xdRet(*this);
+		xdRet.m_nExponent ^= (xdRet.m_nExponent & 0x8000000000000000); // clear sign bit
+		return xdRet;
+	}
+	inline expdouble copySign(const expdouble &i_cRHO ) const
+	{
+		expdouble xdRet(*this);
+		xdRet.m_nExponent ^= (xdRet.m_nExponent & 0x8000000000000000); // clear sign bit
+		xdRet.m_nExponent |= (i_cRHO.m_nExponent & 0x8000000000000000); // set sign bit from RHO
+		return xdRet;
+	}
+	inline bool is754version2008(void) const
+	{
+		return false; // hopefully this will become true, but for the moment it is a non-conforming implementation 
+	}
+	inline bool is754version1985(void) const
+	{
+		return false; // hopefully this will become true, but for the moment it is a non-conforming implementation
+	}
+
+	inline int fpclassify(void) const
+	{
+		int iRet;
+		if ((m_nExponent & 0x7fffffffffffffff) == 0x7fffffffffffffff)
+		{
+			if (m_nMantissa == 0x8000000000000000)
+				iRet = FP_INFINITE;
+			else
+				iRet = FP_NAN;
+		}
+		else if (m_nExponent == 0 && m_nMantissa == 0)
+			iRet = FP_ZERO;
+		else if (m_nMantissa == 0x8000000000000000)
+			iRet = FP_NORMAL;
+		else
+			iRet = FP_SUBNORMAL;
+		return iRet;
+	}
+	inline	int64_t exponent(void) const
+	{
+		return (m_nExponent & 0x7fffffffffffffff) - 4611686018427387902; // no sign bit
+	}
+	inline	uint64_t mantissa(void) const
+	{
+		return m_nMantissa;
+	}
+	inline expdouble frexp(int64_t * o_lptExp) const
+	{
+		expdouble xdRet(*this);
+		if (o_lptExp != nullptr)
+			o_lptExp[0] = exponent();
+		uint64_t tExp_Temp = xdRet.m_nExponent & 0x7fffffffffffffff;
+		tExp_Temp -= exponent();
+		xdRet.m_nExponent = (tExp_Temp & 0x7fffffffffffffff) | (xdRet.m_nExponent & 0x8000000000000000);
+		return xdRet;
+	}
+	inline expdouble frexp(int64_t &o_tExp) const
+	{
+		return (frexp(&o_tExp));
+	}
+	inline expdouble operator -(void) const
+	{
+		expdouble xdRet(*this);
+		xdRet.m_nExponent ^= 0x8000000000000000; // flip sign bit
+		return xdRet;
+	}
+	inline expdouble & operator =(const long double & i_cRHO)
+	{
+		load(i_cRHO);
+		return *this;
+	}
+	
+	inline expdouble operator *(const expdouble & i_cRHO) const
+	{
+		expdouble xdRet(*this);
+		return (xdRet *= i_cRHO);
+	}
+	expdouble & operator *=(const expdouble & i_cRHO)
+	{
+		if (isnan() || i_cRHO.isnan())
+			nan();
+		else if (isinf() || i_cRHO.isinf())
+		{
+			if (isinf() && i_cRHO.m_nMantissa == 0 && i_cRHO.m_nExponent == 0) // infinity * 0 = NaN
+				nan();
+			else if (i_cRHO.isinf() && m_nMantissa == 0 && m_nExponent == 0) // infinity * 0 = NaN
+				nan();
+			else
+			{
+				uint64_t tSign = (m_nExponent ^ i_cRHO.m_nExponent) & 0x8000000000000000;
+				infinity();
+				m_nExponent |= tSign; // allow -0
+			}
+		}
+		else if (isnormal() && i_cRHO.isnormal())
+		{
+			if (iszero() || i_cRHO.iszero())
+			{
+				m_nMantissa = 0;
+				uint64_t tSign = (m_nExponent ^ i_cRHO.m_nExponent) & 0x8000000000000000;
+				m_nExponent = tSign; // allow -0
+			}
+			else
+			{
+				int64_t tExp = exponent() + i_cRHO.exponent();
+				uint64_t tSign = (m_nExponent ^ i_cRHO.m_nExponent) & 0x8000000000000000;
+				//pbin(tSign);
+				//pbin(m_nExponent & 0x8000000000000000);
+				//pbin(i_cRHO.m_nExponent & 0x8000000000000000);
+				uint64_t tRHO_Low = i_cRHO.m_nMantissa & 0x0ffffffff;
+				uint64_t tRHO_High = (i_cRHO.m_nMantissa & 0xffffffff00000000);
+			
+				uint64_t tLow = m_nMantissa & 0x0ffffffff;
+				uint64_t tHigh = (m_nMantissa & 0xffffffff00000000);
+
+				tRHO_High >>= 32;
+				tHigh >>= 32;
+				// multiplaction method:
+				// LHO = (tHigh + tLow * 2^-32)
+				// RHO = (tRHO_High + tRHO_Low * 2^-32)
+				// where high and low represent 32 highest and lowest order bits, respectively
+				// then 
+				// ans = LHO * RHO = tHigh * tRHO_High + tHigh * tRHO_Low * 2^-32 + tLow * tRHO_High * 2^-32 + tLow * tRHO_Low * 2^-64
+				// we add lowest order bits first, then shift right by 32 bits, add the next set, shift, add
+				// to ensure there is no overflow, we add the highest order bits in their own register, then
+				// shift right until that register is empty
+				uint64_t tRes[4] = {tHigh * tRHO_High,tHigh * tRHO_Low,tLow * tRHO_High,tLow * tRHO_Low};
+				uint64_t tLL = tRes[3] & 0x0ffffffff;
+				uint64_t tHL = (tRes[3] >> 32); // high order bits of reg 3
+				tHL += (tRes[2] & 0x0ffffffff); // add low order bits of reg 2
+				tHL += (tRes[1] & 0x0ffffffff); // add low order bits of reg 1
+				uint64_t tLH = (tRes[2] >> 32); // high order bits of reg 2
+				tLH += (tRes[1] >> 32); // add high order bits of reg 1
+				tLH += (tRes[0] & 0x0ffffffff); // add low order bits of reg 0
+				tLH += (tHL >> 32); // add high order bits of lowest order registers
+				tHL &= 0xffffffff; // clear high order bits of lowest order registers
+				tHL <<= 32; // clear high order bits of lowest order registers and shift right
+				tHL |= tLL; // add low order bits of lower order register. tHL now contains all low order data
+				uint64_t tHH = (tRes[0] >> 32); // high order bits of reg 0
+				tHH += (tLH >> 32); // add high order bits of lower order register
+				tLH ^= (tLH & 0xffffffff00000000); // clear high order bits of lower order register
+				tLH |= (tHH << 32); // place low order bits from highest order register into the high-low register
+				tHH >>= 32; // low order bits no longer needed
+
+				while (tHH != 0)
+				{
+					tLH >>= 1; // right shift to make space
+					if (tHH & 1) // if low order bit of HH is set
+						tLH |= 0x8000000000000000; // set high order bit of LH
+					tExp++; // increase exponent due to shift
+					tHH >>= 1; // right shift HH
+				}
+				while ((tLH & 0x8000000000000000) == 0)
+				{
+					tLH <<= 1; // left shift to make space
+					if (tHL & 0x8000000000000000) // if high order bit of HL is set
+						tLH |= 1; // set low order bit of LH
+					tExp--; // decrease exponent due to shift
+					tHL <<= 1; // shfit HL
+				}
+
+				m_nMantissa = tLH;
+				m_nExponent = (tExp + 4611686018427387902) & 0x7fffffffffffffff | tSign;
+			}
+		}
+		return *this;
+	}
+	inline expdouble & operator -=(const expdouble & i_cRHO)
+	{
+		return (*this += (-i_cRHO));
+	}
+
+	expdouble & operator +=(const expdouble & i_cRHO)
+	{
+		uint64_t tSignL = m_nExponent & 0x8000000000000000;
+		uint64_t tSignR = i_cRHO.m_nExponent & 0x8000000000000000;
+		uint64_t tExpL = m_nExponent & 0x7fffffffffffffff;
+		uint64_t tExpR = i_cRHO.m_nExponent & 0x7fffffffffffffff;
+		if (tExpL & 0x4000000000000000)
+			tExpL |= 0x8000000000000000;
+		if (tExpR & 0x4000000000000000)
+			tExpR |= 0x8000000000000000;
+
+		int64_t iExp_Diff = tExpL - tExpR;
+		if (iExp_Diff < -63) // too big a difference - just copy the RHO
+		{
+			return (*this = i_cRHO);
+		}
+		else if (iExp_Diff < 63) // valid range
+		{
+			if (iExp_Diff >= 0)
+			{
+				uint64_t tManRHO = i_cRHO.m_nMantissa >> iExp_Diff;
+				if (tSignL == tSignR)
+					m_nMantissa += tManRHO;
+				else
+					m_nMantissa -= tManRHO;
+			}
+			else
+			{
+				uint64_t tMan = m_nMantissa >> (-iExp_Diff);
+				if (tSignL == tSignR)
+					m_nMantissa = i_cRHO.m_nMantissa + tMan;
+				else
+					m_nMantissa = i_cRHO.m_nMantissa - tMan;
+				m_nExponent = tExpR;
+			}
+
+				
+		}
+		return *this;
+		
+		
+	}
+
+	inline expdouble operator +(const expdouble & i_cRHO) const
+	{
+		expdouble cRet(*this);
+		return (cRet += i_cRHO);
+	}
+	inline expdouble operator -(const expdouble & i_cRHO) const
+	{
+		expdouble cRet(*this);
+		return (cRet -= i_cRHO);
+	}
+
+	std::string get_b10_value(size_t i_nNum_Digits, bool i_bEngineering_Form) const
+	{
+		std::string szRet;
+		if (isinf())
+		{
+			if (signbit())
+				szRet.push_back('-');
+			szRet += "inf";
+		}
+		else if (isnan())
+			szRet = "nan";
+		else if (iszero())
+		{
+			if (signbit())
+				szRet.push_back('-');
+			szRet.push_back('0');
+			if (i_nNum_Digits > 0)
+				szRet.push_back('.');
+			for (size_t tI = 0; tI < i_nNum_Digits; tI++)
+				szRet.push_back('0');
+		}
+		else
+		{
+			long double ldMantissa = frexp(nullptr).unload();
+			if (ldMantissa < 0.0)
+				ldMantissa *= -1.0;
+			long double ldExponent = exponent() * log10(2.0) + log10(ldMantissa);
+			long double ldValue = ldExponent - floor(ldExponent);		
+			ldExponent -= ldValue;
+			long double ldB10 = pow(10.0,ldValue);
+
+			std::vector<char> vDigits;
+			std::vector<char> vDecimal_Digits;
+			bool bRound = true;
+			if (!i_bEngineering_Form)
+			{
+				if (ldExponent < 0.0)
+				{
+					vDigits.push_back('0');
+					ldExponent += 1.0;
+					while (ldExponent < 0.0)
+					{
+						if (vDecimal_Digits.size() < i_nNum_Digits)
+							vDecimal_Digits.push_back('0');
+						ldExponent += 1.0;
+					}
+					bRound = (vDecimal_Digits.size() < i_nNum_Digits);
+					while (vDecimal_Digits.size() < i_nNum_Digits)
+					{
+						vDecimal_Digits.push_back(extract_digit(ldB10));
+						ldB10 *= 10.0;
+					}
+				}
+				else
+				{
+					while (ldExponent >= 0.0)
+					{
+						vDigits.push_back(extract_digit(ldB10));
+						ldB10 *= 10.0;
+						ldExponent -= 1.0;
+					}
+					while (vDecimal_Digits.size() < i_nNum_Digits)
+					{
+						vDecimal_Digits.push_back(extract_digit(ldB10));
+						ldB10 *= 10.0;
+					}
+				}
+			}
+			else
+			{				
+				vDigits.push_back(extract_digit(ldB10));
+				ldB10 *= 10.0;
+
+				while (vDecimal_Digits.size() < i_nNum_Digits)
+				{
+					vDecimal_Digits.push_back(extract_digit(ldB10));
+					ldB10 *= 10.0;
+				}
+			}
+			if (bRound)
+			{
+				if (ldB10 > 5.0) // need to round up
+				{
+					if (vDecimal_Digits.size() > 0)
+					{
+						size_t tI = vDecimal_Digits.size() - 1;
+						while (tI > 0 && tI < vDecimal_Digits.size() && vDecimal_Digits[tI] == '9')
+						{
+							vDecimal_Digits[tI] = '0';
+							tI--;
+						}
+						if (tI < vDecimal_Digits.size())
+							vDecimal_Digits[tI]++;
+						else
+						{
+							size_t tJ = vDigits.size() - 1;
+							while (tJ > 0 && tJ < vDigits.size() && vDigits[tJ] == '9')
+							{
+								vDigits[tJ] = '0';
+								tJ--;
+							}
+							if (tJ < vDecimal_Digits.size())
+								vDigits[tJ]++;
+							else
+							{
+								vDecimal_Digits.emplace(vDecimal_Digits.begin(),vDigits.back()); // add last digit to the decimals
+								vDigits.pop_back();
+								ldExponent += 1.0;
+								vDigits.push_back('1');
+							}
+						}
+					}
+					else
+					{
+						size_t tJ = vDigits.size() - 1;
+						while (tJ > 0 && tJ < vDigits.size() && vDigits[tJ] == '9')
+						{
+							vDigits[tJ] = '0';
+							tJ--;
+						}
+						if (tJ < vDecimal_Digits.size())
+							vDigits[tJ]++;
+						else
+						{
+							vDecimal_Digits.emplace(vDecimal_Digits.begin(),vDigits.back()); // add last digit to the decimals
+							vDigits.pop_back();
+							ldExponent += 1.0;
+							vDigits.push_back('1');
+						}
+					}
+				}
+			}
+			if (signbit())
+				szRet.push_back('-');
+			for (size_t tI = 0; tI < vDigits.size(); tI++)
+				szRet.push_back(vDigits[tI]);
+			if (vDecimal_Digits.size() > 0)
+				szRet.push_back('.');
+			for (size_t tI = 0; tI < vDecimal_Digits.size(); tI++)
+				szRet.push_back(vDecimal_Digits[tI]);
+			if (i_bEngineering_Form)
+			{
+				szRet.push_back('e');
+				expdouble xdExp(ldExponent);
+				if (!xdExp.signbit())
+					szRet.push_back('+');
+				std::string szExp = xdExp.get_b10_value(0,false);
+				for (size_t tI = 0; tI < szExp.size(); tI++)
+				{
+					szRet.push_back(szExp[tI]);
+				}
+			}
+		}
+		return szRet;
+	}
+
+	inline bool operator ==(const expdouble & i_cRHO) const
+	{
+		return (isnan() || i_cRHO.isnan() || 
+				(iszero() && i_cRHO.iszero()) ||
+				(m_nMantissa == i_cRHO.m_nMantissa && m_nExponent == i_cRHO.m_nExponent));
+	}
+	inline bool operator !=(const expdouble & i_cRHO) const
+	{
+		return (isnan() || i_cRHO.isnan() || !(i_cRHO == *this));
+	}
+	inline bool operator >(const expdouble & i_cRHO) const
+	{
+		return (isnan() || i_cRHO.isnan() || 
+				(!iszero() && i_cRHO.iszero() && !signbit()) || 
+				(iszero() && !i_cRHO.iszero() && i_cRHO.signbit()) || 
+				(!iszero() && !signbit() && i_cRHO.signbit()) ||
+				(!iszero() && !i_cRHO.iszero() && (
+					(signbit() && i_cRHO.signbit() && exponent() < i_cRHO.exponent()) ||
+					(!signbit() && !i_cRHO.signbit() && exponent() > i_cRHO.exponent()) ||
+					(signbit() && i_cRHO.signbit() && exponent() == i_cRHO.exponent() && m_nMantissa < i_cRHO.m_nMantissa) ||
+					(!signbit() && !i_cRHO.signbit() && exponent() == i_cRHO.exponent() && m_nMantissa > i_cRHO.m_nMantissa))));
+
+	}
+	inline bool operator <(const expdouble & i_cRHO) const
+	{
+		return (isnan() || i_cRHO.isnan() || 
+				(iszero() && !i_cRHO.iszero() && !i_cRHO.signbit()) || 
+				(!iszero() && signbit() && i_cRHO.iszero()) || 
+				(!iszero() && signbit() && !i_cRHO.signbit()) ||
+				(!iszero() && !i_cRHO.iszero() && (
+					(signbit() && i_cRHO.signbit() && exponent() > i_cRHO.exponent()) ||
+					(!signbit() && !i_cRHO.signbit() && exponent() < i_cRHO.exponent()) ||
+					(signbit() && i_cRHO.signbit() && exponent() == i_cRHO.exponent() && m_nMantissa > i_cRHO.m_nMantissa) ||
+					(!signbit() && !i_cRHO.signbit() && exponent() == i_cRHO.exponent() && m_nMantissa < i_cRHO.m_nMantissa))));
+
+	}
+	inline bool operator <=(const expdouble & i_cRHO) const
+	{
+		return (*this == i_cRHO) || (*this < i_cRHO);
+	}
+	inline bool operator >=(const expdouble & i_cRHO) const
+	{
+		return (*this == i_cRHO) || (*this > i_cRHO);
+	}
+
+	//@@TODO: division
+	//@@TODO: exp, pow, log, sqrt
+	//@@TODO: log10, log2, exp2, exp10, exp10m1, exp2m1
+	//@@TODO: cos, tan, sin
+	//@@TODO: atan, acos, asin, 
+	//@@TODO: fused multiply add
+	//@@TODO: cosh, tanh, sinh
+	//@@TODO: atanh, acosh, asinh
+	//@@TODO: the rest of the IEEE 754-2008 standard
+	//@@TODO: correctly handle infinities and underflow in multiplication and addition
+		
+};
+inline std::ostream & operator<<(std::ostream& io_Out, const expdouble& i_xdVal)
+{
+	io_Out << i_xdVal.get_b10_value(io_Out.precision(),(io_Out.flags() & io_Out.scientific) != 0);
+	return io_Out;
+}
+
+expdouble EDBL_MIN(0x8000000000000000,0,false);
+expdouble EDBL_MAX(0xffffffffffffffff,0x7ffffffffffffffe,false);
+#define EDBL_MANT_DIG	64
+#define EDBL_DIG 		18
+#define EDBL_MIN_EXP	-4611686018427387901
+#define EDBL_MAX_EXP	4611686018427387904
+expdouble EDBL_EPSILON(0x8000000000000000,4611686018427387902 - 63,false);
+#define EDBL_MIN_10_EXP -1388255822130836092 //based on EDBL_MIN
+#define EDBL_MAX_10_EXP 1388255822130836092 //based on EDBL_MAX
+
 #if 0
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
