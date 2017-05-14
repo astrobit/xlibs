@@ -449,16 +449,70 @@ private:
 	uint64_t m_nMantissa;
 	int64_t m_nExponent;
 	
-	char extract_digit(long double & io_lpdDigit)
+	char extract_digit(long double & io_lpdDigit) const
 	{
 		char chRet = '0';
 		int iValue = fabs(io_lpdDigit);
 		if (iValue < 10)
 		{
 			chRet += iValue;
+			if (chRet == ':')
+				std::cout << ": " << iValue << std::endl;
 			io_lpdDigit -= iValue;
+			if (chRet > '9')
+				chRet -= 10;
 		}
 		return chRet;
+	}
+	void printbit(uint8_t i_cVal)
+	{
+		if (i_cVal == 0)
+			printf("0");
+		else
+			printf("1");
+	}
+	void pbin(void * i_lpdData, size_t tN_Bytes)
+	{
+//		for (size_t tI = 0; tI < tN_Bytes; tI++)
+//		{
+//			printf("--------");
+//		}
+//		printf("\n");
+		uint8_t * lpcData = (uint8_t *)i_lpdData;
+		for (size_t tI = 0; tI < tN_Bytes; tI++)
+		{
+			printbit(lpcData[tN_Bytes - tI - 1] & 0x80);
+			printbit(lpcData[tN_Bytes - tI - 1] & 0x40);
+			printbit(lpcData[tN_Bytes - tI - 1] & 0x20);
+			printbit(lpcData[tN_Bytes - tI - 1] & 0x10);
+			printbit(lpcData[tN_Bytes - tI - 1] & 0x08);
+			printbit(lpcData[tN_Bytes - tI - 1] & 0x04);
+			printbit(lpcData[tN_Bytes - tI - 1] & 0x02);
+			printbit(lpcData[tN_Bytes - tI - 1] & 0x01);
+
+		}
+		printf("\n");
+	/*	for (size_t tI = 0; tI < tN_Bytes; tI++)
+		{
+			printf("76543210");
+		}
+		printf("\n");
+		for (size_t tI = 0; tI < tN_Bytes; tI++)
+		{
+			for (size_t tJ = 0; tJ < 8; tJ++)
+				printf("%x",tI % 16);
+		}
+		printf("\n");
+		for (size_t tI = 0; tI < tN_Bytes; tI++)
+		{
+			printf("--------");
+		}
+		printf("\n");*/
+
+	}
+	template<typename T>  void pbin(const T & i_ldData)
+	{
+		pbin((void *)&i_ldData,sizeof(T));
 	}
 public:
 	void load(const long double & i_ldData)
@@ -622,7 +676,73 @@ public:
 		load(i_cRHO);
 		return *this;
 	}
-	
+	inline expdouble operator /(const expdouble & i_cRHO) const
+	{
+		expdouble xdRet(*this);
+		return (xdRet /= i_cRHO);
+	}
+	expdouble & operator /=(const expdouble & i_cRHO)
+	{
+		if (isnan() || i_cRHO.isnan())
+			nan();
+		else if (isinf() || i_cRHO.isinf())
+		{
+			nan();
+		}
+		else if (i_cRHO.iszero())
+		{
+			if (iszero())
+				nan();
+			else
+				infinity();
+		}
+		else if (!iszero() && isnormal() && i_cRHO.isnormal())//@@TODO: subnormal
+		{
+			uint64_t tMan_Numerator = m_nMantissa;
+			uint64_t tMan_Denominator = i_cRHO.m_nMantissa;
+			uint64_t tResult = 0;
+			uint64_t tCount = 0;//64;
+			uint64_t tHigh_Bit_Count = 0;
+			bool bHigh_Bit_Flag = false;
+			
+//			std::cout << "A:"; pbin(tMan_Numerator);
+//			std::cout << "B:"; pbin(i_cRHO.m_nMantissa);
+			do
+			{
+//				std::cout << tCount << "D:"; pbin(tResult);
+				tResult	<<= 1;
+//				if (bHigh_Bit_Flag)
+//					tHigh_Bit_Count++;
+				if (tMan_Numerator >= i_cRHO.m_nMantissa || bHigh_Bit_Flag)
+				{
+//					std::cout << "A:"; pbin(tMan_Numerator);
+//					std::cout << "B:"; pbin(i_cRHO.m_nMantissa);
+					tMan_Numerator -= i_cRHO.m_nMantissa;
+					tResult |= 1;
+//					std::cout << "r:"; pbin(tMan_Numerator);
+				}
+				tCount++;
+				bHigh_Bit_Flag = (tMan_Numerator & 0x8000000000000000) != 0;
+//				if (bHigh_Bit_Flag)
+//					std::cout << "HB" << std::endl;
+				tMan_Numerator <<= 1;
+			}
+			while ((tResult & 0x8000000000000000) == 0);
+//			std::cout << "D:"; pbin(tResult);
+			int64_t tExp = exponent() - i_cRHO.exponent();
+			tExp += (65 - tCount);// - tHigh_Bit_Count;
+//			tExp += 3;// - tHigh_Bit_Count;
+//			std::cout << "HB: " << tHigh_Bit_Count << std::endl;
+			tExp += 4611686018427387902;
+			m_nMantissa = tResult;
+			m_nExponent ^= (m_nExponent & 0x7fffffffffffffff);
+			m_nExponent |= (tExp & 0x7fffffffffffffff);
+			
+
+		}
+		// if iszero, value unchanged
+		return *this;
+	}
 	inline expdouble operator *(const expdouble & i_cRHO) const
 	{
 		expdouble xdRet(*this);
@@ -645,7 +765,7 @@ public:
 				m_nExponent |= tSign; // allow -0
 			}
 		}
-		else if (isnormal() && i_cRHO.isnormal())
+		else if (isnormal() && i_cRHO.isnormal())//@@TODO: subnormal
 		{
 			if (iszero() || i_cRHO.iszero())
 			{
@@ -869,7 +989,42 @@ public:
 							tI--;
 						}
 						if (tI < vDecimal_Digits.size())
+						{
 							vDecimal_Digits[tI]++;
+							if (vDecimal_Digits[tI] > '9')
+							{
+								size_t tK = tI;
+								while (tK != 0 && vDecimal_Digits[tK] > '9')
+								{
+									vDecimal_Digits[tK] -= 10;
+									tK--;
+									vDecimal_Digits[tK]++;
+								}
+								if (tK == 0 && vDecimal_Digits[tK] > '9')
+								{
+									vDecimal_Digits[tK] -= 10;
+									if (vDigits.size() == 1)
+									{
+										vDigits[0]++;
+									}
+									else
+									{
+										tK = vDigits.size() - 1;
+										while (tK != 0 && vDigits[tK] > '9')
+										{
+											vDigits[tK] -= 10;
+											tK--;
+											vDigits[tK]++;
+										}
+									}
+									if (vDigits[0] > '9')
+									{
+										vDigits[0] -= 10;
+										vDigits.emplace(vDigits.begin(),'1');
+									}
+								}
+							}
+						}
 						else
 						{
 							size_t tJ = vDigits.size() - 1;
@@ -879,7 +1034,19 @@ public:
 								tJ--;
 							}
 							if (tJ < vDecimal_Digits.size())
+							{
 								vDigits[tJ]++;
+								if (vDigits[tJ] > '9')
+								{
+									size_t tK = tJ;
+									while (tK != 0 && vDigits[tK] > '9')
+									{
+										vDigits[tK] -= 10;
+										tK--;
+										vDigits[tK] ++;
+									}
+								}
+							}
 							else
 							{
 								vDecimal_Digits.emplace(vDecimal_Digits.begin(),vDigits.back()); // add last digit to the decimals
@@ -898,7 +1065,21 @@ public:
 							tJ--;
 						}
 						if (tJ < vDecimal_Digits.size())
+						{
 							vDigits[tJ]++;
+							size_t tK = tJ;
+							while (tK != 0 && vDigits[tK] > '9')
+							{
+								vDigits[tK] -= 10;
+								tK--;
+								vDigits[tK]++;
+							}
+							if (vDigits[0] > '9')
+							{
+								vDigits[0] -= 10;
+								vDigits.emplace(vDigits.begin(),'1');
+							}
+						}
 						else
 						{
 							vDecimal_Digits.emplace(vDecimal_Digits.begin(),vDigits.back()); // add last digit to the decimals
