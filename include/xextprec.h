@@ -446,8 +446,8 @@ public:
 class expdouble
 {
 private:
-	uint64_t m_nMantissa;
 	int64_t m_nExponent;
+	uint64_t m_nMantissa;
 	
 	char extract_digit(long double & io_lpdDigit) const
 	{
