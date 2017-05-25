@@ -2,6 +2,9 @@
 #include <string>
 #include <cmath>
 #include <cfloat>
+#include <iostream>
+#include <limits>
+#include <vector>
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -442,6 +445,11 @@ public:
 // History:
 //      11 May 2017 : Created by Brian W. Mulligan
 //
+#define EXPDBLEXPREF 0x3ffffffffffffffe
+
+class expdouble;
+extern expdouble EDBL_LOG2_10;
+extern expdouble EDBL_LOG2_e;
 
 class expdouble
 {
@@ -464,14 +472,14 @@ private:
 		}
 		return chRet;
 	}
-	void printbit(uint8_t i_cVal)
+	void printbit(uint8_t i_cVal) const
 	{
 		if (i_cVal == 0)
 			printf("0");
 		else
 			printf("1");
 	}
-	void pbin(void * i_lpdData, size_t tN_Bytes)
+	void pbin(void * i_lpdData, size_t tN_Bytes) const
 	{
 //		for (size_t tI = 0; tI < tN_Bytes; tI++)
 //		{
@@ -510,26 +518,195 @@ private:
 		printf("\n");*/
 
 	}
-	template<typename T>  void pbin(const T & i_ldData)
+	template<typename T>  void pbin(const T & i_ldData) const
 	{
 		pbin((void *)&i_ldData,sizeof(T));
 	}
+
+
+	uint64_t mantissa_square_normal(uint64_t i_tA, bool &o_bOverflow) const
+	{
+		o_bOverflow = false;
+		uint64_t tHi = (i_tA >> 32);
+		uint64_t tLo = i_tA & 0xffffffff;
+		uint64_t tLL = tLo * tLo;
+		uint64_t tHL = tHi * tLo;
+		uint64_t tHH = tHi * tHi;
+		uint64_t tRet = (((tLL >> 33) + tHL) >> 32) + (tHH >> 1);
+		if (tLL & 0x200000000)
+			tRet += 1;
+		o_bOverflow = ((tRet & 0xc000000000000000) != 0);
+		if (o_bOverflow)
+		{
+			tRet = (((tLL >> 33) + tHL) >> 31) + tHH;
+			if (tLL & 0x200000000)
+				tRet += 1;
+		}
+		else
+		{
+			tRet = (((tLL >> 33) + tHL) >> 30) + (tHH << 1);
+			if (tLL & 0x200000000)
+				tRet += 1;
+		}
+
+
+		return tRet;
+	}
+	uint64_t mantissa_add(uint64_t i_tA, uint64_t i_tB, bool i_bSign_A, bool i_bSign_B,int i_iShift_B, int &o_iShift, bool & o_bSign_Ret, uint64_t & o_tRet) const
+	{
+		if (i_iShift_B > 64)
+		{
+			o_tRet = i_tA;
+			o_iShift = 0;
+			o_bSign_Ret = i_bSign_A;
+		}
+		else
+		{
+			uint64_t tReg_A[2] = {i_tA >> 2,(i_tA & 0x3) << 61};
+			uint64_t tReg_B[2] = {i_tB >> (2 + i_iShift_B),i_tB << (61 - i_iShift_B)};
+			if (i_iShift_B > 61)
+			{
+				tReg_B[0] = 0;
+				tReg_B[1] = i_tB >> (i_iShift_B - 61);
+			}
+			tReg_B[1] &= 0x7fffffffffffffff; // clear high order bit of low register of B - used for overflow
+			o_bSign_Ret = false;
+			if (i_bSign_A)
+			{
+				tReg_A[0] = ~tReg_A[0];
+				tReg_A[1] = (~tReg_A[1] & 0x7fffffffffffffff); // clear high order bit for use as overflow
+				tReg_A[1] += 1;
+				if (tReg_A[1] & 0x8000000000000000) // check for overflow
+				{
+					tReg_A[1] &= 0x7fffffffffffffff; // clear high order bit
+					tReg_A[0] += 1; // add overflow to hi order register
+				}
+			}
+			if (i_bSign_B)
+			{
+				tReg_B[0] = ~tReg_B[0];
+				tReg_B[1] = (~tReg_B[1] & 0x7fffffffffffffff); // clear high order bit for use as overflow
+				tReg_B[1] += 1;
+				if (tReg_B[1] & 0x8000000000000000) // check for overflow
+				{
+					tReg_B[1] &= 0x7fffffffffffffff; // clear high order bit
+					tReg_B[0] += 1; // add overflow to hi order register
+				}
+			}
+			//pbin(tReg_A[0]);
+			//pbin(tReg_A[1]);
+			//pbin(tReg_B[0]);
+			//pbin(tReg_B[1]);
+
+			tReg_A[1] += tReg_B[1];
+			tReg_A[0] += tReg_B[0];
+			//pbin(tReg_A[0]);
+			//pbin(tReg_A[1]);
+			if (tReg_A[1] & 0x8000000000000000) // check for overflow
+			{
+				tReg_A[1] &= 0x7fffffffffffffff; // clear high order bit
+				tReg_A[0] += 1; // add overflow to hi order register
+			}
+
+			if (tReg_A[0] & 0x8000000000000000)
+			{
+				o_bSign_Ret = true;
+				tReg_A[0] = ~tReg_A[0];
+				tReg_A[1] = (~tReg_A[1] & 0x7fffffffffffffff); // clear high order bit for use as overflow
+				tReg_A[1] += 1;
+				if (tReg_A[1] & 0x8000000000000000) // check for overflow
+				{
+					tReg_A[1] &= 0x7fffffffffffffff; // clear high order bit
+					tReg_A[0] += 1; // add overflow to hi order register
+				}
+				// regA is now positive
+			}
+			if (tReg_A[0] != 0 || tReg_A[1] != 0)
+			{
+				tReg_A[1] <<= 1; // get rid of overflow bit, no longer needed
+
+				tReg_A[0] <<= 1; // get rid of sign bit, no longer needed
+				if (tReg_A[1] & 0x8000000000000000)
+					tReg_A[0] |= 1;
+				tReg_A[1] <<= 1;
+
+				o_iShift = 1;
+				while ((tReg_A[0] & 0x8000000000000000) == 0)
+				{
+					o_iShift--;
+					tReg_A[0] <<= 1; // get rid of sign bit, no longer needed
+					if (tReg_A[1] & 0x8000000000000000)
+						tReg_A[0] |= 1;
+					tReg_A[1] <<= 1;
+				}
+				o_tRet = tReg_A[0];
+			}
+			else
+			{
+				o_iShift = 0;
+				o_tRet = 0;
+			}
+		}
+
+		return o_tRet;
+	}
+
 public:
 	void load(const long double & i_ldData)
 	{
-		// warning: this method does not use the ldexp and frexp functions that are part of the std c++ math library
-		// it is therefore architecture dependant. It probably doesn't work on anything other than x64 arch.
-		uint64_t * lptData = (uint64_t *) &i_ldData;
-		//short sExp = (lptData[1] & 0x7fff);
-		m_nMantissa = lptData[0];
-		if (lptData[1] & 0x4000)
-			m_nExponent = (lptData[1] & 0x3fff) | 0x4000000000000000;
-		else if ((lptData[1] & 0x7fff) != 0)
-			m_nExponent = (lptData[1] & 0x7fff) | 0x3fffffffffffc000;
-		else
+		if (i_ldData == 0.0)
+		{
+			m_nMantissa = 0;
 			m_nExponent = 0;
-		uint64_t nSign = (lptData[1] & 0x8000) << 48;
-		m_nExponent |= nSign;
+		}
+		else
+		{
+			// warning: this method does not use the ldexp and frexp functions that are part of the std c++ math library
+			// it is therefore architecture dependant. It probably doesn't work on anything other than x64 arch.
+			uint64_t * lptData = (uint64_t *) &i_ldData;
+			//short sExp = (lptData[1] & 0x7fff);
+			m_nMantissa = lptData[0];
+			if (lptData[1] != 0)
+			{
+				m_nExponent = lptData[1] & 0x7fff;
+				m_nExponent -= 16382;
+				m_nExponent += EXPDBLEXPREF;
+				m_nExponent &= 0x7fffffffffffffff;
+			}
+			else
+				m_nExponent = 0;
+	//		if (lptData[1] & 0x4000)
+	//			m_nExponent = (lptData[1] & 0x3fff) | 0x4000000000000000;
+	//		else if ((lptData[1] & 0x7fff) != 0)
+	//			m_nExponent = (lptData[1] & 0x7fff) | 0x3fffffffffffc000;
+	//		else
+	//			m_nExponent = 0;
+			uint64_t nSign = (lptData[1] & 0x8000) << 48;
+			m_nExponent |= nSign;
+		}
+	}
+	void load(const int64_t & i_tData)
+	{
+		bool bSign = false;
+		m_nMantissa = i_tData;
+		if (m_nMantissa & 0x8000000000000000)
+		{
+			m_nMantissa = (~m_nMantissa + 1);
+			bSign = true;
+		}
+		m_nExponent = 0;
+		if (m_nMantissa != 0)
+		{
+			while ((m_nMantissa & 0x8000000000000000) == 0)
+			{
+				m_nExponent--;
+				m_nMantissa <<= 1;
+			}
+			m_nExponent += EXPDBLEXPREF;
+			m_nExponent += 64;
+		}
+		if (bSign)
+			m_nExponent |= 0x8000000000000000;
 	}
 	long double unload(void) const
 	{
@@ -560,7 +737,7 @@ public:
 		return ldRet;
 	}
 	expdouble(void){};
-	expdouble(const long double & i_ldLD){load(i_ldLD);};
+	expdouble(const long double & i_ldLD){load(i_ldLD);}
 	expdouble(const uint64_t i_nMantissa,const uint64_t i_nExponent, bool i_bSign_Negative)
 	{
 		m_nMantissa = i_nMantissa;
@@ -645,8 +822,13 @@ public:
 	}
 	inline	int64_t exponent(void) const
 	{
-		return (m_nExponent & 0x7fffffffffffffff) - 4611686018427387902; // no sign bit
+		return (m_nExponent & 0x7fffffffffffffff) - EXPDBLEXPREF; // no sign bit
 	}
+	inline	int64_t true_exponent(void) const
+	{
+		return (m_nExponent & 0x7fffffffffffffff);
+	}
+
 	inline	uint64_t mantissa(void) const
 	{
 		return m_nMantissa;
@@ -733,7 +915,7 @@ public:
 			tExp += (65 - tCount);// - tHigh_Bit_Count;
 //			tExp += 3;// - tHigh_Bit_Count;
 //			std::cout << "HB: " << tHigh_Bit_Count << std::endl;
-			tExp += 4611686018427387902;
+			tExp += EXPDBLEXPREF;
 			m_nMantissa = tResult;
 			m_nExponent ^= (m_nExponent & 0x7fffffffffffffff);
 			m_nExponent |= (tExp & 0x7fffffffffffffff);
@@ -833,7 +1015,7 @@ public:
 				}
 
 				m_nMantissa = tLH;
-				m_nExponent = (tExp + 4611686018427387902) & 0x7fffffffffffffff | tSign;
+				m_nExponent = (tExp + EXPDBLEXPREF) & 0x7fffffffffffffff | tSign;
 			}
 		}
 		return *this;
@@ -845,45 +1027,158 @@ public:
 
 	expdouble & operator +=(const expdouble & i_cRHO)
 	{
-		uint64_t tSignL = m_nExponent & 0x8000000000000000;
-		uint64_t tSignR = i_cRHO.m_nExponent & 0x8000000000000000;
-		uint64_t tExpL = m_nExponent & 0x7fffffffffffffff;
-		uint64_t tExpR = i_cRHO.m_nExponent & 0x7fffffffffffffff;
-		if (tExpL & 0x4000000000000000)
-			tExpL |= 0x8000000000000000;
-		if (tExpR & 0x4000000000000000)
-			tExpR |= 0x8000000000000000;
-
-		int64_t iExp_Diff = tExpL - tExpR;
-		if (iExp_Diff < -63) // too big a difference - just copy the RHO
+		if (!i_cRHO.iszero())
 		{
-			return (*this = i_cRHO);
-		}
-		else if (iExp_Diff < 63) // valid range
-		{
-			if (iExp_Diff >= 0)
+			if (iszero())
 			{
-				uint64_t tManRHO = i_cRHO.m_nMantissa >> iExp_Diff;
-				if (tSignL == tSignR)
-					m_nMantissa += tManRHO;
-				else
-					m_nMantissa -= tManRHO;
+				m_nExponent = i_cRHO.m_nExponent;
+				m_nMantissa = i_cRHO.m_nMantissa;
 			}
 			else
 			{
-				uint64_t tMan = m_nMantissa >> (-iExp_Diff);
-				if (tSignL == tSignR)
-					m_nMantissa = i_cRHO.m_nMantissa + tMan;
-				else
-					m_nMantissa = i_cRHO.m_nMantissa - tMan;
-				m_nExponent = tExpR;
-			}
+				uint64_t tSignL = m_nExponent & 0x8000000000000000;
+				uint64_t tSignR = i_cRHO.m_nExponent & 0x8000000000000000;
+				int64_t tExpL = exponent();
+				int64_t tExpR = i_cRHO.exponent();
 
-				
-		}
+				int64_t iExp_Diff = tExpL - tExpR;
+				if (iExp_Diff <= -65) // too big a difference - just copy the RHO
+				{
+					return (*this = i_cRHO);
+				}
+				else if (iExp_Diff < 65) // valid range
+				{
+					uint64_t tRes;
+					int iShift;
+					bool bSign_Res;
+					if (iExp_Diff < 0)
+					{
+						mantissa_add(i_cRHO.m_nMantissa,m_nMantissa,tSignR != 0,tSignL != 0,-iExp_Diff,iShift,bSign_Res,tRes);
+						m_nMantissa = tRes;
+						if (m_nMantissa == 0)
+							m_nExponent = 0;
+						else
+						{
+							m_nExponent = (i_cRHO.m_nExponent & 0x7fffffffffffffff) + iShift;
+							if (m_nExponent & 0x8000000000000000) // overflow / underflow
+							{
+							}
+							else if (bSign_Res)
+								m_nExponent |= 0x8000000000000000; // set sign bit
+						}
+					}
+					else
+					{
+						mantissa_add(m_nMantissa,i_cRHO.m_nMantissa,tSignL != 0,tSignR != 0,iExp_Diff,iShift,bSign_Res,tRes);
+						m_nMantissa = tRes;
+						if (m_nMantissa == 0)
+							m_nExponent = 0;
+						else
+						{
+							m_nExponent = (m_nExponent & 0x7fffffffffffffff) + iShift;
+							if (m_nExponent & 0x8000000000000000) // overflow / underflow
+							{
+							}
+							else if (bSign_Res)
+								m_nExponent |= 0x8000000000000000; // set sign bit
+						}
+					}
+				}  // otherwise RHO is small enough that LHO + RHO = LHO
+			}
+		} // else RHO is zero - do not change this
 		return *this;
 		
 		
+	}
+	inline expdouble floor(void) const
+	{
+		expdouble xdRet(0);
+		int64_t tExp = exponent();
+		if (tExp > 0)
+		{
+			xdRet.m_nExponent = m_nExponent;
+			xdRet.m_nMantissa = m_nMantissa;
+			if (tExp < 64)
+			{
+				uint64_t tBit_Clear = 0x8000000000000000;
+				uint64_t tAccum = 0;
+				tBit_Clear >>= (tExp - 1);
+				while ((tBit_Clear & 1) == 0)
+				{
+
+					tBit_Clear >>= 1;
+					tAccum |= tBit_Clear;
+				}
+				//pbin(tAccum);
+				//pbin(xdRet.m_nMantissa);
+				xdRet.m_nMantissa &= (~tAccum);
+				//pbin(xdRet.m_nMantissa);
+			}
+		}
+		else
+		{
+			xdRet.m_nExponent = 0;
+			xdRet.m_nMantissa = 0;
+		}
+		if (signbit())
+			xdRet -= 1.0;
+
+		return xdRet;
+	}
+	inline expdouble ceil(void) const
+	{
+		expdouble xdRet(floor());
+		xdRet += 1.0;
+
+		return xdRet;
+	}
+
+	inline expdouble log2(void) const
+	{
+		expdouble xdRet(0);
+		if (iszero())
+			xdRet.infinity();
+		else if (signbit())
+			xdRet.nan();
+		else if (!isinf() && !isnan())
+		{
+			xdRet.load(exponent() - 1);
+//			pbin(xdRet.m_nMantissa);
+//			pbin(m_nMantissa);
+
+			// figure out how many bits we have to work with
+			int64_t tExp_Start = xdRet.exponent();
+//			std::cout << tExp_Start << std::endl;
+			size_t tCount = 64 - tExp_Start;
+			uint64_t tRun_Mantissa = m_nMantissa; // drop leading 1
+			for (size_t tI = 0; tI < tCount && tRun_Mantissa != 0; tI++)
+			{
+				bool bOverflow;
+				tRun_Mantissa = mantissa_square_normal(tRun_Mantissa,bOverflow);
+				if (bOverflow)
+				{
+					uint64_t tAdd = 1;
+					tAdd <<= (63 - tExp_Start - tI);
+//					std::cout << "+ "; pbin(tAdd);
+					xdRet.m_nMantissa |= tAdd;
+				}
+//				std::cout << "a "; pbin(xdRet.m_nMantissa);
+//				std::cout << "b "; pbin(tRun_Mantissa);
+			}
+		}
+		else if (isinf())
+			xdRet.infinity();
+			
+
+		return xdRet;
+	}
+	inline expdouble log10(void) const
+	{
+		return log2() / EDBL_LOG2_10;
+	}
+	inline expdouble log(void) const // natural log
+	{
+		return log2() / EDBL_LOG2_e;
 	}
 
 	inline expdouble operator +(const expdouble & i_cRHO) const
@@ -923,8 +1218,8 @@ public:
 			long double ldMantissa = frexp(nullptr).unload();
 			if (ldMantissa < 0.0)
 				ldMantissa *= -1.0;
-			long double ldExponent = exponent() * log10(2.0) + log10(ldMantissa);
-			long double ldValue = ldExponent - floor(ldExponent);		
+			long double ldExponent = exponent() * std::log10(2.0) + std::log10(ldMantissa);
+			long double ldValue = ldExponent - std::floor(ldExponent);		
 			ldExponent -= ldValue;
 			long double ldB10 = pow(10.0,ldValue);
 
@@ -1159,9 +1454,8 @@ public:
 		return (*this == i_cRHO) || (*this > i_cRHO);
 	}
 
-	//@@TODO: division
-	//@@TODO: exp, pow, log, sqrt
-	//@@TODO: log10, log2, exp2, exp10, exp10m1, exp2m1
+	//@@TODO: exp, pow, sqrt
+	//@@TODO: exp2, exp10, exp10m1, exp2m1
 	//@@TODO: cos, tan, sin
 	//@@TODO: atan, acos, asin, 
 	//@@TODO: fused multiply add
@@ -1176,14 +1470,34 @@ inline std::ostream & operator<<(std::ostream& io_Out, const expdouble& i_xdVal)
 	io_Out << i_xdVal.get_b10_value(io_Out.precision(),(io_Out.flags() & io_Out.scientific) != 0);
 	return io_Out;
 }
+inline expdouble operator + (const long double & i_cLHO, const expdouble & i_cRHO)
+{
+	return i_cRHO + expdouble(i_cLHO);
+}
+inline expdouble operator - (const long double & i_cLHO, const expdouble & i_cRHO)
+{
+	expdouble cRet(i_cLHO);
+	return cRet -= i_cRHO;
+}
+inline expdouble operator * (const long double & i_cLHO, const expdouble & i_cRHO)
+{
+	expdouble cRet(i_cLHO);
+	return cRet *= i_cRHO;
+}
+inline expdouble operator / (const long double & i_cLHO, const expdouble & i_cRHO)
+{
+	expdouble cRet(i_cLHO);
+	return cRet /= i_cRHO;
+}
 
-expdouble EDBL_MIN(0x8000000000000000,0,false);
-expdouble EDBL_MAX(0xffffffffffffffff,0x7ffffffffffffffe,false);
+
+extern expdouble EDBL_MIN;
+extern expdouble EDBL_MAX;
 #define EDBL_MANT_DIG	64
 #define EDBL_DIG 		18
 #define EDBL_MIN_EXP	-4611686018427387901
 #define EDBL_MAX_EXP	4611686018427387904
-expdouble EDBL_EPSILON(0x8000000000000000,4611686018427387902 - 63,false);
+extern expdouble EDBL_EPSILON;
 #define EDBL_MIN_10_EXP -1388255822130836092 //based on EDBL_MIN
 #define EDBL_MAX_10_EXP 1388255822130836092 //based on EDBL_MAX
 
