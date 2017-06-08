@@ -1,0 +1,62 @@
+%\documentclass[fleqn,usenatbib,usegraphicx]{mnras}
+\documentclass{amsart}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{amsmath}	% Advanced maths commands
+\usepackage{amssymb}	% Extra maths symbols
+\usepackage{fullpage}
+
+\newcommand{\kkms}{\;\mathrm{kkm}\;\mathrm{s}^{-1}}
+\newcommand{\kms}{\;\mathrm{km}\;\mathrm{s}^{-1}}
+\newcommand{\km}{\;\mathrm{km}}
+\newcommand{\Sec}{\;\mathrm{s}}
+\newcommand{\erg}{\;\mathrm{erg}}
+\newcommand{\cm}{\;\mathrm{cm}}
+\newcommand{\gm}{\;\mathrm{g}}
+\newcommand{\Kelvin}{\;\mathrm{K}}
+%\newcommand{\Ang}{\;\mathrm{\AA}}
+\newcommand{\Ang}{\mbox{\;\normalfont\AA}}
+\newcommand{\mLsun}{\;\mathrm{L}_\odot}
+\newcommand{\Lsun}{$\;\mathrm{L}_\odot\:$}
+\newcommand{\mMsun}{\;\mathrm{M}_\odot}
+\newcommand{\Msun}{$\;\mathrm{M}_\odot\:$}
+\newcommand{\Rsun}{$\;\mathrm{R}_\odot$}
+\newcommand{\mRsun}{\;\mathrm{R}_\odot}
+\newcommand{\Day}{\;\mathrm{d}}
+\newcommand{\BE}{\begin{equation}}
+\newcommand{\EE}{\end{equation}}
+\newcommand{\tablenotemark}[1]{${}^#1$}
+\newcommand{\tablenotetext}[2]{${}^#1#2$}
+\renewcommand{\vec}[1]{\mathbfit{#1}}
+\newcommand{\mat}[1]{\textsf{#1}}
+\newcommand{\textsoft}[1]{\textsc{#1}}
+\newcommand{\Tps}{T_{\mathrm{PS}}}
+\newcommand{\vps}{v_{\mathrm{PS}}}
+
+
+\begin{document}
+Define the mantissa $m \in [0,1)$ as a $B_m$ bit number. The high order $B_m / 2$ bits fit in a $B_m$ bit register $h$, and the lower order $B_m / 2$ bits fit in a $B_m$ bit register $l$. The mantissa is
+\BE m = 2^{\left(\frac{B_m}{2}\right)} h + l. \EE
+The mantissa is assumed to be normal (i.e. the high order bit is set).
+
+Because the mantissa is normal, we can drop the leading bit and assume
+\BE \hat{m} = 1 + 2 m = 1 + 2^{\left(\frac{B_m}{2} + 1\right)} h + 2 l,\EE
+where $\hat{m} \in [2,1)$.
+
+
+
+The square is
+\BE \left(\hat{m}\right)^2 = 1 + 2^{\left(\frac{B_m}{2} + 2\right)} h + 2^2 l + 2^{\left(\frac{B_m}{2} + 3\right)} h l + 2^{\left(B_m + 2\right)} h^2 + 2^2 l^2.\EE
+The normal representation is
+\BE \mathrm{Norm}\left(\left(\hat{m}\right)^2\right) = 2^{\left(\frac{B_m}{2} + 1\right)} h + 2 l + 2^{\left(\frac{B_m}{2} + 2\right)} h l + 2^{\left(B_m + 1\right)} h^2 + 2 l^2.\EE
+
+If the 2nd highest order bit of $h$ is set (i.e. $h \land (2^{(B_m / 2) - 1}) \neq 0$, where $\land$ represents bitwise logical and) then the square will result in number greater than 1, and thus requires division by 2 to reduce it to the range $[0,1)$,
+
+\BE \mathrm{Norm}\left(\left(\hat{m}\right)^2\right) = 2^{\left(\frac{B_m}{2} + 1\right)} h + 2 l + 2^{\left(\frac{B_m}{2} + 2\right)} h l + 2^{\left(B_m + 1\right)} h^2 + 2 l^2.\EE
+
+
+\BE \mathrm{Adj}\left(\left(\hat{m}\right)^2\right) = \left(\hat{m}\right)^2 2^{-1} = 2^{-1} + 2^{\left(\frac{B_m}{2} + 1\right)} h + 2^1 l + 2^{\left(\frac{B_m}{2} + 2\right)} h l + 2^{\left(B_m + 1\right)} h^2 + 2^1 l^2. \EE
+We can rewrite this
+\BE \mathrm{Adj}\left(\left(\hat{m}\right)^2\right) = 2^{\left(\frac{B_m}{2} + 2\right)} (2^{-\frac{B_m}{2} - 3} + 2^{-1} h + 2^{-\frac{B_m}{2} - 2} l + h l + 2^{\left(B_m / 2 - 1\right)} h^2 + 2^{-\frac{B_m}{2} - 1} l^2. \EE
+
+\end{document}

@@ -456,7 +456,14 @@ class expdouble
 private:
 	int64_t m_nExponent;
 	uint64_t m_nMantissa;
-	
+	void exponent_add(int64_t i_tRHO)
+	{
+		uint64_t tSign = m_nExponent & 0x8000000000000000;
+		int64_t nExponent = exponent();
+		nExponent += i_tRHO;
+		m_nExponent = (nExponent + EXPDBLEXPREF) & 0x7fffffffffffffff | tSign;
+	}
+
 	char extract_digit(long double & io_lpdDigit) const
 	{
 		char chRet = '0';
@@ -464,9 +471,51 @@ private:
 		if (iValue < 10)
 		{
 			chRet += iValue;
-			if (chRet == ':')
-				std::cout << ": " << iValue << std::endl;
+//			if (chRet == ':')
+//				std::cout << ": " << iValue << std::endl;
 			io_lpdDigit -= iValue;
+			if (chRet > '9')
+				chRet -= 10;
+		}
+		return chRet;
+	}
+	char extract_digit(void)
+	{
+		uint64_t tMantissa = m_nMantissa;
+		int64_t tExponent = exponent();
+		if (tExponent <= 63)
+			tMantissa >>= (63 - tExponent);
+		else
+			tMantissa <<= (63 - tExponent);
+
+		char chRet = '0';
+		if (tMantissa < 10)
+		{
+			expdouble xpValue;
+			xpValue.load((int64_t)tMantissa);
+			chRet += tMantissa;
+			*this -= xpValue;
+			if (chRet > '9')
+				chRet -= 10;
+		}
+		return chRet;
+	}
+	char extract_digit(expdouble & ioDigit) const
+	{
+		uint64_t tMantissa = ioDigit.m_nMantissa;
+		int64_t tExponent = ioDigit.exponent();
+		if (tExponent <= 63)
+			tMantissa >>= (63 - tExponent);
+		else
+			tMantissa <<= (63 - tExponent);
+
+		char chRet = '0';
+		if (tMantissa < 10)
+		{
+			expdouble xpValue;
+			xpValue.load((int64_t)tMantissa);
+			chRet += tMantissa;
+			ioDigit -= xpValue;
 			if (chRet > '9')
 				chRet -= 10;
 		}
@@ -1180,6 +1229,47 @@ public:
 	{
 		return log2() / EDBL_LOG2_e;
 	}
+	inline expdouble pow2(void) const // computes 2^x
+	{
+		expdouble xdRet(1.0);
+
+		int64_t tIdx = 0;
+		int64_t tExponent = exponent() - 1;
+		std::cout << "e: " << tExponent << std::endl;
+		int64_t tExp_Ret = 0;
+		uint64_t tMask = 0x8000000000000000;
+		while (((tExponent - tIdx) >= 0) && tIdx < 64)
+		{
+			if (tMask & m_nMantissa)
+			{
+				tExp_Ret += (1 << (tExponent - tIdx));
+			}
+			tMask >>= 1;
+			tIdx++;
+		}
+		while (((tIdx - tExponent) > 0) && ((tIdx - tExponent) < 64) && tIdx < 64)
+		{
+			if (tMask & m_nMantissa)
+			{
+				xdRet *= root2_2n(tIdx - tExponent);
+			}
+			tMask >>= 1;
+			tIdx++;
+		}
+		xdRet.exponent_add(tExp_Ret);
+		return xdRet;
+	}
+			
+
+	inline expdouble exp(void) const
+	{
+		return (expdouble(*this) * EDBL_LOG2_e).pow2();
+	}
+	inline expdouble pow(const expdouble & i_xdExp) const
+	{
+		expdouble xdRet(i_xdExp * this->log());
+		return xdRet.exp();
+	}
 
 	inline expdouble operator +(const expdouble & i_cRHO) const
 	{
@@ -1192,8 +1282,217 @@ public:
 		return (cRet -= i_cRHO);
 	}
 
+	inline expdouble root2_2n(uint64_t i_tExponent) const // root2_2n returns 2^(1/(2^n))
+	{
+		expdouble xdRet;
+		switch (i_tExponent)
+		{
+		case 0:
+			xdRet = expdouble(2.0);
+			break;
+		case 1:
+			xdRet = expdouble(0xb504f333f9de6484,0x3fffffffffffffff,false);
+		break;
+		case 2:
+			xdRet = expdouble(0x9837f0518db8a96f,0x3fffffffffffffff,false);
+		break;
+		case 3:
+			xdRet = expdouble(0x8b95c1e3ea8bd6e7,0x3fffffffffffffff,false);
+		break;
+		case 4:
+			xdRet = expdouble(0x85aac367cc487b15,0x3fffffffffffffff,false);
+		break;
+		case 5:
+			xdRet = expdouble(0x82cd8698ac2ba1d7,0x3fffffffffffffff,false);
+		break;
+		case 6:
+			xdRet = expdouble(0x8164d1f3bc030773,0x3fffffffffffffff,false);
+		break;
+		case 7:
+			xdRet = expdouble(0x80b1ed4fd999ab6c,0x3fffffffffffffff,false);
+		break;
+		case 8:
+			xdRet = expdouble(0x8058d7d2d5e5f6b1,0x3fffffffffffffff,false);
+		break;
+		case 9:
+			xdRet = expdouble(0x802c6436d0e04f51,0x3fffffffffffffff,false);
+		break;
+		case 10:
+			xdRet = expdouble(0x8016302f17467628,0x3fffffffffffffff,false);
+		break;
+		case 11:
+			xdRet = expdouble(0x800b179c82028fd0,0x3fffffffffffffff,false);
+		break;
+		case 12:
+			xdRet = expdouble(0x80058baf7fee3b5d,0x3fffffffffffffff,false);
+		break;
+		case 13:
+			xdRet = expdouble(0x8002c5d00fdcfcb7,0x3fffffffffffffff,false);
+		break;
+		case 14:
+			xdRet = expdouble(0x800162e61bed4a49,0x3fffffffffffffff,false);
+		break;
+		case 15:
+			xdRet = expdouble(0x8000b17292f702a4,0x3fffffffffffffff,false);
+		break;
+		case 16:
+			xdRet = expdouble(0x800058b92abbae02,0x3fffffffffffffff,false);
+		break;
+		case 17:
+			xdRet = expdouble(0x80002c5c8dade4d7,0x3fffffffffffffff,false);
+		break;
+		case 18:
+			xdRet = expdouble(0x8000162e44eaf636,0x3fffffffffffffff,false);
+		break;
+		case 19:
+			xdRet = expdouble(0x80000b1721fa7c18,0x3fffffffffffffff,false);
+		break;
+		case 20:
+			xdRet = expdouble(0x8000058b90de7e4d,0x3fffffffffffffff,false);
+		break;
+		case 21:
+			xdRet = expdouble(0x800002c5c8678f37,0x3fffffffffffffff,false);
+		break;
+		case 22:
+			xdRet = expdouble(0x80000162e431dba0,0x3fffffffffffffff,false);
+		break;
+		case 23:
+			xdRet = expdouble(0x800000b1721872d1,0x3fffffffffffffff,false);
+		break;
+		case 24:
+			xdRet = expdouble(0x80000058b90c1aa9,0x3fffffffffffffff,false);
+		break;
+		case 25:
+			xdRet = expdouble(0x8000002c5c8605a5,0x3fffffffffffffff,false);
+		break;
+		case 26:
+			xdRet = expdouble(0x800000162e4300e7,0x3fffffffffffffff,false);
+		break;
+		case 27:
+			xdRet = expdouble(0x8000000b17217ff9,0x3fffffffffffffff,false);
+		break;
+		case 28:
+			xdRet = expdouble(0x800000058b90bfde,0x3fffffffffffffff,false);
+		break;
+		case 29:
+			xdRet = expdouble(0x80000002c5c85fe7,0x3fffffffffffffff,false);
+		break;
+		case 30:
+			xdRet = expdouble(0x8000000162e42ff2,0x3fffffffffffffff,false);
+		break;
+		case 31:
+			xdRet = expdouble(0x80000000b17217f9,0x3fffffffffffffff,false);
+		break;
+		case 32:
+			xdRet = expdouble(0x8000000058b90bfc,0x3fffffffffffffff,false);
+		break;
+		case 33:
+			xdRet = expdouble(0x800000002c5c85fe,0x3fffffffffffffff,false);
+		break;
+		case 34:
+			xdRet = expdouble(0x80000000162e42ff,0x3fffffffffffffff,false);
+		break;
+		case 35:
+			xdRet = expdouble(0x800000000b17217f,0x3fffffffffffffff,false);
+		break;
+		case 36:
+			xdRet = expdouble(0x80000000058b90bf,0x3fffffffffffffff,false);
+		break;
+		case 37:
+			xdRet = expdouble(0x8000000002c5c85f,0x3fffffffffffffff,false);
+		break;
+		case 38:
+			xdRet = expdouble(0x800000000162e42f,0x3fffffffffffffff,false);
+		break;
+		case 39:
+			xdRet = expdouble(0x8000000000b17217,0x3fffffffffffffff,false);
+		break;
+		case 40:
+			xdRet = expdouble(0x800000000058b90b,0x3fffffffffffffff,false);
+		break;
+		case 41:
+			xdRet = expdouble(0x80000000002c5c85,0x3fffffffffffffff,false);
+		break;
+		case 42:
+			xdRet = expdouble(0x8000000000162e42,0x3fffffffffffffff,false);
+		break;
+		case 43:
+			xdRet = expdouble(0x80000000000b1721,0x3fffffffffffffff,false);
+		break;
+		case 44:
+			xdRet = expdouble(0x8000000000058b90,0x3fffffffffffffff,false);
+		break;
+		case 45:
+			xdRet = expdouble(0x800000000002c5c8,0x3fffffffffffffff,false);
+		break;
+		case 46:
+			xdRet = expdouble(0x80000000000162e4,0x3fffffffffffffff,false);
+		break;
+		case 47:
+			xdRet = expdouble(0x800000000000b172,0x3fffffffffffffff,false);
+		break;
+		case 48:
+			xdRet = expdouble(0x80000000000058b9,0x3fffffffffffffff,false);
+		break;
+		case 49:
+			xdRet = expdouble(0x8000000000002c5c,0x3fffffffffffffff,false);
+		break;
+		case 50:
+			xdRet = expdouble(0x800000000000162e,0x3fffffffffffffff,false);
+		break;
+		case 51:
+			xdRet = expdouble(0x8000000000000b17,0x3fffffffffffffff,false);
+		break;
+		case 52:
+			xdRet = expdouble(0x800000000000058b,0x3fffffffffffffff,false);
+		break;
+		case 53:
+			xdRet = expdouble(0x80000000000002c5,0x3fffffffffffffff,false);
+		break;
+		case 54:
+			xdRet = expdouble(0x8000000000000162,0x3fffffffffffffff,false);
+		break;
+		case 55:
+			xdRet = expdouble(0x80000000000000b1,0x3fffffffffffffff,false);
+		break;
+		case 56:
+			xdRet = expdouble(0x8000000000000058,0x3fffffffffffffff,false);
+		break;
+		case 57:
+			xdRet = expdouble(0x800000000000002c,0x3fffffffffffffff,false);
+		break;
+		case 58:
+			xdRet = expdouble(0x8000000000000016,0x3fffffffffffffff,false);
+		break;
+		case 59:
+			xdRet = expdouble(0x800000000000000b,0x3fffffffffffffff,false);
+		break;
+		case 60:
+			xdRet = expdouble(0x8000000000000005,0x3fffffffffffffff,false);
+		break;
+		case 61:
+			xdRet = expdouble(0x8000000000000002,0x3fffffffffffffff,false);
+		break;
+		case 62:
+			xdRet = expdouble(0x8000000000000001,0x3fffffffffffffff,false);
+		break;
+		case 63:
+			xdRet = expdouble(0x8000000000000000,0x3fffffffffffffff,false);
+		break;
+		case 64:
+			xdRet = expdouble(0x8000000000000000,0x3fffffffffffffff,false);
+		break;
+		case 65:
+			xdRet = expdouble(0x8000000000000000,0x3fffffffffffffff,false);
+		break;
+
+		}
+		return xdRet;
+	}
+
 	std::string get_b10_value(size_t i_nNum_Digits, bool i_bEngineering_Form) const
 	{
+		return std::string(); // @@TODO debug
 		std::string szRet;
 		if (isinf())
 		{
@@ -1212,16 +1511,26 @@ public:
 				szRet.push_back('.');
 			for (size_t tI = 0; tI < i_nNum_Digits; tI++)
 				szRet.push_back('0');
+			if(i_bEngineering_Form)
+			{
+				szRet.push_back('e');
+				szRet.push_back('+');
+				szRet.push_back('0');
+			}
 		}
 		else
 		{
-			long double ldMantissa = frexp(nullptr).unload();
-			if (ldMantissa < 0.0)
-				ldMantissa *= -1.0;
-			long double ldExponent = exponent() * std::log10(2.0) + std::log10(ldMantissa);
-			long double ldValue = ldExponent - std::floor(ldExponent);		
-			ldExponent -= ldValue;
-			long double ldB10 = pow(10.0,ldValue);
+			expdouble ldLog10 = log10();
+			expdouble ldIntPart = ldLog10.floor();
+			expdouble ldFracPart = ldLog10 - ldIntPart;
+			long double ldB10 = std::pow(10.0,ldFracPart.unload());
+			expdouble ldExponent = ldIntPart;
+			//szRet
+//			long double ldMantissa = std::frexp(unload(),nullptr);
+//			long double ldExponent = exponent() * std::log10(2.0) + std::log10(ldMantissa);
+//			long double ldValue = ldExponent - std::floor(ldExponent);		
+//			ldExponent -= ldValue;
+//			long double ldB10 = pow(10.0,ldValue);
 
 			std::vector<char> vDigits;
 			std::vector<char> vDecimal_Digits;

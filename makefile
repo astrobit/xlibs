@@ -37,14 +37,17 @@ cpp:
 	@if [ ! -d xcpp/obj ]; then mkdir xcpp/obj; fi
 	$(MAKE) -C xcpp BARENAME=xcpp
 
-xtools: 
+xtools:
 	@if [ ! -d xtools/obj ]; then mkdir xtools/obj; fi
 	$(MAKE) -C xtools
 
-testing:
+testing: testing/src/*.cpp libs
 	$(MAKE) -C testing
 
 
+$(BINDIR)/xexpdbltest: testing/src/xexpdouble_test.cpp include/xextprec.h xmath/src/xexpdouble.cpp
+	$(CXX) $(CXXFLAGSLCL) -fopenmp testing/src/xexpdouble_test.cpp xmath/src/xexpdouble.cpp -o $(BINDIR)/xexpdbltest
+xexpdbltest: $(BINDIR)/xexpdbltest
 
 #$(BINDIR)/xastroiontest: $(OBJDIR)/xastroion_test.o $(OBJDIR)/xastroion.o $(OBJDIR)/xastro.o $(OBJDIR)/xastroline.o $(LIBDIR)/libxstdlib.a astroiontest: $(BINDIR)/xastroiontest
 
