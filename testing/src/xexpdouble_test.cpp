@@ -95,8 +95,45 @@ void mantest(const long double & i_ldLD)
 //	pbin(m_nSign);
 }
 
+
+
 int main(int iA, char * lpcC[])
 {
+	
+
+	//@@TODO: write all of this as a series of tests with PASS/FAIL information
+	long double da = 33333333.3333333333333333333;
+	long double db = 33333333.0;
+	expdouble xxxx(2.2);
+	std::cout << xxxx.intpart().unload() << std::endl;
+	std::cout << xxxx.fracpart().unload() << std::endl;
+	xxxx.load(da);
+	std::cout << xxxx.intpart().unload() << std::endl;
+	std::cout << xxxx.fracpart().unload() << std::endl;
+	xxxx.load(db);
+	std::cout << xxxx.intpart().unload() << std::endl;
+	std::cout << xxxx.fracpart().unload() << std::endl;
+
+	std::cout << "2.0 " << (expdouble(1.0).exp2()).unload() << std::endl;
+	std::cout << "4.0 " << (expdouble(2.0).exp2()).unload() << std::endl;
+	std::cout << "1.41 " << (expdouble(0.5).exp2()).unload() << std::endl;
+	std::cout << std::exp2((long double)0.3) << " "  << (expdouble(0.3).exp2()).unload() << std::endl;
+	std::cout << "0.5 " << (expdouble(-1.0).exp2()).unload() << std::endl;
+	std::cout << std::exp2((long double)-1.5) << " " << (expdouble(-1.5).exp2()).unload() << std::endl;
+
+	std::cout << (expdouble(1.0) / expdouble(3.0)).unload() << std::endl;
+	std::cout << (expdouble(1.0) / expdouble(2.0)).unload() << std::endl;
+	std::cout << (expdouble(4.4) / expdouble(2.0)).unload() << std::endl;
+	std::cout << ((expdouble(1.0) / expdouble(3.0)) * expdouble(3.0)).unload() << std::endl;
+	std::cout << ((expdouble(1.0) / expdouble(2.0)) * expdouble(2.0)).unload() << std::endl;
+	std::cout << ((expdouble(4.4) / expdouble(2.0)) * expdouble(2.0)).unload() << std::endl;
+	std::cout << 2.0 << ": " << expdouble(2.0) << std::endl;
+	std::cout << 20.0 << ": " << expdouble(20.0) << std::endl;
+	std::cout << 0.2 << ": " << expdouble(0.2) << std::endl;
+	std::cout << 2.0e-40 << ": " << expdouble(2.0e-40) << std::endl;
+	std::cout << std::scientific << 2.0e-40 << ": " << expdouble(2.0e-40) << std::fixed << std::endl;
+//	return 0;
+
 	printf("%i %i %i %i %i\n",sizeof(float),sizeof(double),sizeof(long double),sizeof(long double *),LDBL_MAX_EXP);
 	printf("%.18Le %.18Le\n",LDBL_EPSILON,EDBL_EPSILON.unload());
 
@@ -351,6 +388,29 @@ int main(int iA, char * lpcC[])
 		std::cout << std::hex << xdRes.mantissa() << " " << lpiRes[0] << " " << lpiExp[0] << std::endl;
 		std::cout << ldI << " " << std::setprecision(19) << ldRes << " " << std::exp(ldI) << " " << (ldI * EDBL_LOG2_e).unload() << std::endl;
 	}
+
+	expdouble xd0(0.0);
+	expdouble xd1(1.0);
+	expdouble xd2(2.0);
+	expdouble xd3(3.0);
+	expdouble xd4(4.0);
+	expdouble xd5(5.0);
+	expdouble xd6(6.0);
+	expdouble xd7(7.0);
+	expdouble xd8(8.0);
+	expdouble xd9(9.0);
+
+	std::cout << xd0.extract_digit() + '0';
+	std::cout << xd1.extract_digit() + '0';
+	std::cout << xd2.extract_digit() + '0';
+	std::cout << xd3.extract_digit() + '0';
+	std::cout << xd4.extract_digit() + '0';
+	std::cout << xd5.extract_digit() + '0';
+	std::cout << xd6.extract_digit() + '0';
+	std::cout << xd7.extract_digit() + '0';
+	std::cout << xd8.extract_digit() + '0';
+	std::cout << xd9.extract_digit() + '0';
+	std::cout << std::endl;
 
 
 	return 0;
