@@ -33,6 +33,14 @@ xvector_ep::xvector_ep(const std::vector<expdouble> &i_vRHO)
 	Copy(i_vRHO);
 }
 // copy constructor
+xvector_ep::xvector_ep(const std::vector<long double> &i_vRHO)
+{
+	m_lpdValues = nullptr;
+	m_uiN = 0;
+	m_uiN_Alloc = 0;
+	Copy(i_vRHO);
+}
+// copy constructor
 xvector_ep::xvector_ep(const std::vector<double> &i_vRHO)
 {
 	m_lpdValues = nullptr;
@@ -56,7 +64,7 @@ xvector_ep::xvector_ep(const std::vector<int64_t> &i_vRHO)
 	m_uiN_Alloc = 0;
 	Copy(i_vRHO);
 }
-xvector_ep::xvector_ep(const std::vector<unsigned int64_t> &i_vRHO)
+xvector_ep::xvector_ep(const std::vector<uint64_t> &i_vRHO)
 {
 	m_lpdValues = nullptr;
 	m_uiN = 0;
@@ -70,7 +78,7 @@ xvector_ep::xvector_ep(const std::vector<int32_t> &i_vRHO)
 	m_uiN_Alloc = 0;
 	Copy(i_vRHO);
 }
-xvector_ep::xvector_ep(const std::vector<unsigned int32_t> &i_vRHO)
+xvector_ep::xvector_ep(const std::vector<uint32_t> &i_vRHO)
 {
 	m_lpdValues = nullptr;
 	m_uiN = 0;
@@ -84,7 +92,7 @@ xvector_ep::xvector_ep(const std::vector<int16_t> &i_vRHO)
 	m_uiN_Alloc = 0;
 	Copy(i_vRHO);
 }
-xvector_ep::xvector_ep(const std::vector<unsigned int16_t> &i_vRHO)
+xvector_ep::xvector_ep(const std::vector<uint16_t> &i_vRHO)
 {
 	m_lpdValues = nullptr;
 	m_uiN = 0;
@@ -98,7 +106,7 @@ xvector_ep::xvector_ep(const std::vector<int8_t> &i_vRHO)
 	m_uiN_Alloc = 0;
 	Copy(i_vRHO);
 }
-xvector_ep::xvector_ep(const std::vector<unsigned int8_t> &i_vRHO)
+xvector_ep::xvector_ep(const std::vector<uint8_t> &i_vRHO)
 {
 	m_lpdValues = nullptr;
 	m_uiN = 0;
@@ -236,12 +244,17 @@ xvector_ep &xvector_ep::operator =(const std::vector<double> &i_vRHO)
 	Copy(i_vRHO);
 	return *this;
 }
+xvector_ep &xvector_ep::operator =(const std::vector<long double> &i_vRHO)
+{
+	Copy(i_vRHO);
+	return *this;
+}
 xvector_ep &xvector_ep::operator =(const std::vector<float> &i_vRHO)
 {
 	Copy(i_vRHO);
 	return *this;
 }
-xvector_ep &xvector_ep::operator =(const std::vector<unsigned int64_t> &i_vRHO)
+xvector_ep &xvector_ep::operator =(const std::vector<uint64_t> &i_vRHO)
 {
 	Copy(i_vRHO);
 	return *this;
@@ -251,7 +264,7 @@ xvector_ep &xvector_ep::operator =(const std::vector<int64_t> &i_vRHO)
 	Copy(i_vRHO);
 	return *this;
 }
-xvector_ep &xvector_ep::operator =(const std::vector<unsigned int32_t> &i_vRHO)
+xvector_ep &xvector_ep::operator =(const std::vector<uint32_t> &i_vRHO)
 {
 	Copy(i_vRHO);
 	return *this;
@@ -261,7 +274,7 @@ xvector_ep &xvector_ep::operator =(const std::vector<int32_t> &i_vRHO)
 	Copy(i_vRHO);
 	return *this;
 }
-xvector_ep &xvector_ep::operator =(const std::vector<unsigned int16_t> &i_vRHO)
+xvector_ep &xvector_ep::operator =(const std::vector<uint16_t> &i_vRHO)
 {
 	Copy(i_vRHO);
 	return *this;
@@ -271,7 +284,7 @@ xvector_ep &xvector_ep::operator =(const std::vector<int16_t> &i_vRHO)
 	Copy(i_vRHO);
 	return *this;
 }
-xvector_ep &xvector_ep::operator =(const std::vector<unsigned int8_t> &i_vRHO)
+xvector_ep &xvector_ep::operator =(const std::vector<uint8_t> &i_vRHO)
 {
 	Copy(i_vRHO);
 	return *this;
@@ -334,6 +347,7 @@ xvector_ep &xvector_ep::operator -=(const xvector_ep &i_vRHO)
 	}
 	return *this;
 }
+
 // Scalar operatations
 xvector_ep xvector_ep::operator -(void)  const
 {
@@ -436,6 +450,21 @@ void xvector_ep::Copy(const std::vector<expdouble> &i_vRHO)
 		m_lpdValues[uiI] = i_vRHO[uiI];
 
 }
+void xvector_ep::Copy(const std::vector<long double> &i_vRHO)
+{
+	if (m_uiN_Alloc < i_vRHO.size())
+	{
+		if (m_lpdValues)
+			delete [] m_lpdValues;
+		m_lpdValues = new expdouble[i_vRHO.size()];
+		m_uiN_Alloc = i_vRHO.size();
+	}
+	m_uiN = i_vRHO.size();
+#pragma omp for
+	for (size_t uiI = 0; uiI < m_uiN; uiI++)
+		m_lpdValues[uiI] = i_vRHO[uiI];
+
+}
 void xvector_ep::Copy(const std::vector<double> &i_vRHO)
 {
 	if (m_uiN_Alloc < i_vRHO.size())
@@ -466,7 +495,7 @@ void xvector_ep::Copy(const std::vector<float> &i_vRHO)
 		m_lpdValues[uiI] = i_vRHO[uiI];
 
 }
-void xvector_ep::Copy(const std::vector<unsigned int64_t> &i_vRHO)
+void xvector_ep::Copy(const std::vector<uint64_t> &i_vRHO)
 {
 	if (m_uiN_Alloc < i_vRHO.size())
 	{
@@ -497,7 +526,7 @@ void xvector_ep::Copy(const std::vector<int64_t> &i_vRHO)
 
 }
 
-void xvector_ep::Copy(const std::vector<unsigned int32_t> &i_vRHO)
+void xvector_ep::Copy(const std::vector<uint32_t> &i_vRHO)
 {
 	if (m_uiN_Alloc < i_vRHO.size())
 	{
@@ -527,7 +556,7 @@ void xvector_ep::Copy(const std::vector<int32_t> &i_vRHO)
 		m_lpdValues[uiI] = i_vRHO[uiI];
 
 }
-void xvector_ep::Copy(const std::vector<unsigned int16_t> &i_vRHO)
+void xvector_ep::Copy(const std::vector<uint16_t> &i_vRHO)
 {
 	if (m_uiN_Alloc < i_vRHO.size())
 	{
@@ -558,7 +587,7 @@ void xvector_ep::Copy(const std::vector<int16_t> &i_vRHO)
 
 }
 
-void xvector_ep::Copy(const std::vector<unsigned int8_t> &i_vRHO)
+void xvector_ep::Copy(const std::vector<uint8_t> &i_vRHO)
 {
 	if (m_uiN_Alloc < i_vRHO.size())
 	{
@@ -573,6 +602,8 @@ void xvector_ep::Copy(const std::vector<unsigned int8_t> &i_vRHO)
 		m_lpdValues[uiI] = i_vRHO[uiI];
 
 }
+
+
 void xvector_ep::Copy(const std::vector<int8_t> &i_vRHO)
 {
 	if (m_uiN_Alloc < i_vRHO.size())
@@ -639,7 +670,7 @@ void xvector_ep::Zero(void)
 expdouble	xvector_ep::Magnitude(void) const
 {
 	expdouble	dMagSqr = Dot(*this);
-	return expdouble(sqrt(dMagSqr.unload()));//@@TODO: fix once sqrt is implemented for expdouble
+	return dMagSqr.sqrt();
 }
 
 bool xvector_ep::is_nan(void) const
@@ -659,4 +690,5 @@ bool xvector_ep::is_inf(void) const
 		bRet |= m_lpdValues[uiI].isinf();
 	return bRet;
 }
+
 

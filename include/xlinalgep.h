@@ -22,15 +22,16 @@ private:
 	// copy function
 	void			Copy(const xvector_ep &i_vRHO);
 	void			Copy(const std::vector<expdouble> &i_vRHO);
+	void			Copy(const std::vector<long double> &i_vRHO);
 	void			Copy(const std::vector<double> &i_vRHO);
 	void			Copy(const std::vector<float> &i_vRHO);
-	void			Copy(const std::vector<unsigned int64_t> &i_vRHO);
+	void			Copy(const std::vector<uint64_t> &i_vRHO);
 	void			Copy(const std::vector<int64_t> &i_vRHO);
-	void			Copy(const std::vector<unsigned int32_t> &i_vRHO);
+	void			Copy(const std::vector<uint32_t> &i_vRHO);
 	void			Copy(const std::vector<int32_t> &i_vRHO);
-	void			Copy(const std::vector<unsigned int16_t> &i_vRHO);
+	void			Copy(const std::vector<uint16_t> &i_vRHO);
 	void			Copy(const std::vector<int16_t> &i_vRHO);
-	void			Copy(const std::vector<unsigned int8_t> &i_vRHO);
+	void			Copy(const std::vector<uint8_t> &i_vRHO);
 	void			Copy(const std::vector<int8_t> &i_vRHO);
 public:
 	// default constructor
@@ -44,23 +45,25 @@ public:
 	// contructor from c++ vector class
 	xvector_ep(const std::vector<int8_t> &i_vRHO);
 	// contructor from c++ vector class
-	xvector_ep(const std::vector<unsigned int8_t> &i_vRHO);
+	xvector_ep(const std::vector<uint8_t> &i_vRHO);
 	// contructor from c++ vector class
 	xvector_ep(const std::vector<int16_t> &i_vRHO);
 	// contructor from c++ vector class
-	xvector_ep(const std::vector<unsigned int16_t> &i_vRHO);
+	xvector_ep(const std::vector<uint16_t> &i_vRHO);
 	// contructor from c++ vector class
 	xvector_ep(const std::vector<int32_t> &i_vRHO);
 	// contructor from c++ vector class
-	xvector_ep(const std::vector<unsigned int32_t> &i_vRHO);
+	xvector_ep(const std::vector<uint32_t> &i_vRHO);
 	// contructor from c++ vector class
 	xvector_ep(const std::vector<int64_t> &i_vRHO);
 	// contructor from c++ vector class
-	xvector_ep(const std::vector<unsigned int64_t> &i_vRHO);
+	xvector_ep(const std::vector<uint64_t> &i_vRHO);
 	// contructor from c++ vector class
 	xvector_ep(const std::vector<float> &i_vRHO);
 	// contructor from c++ vector class
 	xvector_ep(const std::vector<double> &i_vRHO);
+	// contructor from c++ vector class
+	xvector_ep(const std::vector<long double> &i_vRHO);
 	// contructor from c++ vector class
 	xvector_ep(const std::vector<expdouble> &i_vRHO);
 	// get size of vector
@@ -98,15 +101,16 @@ public:
 	xvector_ep operator -(const xvector_ep &i_vRHO) const;
 	xvector_ep &operator -=(const xvector_ep &i_vRHO);
 	xvector_ep &operator =(const std::vector<expdouble> &i_vRHO);
+	xvector_ep &operator =(const std::vector<long double> &i_vRHO);
 	xvector_ep &operator =(const std::vector<double> &i_vRHO);
 	xvector_ep &operator =(const std::vector<float> &i_vRHO);
-	xvector_ep &operator =(const std::vector<unsigned int64_t> &i_vRHO);
+	xvector_ep &operator =(const std::vector<uint64_t> &i_vRHO);
 	xvector_ep &operator =(const std::vector<int64_t> &i_vRHO);
-	xvector_ep &operator =(const std::vector<unsigned int32_t> &i_vRHO);
+	xvector_ep &operator =(const std::vector<uint32_t> &i_vRHO);
 	xvector_ep &operator =(const std::vector<int32_t> &i_vRHO);
-	xvector_ep &operator =(const std::vector<unsigned int16_t> &i_vRHO);
+	xvector_ep &operator =(const std::vector<uint16_t> &i_vRHO);
 	xvector_ep &operator =(const std::vector<int16_t> &i_vRHO);
-	xvector_ep &operator =(const std::vector<unsigned int8_t> &i_vRHO);
+	xvector_ep &operator =(const std::vector<uint8_t> &i_vRHO);
 	xvector_ep &operator =(const std::vector<int8_t> &i_vRHO);
 	// Scalar operatations
 	xvector_ep operator -(void)  const;
