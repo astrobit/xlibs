@@ -446,7 +446,6 @@ public:
 //      11 May 2017 : Created by Brian W. Mulligan
 //
 #define EXPDBLEXPREF 0x3ffffffffffffffe
-#define EXPDBLHIGHBIT highbit64
 #define highbit64 0x8000000000000000
 #define EDBL_MANT_DIG	64
 #define EDBL_DIG 		18
@@ -467,9 +466,7 @@ private:
 		uint64_t tRet = i_tValue;
 		if (i_tShift > 0)
 		{
-			tRet >>= 1;
-			tRet &= 0x7fffffffffffffff;
-			tRet >>= (i_tShift - 1);
+			tRet >>= i_tShift;
 		}
 		return tRet;
 	}
@@ -1295,9 +1292,9 @@ public:
 			xdRet = expdouble(0,0,false);
 		else if (iszero())
 			xdRet = expdouble(1.0);
-		else
+		else if (!isinf() && !isnan())
 		{
-			expdouble xdRet(1.0);
+			xdRet = expdouble(1.0);
 
 			int64_t tIdx = 0;
 			int64_t tExponent = exponent() - 1;
@@ -1791,7 +1788,7 @@ public:
 	//@@TODO: cosh, tanh, sinh
 	//@@TODO: atanh, acosh, asinh
 	//@@TODO: the rest of the IEEE 754-2008 standard
-	//@@TODO: correctly handle infinities and underflow in multiplication and addition
+	//@@TODO: correctly handle infinities and underflow in multiplication and addition -- update 11 June, this may be fixed already, but needs testing 
 		
 };
 inline std::ostream & operator<<(std::ostream& io_Out, const expdouble& i_xdVal)
