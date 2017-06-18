@@ -305,4 +305,13 @@ namespace xstdlib
 {
 	enum datatype {empty, logical, hex, octal, binary, integer, floating_point, string};
 	datatype identify_datatype(const std::string i_szString);
+
+
+
+	void printbit(uint8_t i_cVal);
+	void pbin(void * i_lpdData, size_t tN_Bytes);
+	template<typename T>  void pbin(const T & i_ldData)
+	{
+		pbin((void *)&i_ldData,sizeof(T));
+	}
 }

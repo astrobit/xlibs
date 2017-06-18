@@ -2039,3 +2039,51 @@ xstdlib::datatype xstdlib::identify_datatype(const std::string i_szString)
 	return eType;
 }
 
+void xstdlib::printbit(uint8_t i_cVal)
+{
+	if (i_cVal == 0)
+		printf("0");
+	else
+		printf("1");
+}
+
+void xstdlib::pbin(void * i_lpdData, size_t tN_Bytes)
+{
+//		for (size_t tI = 0; tI < tN_Bytes; tI++)
+//		{
+//			printf("--------");
+//		}
+//		printf("\n");
+	uint8_t * lpcData = (uint8_t *)i_lpdData;
+	for (size_t tI = 0; tI < tN_Bytes; tI++)
+	{
+		printbit(lpcData[tN_Bytes - tI - 1] & 0x80);
+		printbit(lpcData[tN_Bytes - tI - 1] & 0x40);
+		printbit(lpcData[tN_Bytes - tI - 1] & 0x20);
+		printbit(lpcData[tN_Bytes - tI - 1] & 0x10);
+		printbit(lpcData[tN_Bytes - tI - 1] & 0x08);
+		printbit(lpcData[tN_Bytes - tI - 1] & 0x04);
+		printbit(lpcData[tN_Bytes - tI - 1] & 0x02);
+		printbit(lpcData[tN_Bytes - tI - 1] & 0x01);
+
+	}
+	printf("\n");
+/*	for (size_t tI = 0; tI < tN_Bytes; tI++)
+	{
+		printf("76543210");
+	}
+	printf("\n");
+	for (size_t tI = 0; tI < tN_Bytes; tI++)
+	{
+		for (size_t tJ = 0; tJ < 8; tJ++)
+			printf("%x",tI % 16);
+	}
+	printf("\n");
+	for (size_t tI = 0; tI < tN_Bytes; tI++)
+	{
+		printf("--------");
+	}
+	printf("\n");*/
+
+}
+
