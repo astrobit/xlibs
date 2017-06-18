@@ -470,8 +470,8 @@ private:
 		}
 		return tRet;
 	}
-	int64_t m_nExponent;
 	uint64_t m_nMantissa;
+	int64_t m_nExponent;
 	void exponent_add(int64_t i_tRHO)
 	{
 		if (!isnan() && !isinf() && !iszero())
@@ -1248,27 +1248,41 @@ public:
 		else if (!isinf() && !isnan())
 		{
 			xdRet.load(exponent() - 1);
+			std::cout << "b" << exponent() << " " << xdRet.unload() << std::endl;
 //			pbin(xdRet.m_nMantissa);
 //			pbin(m_nMantissa);
 
 			// figure out how many bits we have to work with
 			int64_t tExp_Start = xdRet.exponent();
-//			std::cout << tExp_Start << std::endl;
-			size_t tCount = 64 - tExp_Start;
-			uint64_t tRun_Mantissa = m_nMantissa; // drop leading 1
-			for (size_t tI = 0; tI < tCount && tRun_Mantissa != 0; tI++)
+			if (m_nMantissa != 0x8000000000000000) // if mantissa is exactly 0.5, don't do any more work
 			{
-				bool bOverflow;
-				tRun_Mantissa = mantissa_square_normal(tRun_Mantissa,bOverflow);
-				if (bOverflow)
+				int64_t tExp = 0;
+				expdouble xdManPart;
+	//			std::cout << tExp_Start << std::endl;
+				uint64_t tRun_Mantissa = m_nMantissa;
+				uint64_t tMantissa = 0;
+				size_t tStart = 0;
+				for (size_t tI = 0; tI < (64 + tExp) && tRun_Mantissa != 0x8000000000000000; tI++)
 				{
-					uint64_t tAdd = 1;
-					tAdd <<= (63 - tExp_Start - tI);
-//					std::cout << "+ "; pbin(tAdd);
-					xdRet.m_nMantissa |= tAdd;
+					bool bOverflow;
+					tRun_Mantissa = mantissa_square_normal(tRun_Mantissa,bOverflow);
+					if (bOverflow)
+					{
+						if (tMantissa == 0) // first bit to be set
+						{
+							tExp = tI;
+						}
+						uint64_t tAdd = 1;
+						tAdd <<= (63 - tI + tExp);
+	//					std::cout << "+ "; pbin(tAdd);
+						tMantissa |= tAdd;
+					}
+	//				std::cout << "a "; pbin(xdRet.m_nMantissa);
+	//				std::cout << "b "; pbin(tRun_Mantissa);
 				}
-//				std::cout << "a "; pbin(xdRet.m_nMantissa);
-//				std::cout << "b "; pbin(tRun_Mantissa);
+				xdManPart.m_nMantissa = tMantissa;
+				xdManPart.m_nExponent = (EXPDBLEXPREF - tExp) & 0x7fffffffffffffff;
+				xdRet += xdManPart;
 			}
 		}
 		else if (isinf())
@@ -1820,6 +1834,18 @@ inline expdouble operator / (const long double & i_cLHO, const expdouble & i_cRH
 extern expdouble EDBL_MIN;
 extern expdouble EDBL_MAX;
 extern expdouble EDBL_EPSILON;
+namespace xextprec
+{
+	inline expdouble sqrt(const expdouble & i_cVal) { return i_cVal.sqrt();}
+	inline expdouble exp(const expdouble & i_cVal) { return i_cVal.exp();}
+	inline expdouble exp2(const expdouble & i_cVal) { return i_cVal.exp2();}
+	inline expdouble pow(const expdouble & i_cVal, const expdouble & i_cExp) { return i_cVal.pow(i_cExp);}
+	inline expdouble log(const expdouble & i_cVal) { return i_cVal.log();}
+	inline expdouble log10(const expdouble & i_cVal) { return i_cVal.log10();}
+	inline expdouble log2(const expdouble & i_cVal) { return i_cVal.log2();}
+	inline expdouble fabs(const expdouble & i_cVal) { return i_cVal.abs();}
+	inline expdouble abs(const expdouble & i_cVal) { return i_cVal.abs();}
+};
 
 #if 0
                     GNU GENERAL PUBLIC LICENSE

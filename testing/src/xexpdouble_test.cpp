@@ -6,100 +6,299 @@
 #include <limits>
 #include <vector>
 #include <xextprec.h>
-
+#include <xstdlib.h>
 #include <iomanip>
 
 
-
-void printbit(uint8_t i_cVal)
+FILE * g_fileRand = nullptr;
+long double ld_load_rand(void)
 {
-	if (i_cVal == 0)
-		printf("0");
+	long double ldRes = 0;
+	if (g_fileRand == nullptr)
+		g_fileRand = fopen("/dev/random","rb");
+	if (g_fileRand != nullptr)
+	{
+		uint8_t lpcData[10];
+		fread(lpcData,10,1,g_fileRand);
+		uint64_t * lpD = (uint64_t *)&ldRes;
+		lpD[0] = 0;
+		lpD[1] = 0;
+		for (uint32_t tI = 0; tI < 8; tI++)
+		{
+			uint64_t tTemp = lpcData[tI];
+			tTemp <<= (56 - (tI << 3));
+			lpD[0] |= tTemp;
+		}
+		lpD[0] |= 0x8000000000000000;
+		for (uint32_t tI = 0; tI < 2; tI++)
+		{
+			uint64_t tTemp = lpcData[tI + 8];
+			tTemp <<= (8 - (tI << 3));
+			lpD[1] |= tTemp;
+		}
+	}
+	return ldRes;
+}
+long double ld_load_rand_exp(void) // generates numbers with a more limited ranges that are assured to be safe for exp(x)
+{
+	long double ldRes = 0;
+	if (g_fileRand == nullptr)
+		g_fileRand = fopen("/dev/random","rb");
+	if (g_fileRand != nullptr)
+	{
+		uint8_t lpcData[9];
+		fread(lpcData,9,1,g_fileRand);
+		uint64_t * lpD = (uint64_t *)&ldRes;
+		lpD[0] = 0;
+		lpD[1] = 0;
+		for (uint32_t tI = 0; tI < 8; tI++)
+		{
+			uint64_t tTemp = lpcData[tI];
+			tTemp <<= (56 - (tI << 3));
+			lpD[0] |= tTemp;
+		}
+		lpD[0] |= 0x8000000000000000;
+		lpD[1] = 0x03FFF;
+		std::cout << ldRes << std::endl;
+		int iExp = lpcData[8] & 0x2f; 
+		std::cout << iExp << std::endl;
+		iExp -= 24;
+		std::cout << iExp << std::endl;
+		ldRes = std::ldexp(ldRes,iExp);
+		if (lpcData[8] & 0x80) // make negative
+		{
+			lpD[1] |= 0x8000;
+		}
+		std::cout << ldRes << " " << iExp << std::endl;
+		
+	}
+	return ldRes;
+}
+bool mult_test(long double & i_LHO, long double & i_RHO, bool &o_bTest_Valid)
+{
+	long double ldRes = i_LHO * i_RHO;
+	expdouble xRes = expdouble(i_LHO) * expdouble(i_RHO);
+	long double ldErr = std::fabs(1.0 - xRes.unload() / ldRes);
+	o_bTest_Valid = !std::isinf(ldRes) && !std::isnan(ldRes) && ldRes != 0.0; // the probability of LHO = 0 or RHO = 0 is small, so assume that if res = 0, we have fallen outside of the limits of long dobule
+//	bool bSuccess = (ldErr < std::ldexp(1.0,-63)) && o_bTest_Valid;
+	bool bSuccess = (ldErr == 0.0 || (std::log2(ldErr) < -62.0)) && o_bTest_Valid;
+	std::cout << std::log2(ldErr) << " (" << ldErr << ")";
+//	std::cout << ldRes << " " << std::log2(ldErr) << " (" << ldErr << ")";
+//	std::cout << expdouble(i_LHO).unload() << " * " << expdouble(i_RHO).unload() << " = " << xRes.unload() << " (" << ldRes << ") " << ldErr;
+	return bSuccess;
+}
+
+bool add_test(long double & i_LHO, long double & i_RHO, bool &o_bTest_Valid)
+{
+	long double ldRes = i_LHO + i_RHO;
+	expdouble xRes = expdouble(i_LHO) + expdouble(i_RHO);
+	long double ldErr = std::fabs(1.0 - xRes.unload() / ldRes);
+	o_bTest_Valid = !std::isinf(ldRes) && !std::isnan(ldRes);
+	bool bSuccess = (ldErr == 0.0 || (std::log2(ldErr) < -62.0)) && o_bTest_Valid;
+	std::cout << std::log2(ldErr) << " (" << ldErr << ")";
+
+	return bSuccess;
+}
+
+bool exp_test(long double & i_LHO, bool & o_bTest_Valid)
+{
+	long double ldLHO_Mod = std::log(fabs(i_LHO));
+	long double ldRes = std::exp(ldLHO_Mod);
+	expdouble xRes = expdouble(ldLHO_Mod).exp();
+	long double ldErr = std::fabs(1.0 - xRes.unload() / ldRes);
+	o_bTest_Valid = !std::isinf(ldRes) && !std::isnan(ldRes) && ldRes != 0.0 && ldRes != 1.0;
+	bool bSuccess = (ldErr == 0.0 || (std::log2(ldErr) < -58.0)) && o_bTest_Valid;
+	if (!bSuccess && o_bTest_Valid)
+	{
+		std::cout << std::endl;
+		uint64_t * tPtr = (uint64_t *)&ldRes;
+		uint64_t tDiff = (tPtr[0] ^ xRes.mantissa());
+		xstdlib::pbin(tDiff);
+	}
+	std::cout << ldRes << " " << xRes.unload() << " " << std::log2(ldErr) << " (" << ldErr << ")";
+	return bSuccess;
+}
+
+bool exp2_test(long double & i_LHO, bool & o_bTest_Valid)
+{
+	long double ldLHO_Mod = std::log2(fabs(i_LHO));
+	long double ldRes = std::exp2(ldLHO_Mod);
+	expdouble xRes = expdouble(ldLHO_Mod).exp2();
+	long double ldErr = std::fabs(1.0 - xRes.unload() / ldRes);
+	o_bTest_Valid = !std::isinf(ldRes) && !std::isnan(ldRes) && ldRes != 0.0 && ldRes != 1.0;
+	bool bSuccess = (ldErr == 0.0 || (std::log2(ldErr) < -58.0)) && o_bTest_Valid;
+	if (!bSuccess && o_bTest_Valid)
+	{
+		std::cout << std::endl;
+		uint64_t * tPtr = (uint64_t *)&ldRes;
+		uint64_t tDiff = (tPtr[0] ^ xRes.mantissa());
+		xstdlib::pbin(tDiff);
+	}
+	std::cout << ldRes << " " << xRes.unload() << " " << std::log2(ldErr) << " (" << ldErr << ")";
+	return bSuccess;
+}
+
+bool log2_test(long double & i_LHO, bool & o_bTest_Valid)
+{
+	long double ldAbs_LHO = std::fabs(i_LHO);
+	long double ldRes = std::log2(ldAbs_LHO);
+	expdouble xRes = expdouble(ldAbs_LHO).log2();
+	long double ldErr = std::fabs(1.0 - xRes.unload() / ldRes);
+	o_bTest_Valid = !std::isinf(ldRes) && !std::isnan(ldRes);
+	bool bSuccess = (ldErr == 0.0 || (std::log2(ldErr) < -62.0)) && o_bTest_Valid;
+	if (!bSuccess && o_bTest_Valid)
+	{
+		std::cout << std::endl;
+		uint64_t * tPtr = (uint64_t *)&ldRes;
+		uint64_t tDiff = (tPtr[0] ^ xRes.mantissa());
+		xstdlib::pbin(tDiff);
+	}
+	std::cout << ldRes << " " << xRes.unload() << " " << std::log2(ldErr) << " (" << ldErr << ")";
+	return bSuccess;
+}
+
+typedef bool binarytestfunc(long double & i_LHO, long double & i_RHO, bool &o_bTest_Valid);
+typedef bool unarytestfunc(long double & i_LHO, bool &o_bTest_Valid);
+
+bool Perform_Test(binarytestfunc & func, long double & i_LHO, long double & i_RHO, const std::string & i_szTest_Description, bool &o_bValid)
+{
+	bool bValid;
+	std::cout << std::scientific;
+	std::cout << i_szTest_Description << " (" << i_LHO << ", " << i_RHO << ") ~ ";
+	bool bSuccess = func(i_LHO,i_RHO,bValid);
+	if (bValid)
+	{
+		bSuccess &= func(i_RHO,i_LHO,bValid);
+		if (!bValid)
+			std::cout << " : " << xconsole::foreground_yellow << "INVALID" << xconsole::reset;
+		else if (bSuccess)
+			std::cout << " : " << xconsole::foreground_green << "PASS" << xconsole::reset;
+		else
+			std::cout << " : " << xconsole::foreground_red << "FAIL" << xconsole::reset;
+	}
 	else
-		printf("1");
+		std::cout << " : " << xconsole::foreground_yellow << "INVALID" << xconsole::reset;
+	std::cout << std::endl;
+	o_bValid = bValid;
+	return bSuccess;
 }
 
-void pbin(void * i_lpdData, size_t tN_Bytes)
+bool Perform_Test(unarytestfunc & func, long double & i_LHO, const std::string & i_szTest_Description, bool &o_bValid)
 {
-	for (size_t tI = 0; tI < tN_Bytes; tI++)
-	{
-		printf("--------");
-	}
-	printf("\n");
-	uint8_t * lpcData = (uint8_t *)i_lpdData;
-	for (size_t tI = 0; tI < tN_Bytes; tI++)
-	{
-		printbit(lpcData[tN_Bytes - tI - 1] & 0x80);
-		printbit(lpcData[tN_Bytes - tI - 1] & 0x40);
-		printbit(lpcData[tN_Bytes - tI - 1] & 0x20);
-		printbit(lpcData[tN_Bytes - tI - 1] & 0x10);
-		printbit(lpcData[tN_Bytes - tI - 1] & 0x08);
-		printbit(lpcData[tN_Bytes - tI - 1] & 0x04);
-		printbit(lpcData[tN_Bytes - tI - 1] & 0x02);
-		printbit(lpcData[tN_Bytes - tI - 1] & 0x01);
-
-	}
-	printf("\n");
-/*	for (size_t tI = 0; tI < tN_Bytes; tI++)
-	{
-		printf("76543210");
-	}
-	printf("\n");
-	for (size_t tI = 0; tI < tN_Bytes; tI++)
-	{
-		for (size_t tJ = 0; tJ < 8; tJ++)
-			printf("%x",tI % 16);
-	}
-	printf("\n");
-	for (size_t tI = 0; tI < tN_Bytes; tI++)
-	{
-		printf("--------");
-	}
-	printf("\n");*/
-
+	bool bValid;
+	std::cout << std::scientific;
+	std::cout << i_szTest_Description << " (" << i_LHO << ") ~ ";
+	bool bSuccess = func(i_LHO,bValid);
+	if (!bValid)
+		std::cout << " : " << xconsole::foreground_yellow << "INVALID" << xconsole::reset;
+	else if (bSuccess)
+		std::cout << " : " << xconsole::foreground_green << "PASS" << xconsole::reset;
+	else
+		std::cout << " : " << xconsole::foreground_red << "FAIL" << xconsole::reset;
+	std::cout << std::endl;
+	o_bValid = bValid;
+	return bSuccess;
 }
-template<typename T>  void pbin(const T & i_ldData)
-{
-	pbin((void *)&i_ldData,sizeof(T));
-}
-
-char extract_digit(long double & io_lpdDigit)
-{
-	char chRet = '0';
-	int iValue = fabs(io_lpdDigit);
-	if (iValue < 10)
-	{
-		chRet += iValue;
-		io_lpdDigit -= iValue;
-	}
-	return chRet;
-}
-
-
-void mantest(const long double & i_ldLD)
-{
-	int iExp;
-	long double ldMan = std::frexp(i_ldLD,&iExp);
-	long double ldInt = std::ldexp(ldMan,64);
-	uint64_t m_nMantissa = (uint64_t)ldInt;
-
-	uint64_t * lptData = (uint64_t *) &i_ldLD;
-	m_nMantissa = lptData[0];
-	int64_t m_nExponent = (lptData[1] & 0x7fff) - 16382;
-	uint64_t m_nSign = (lptData[1] & 0x8000) >> 15;
-
-	
-	std::cout << i_ldLD << " " << ldMan << " " << iExp << " " << m_nExponent << " " << m_nSign << std::endl;
-	
-//	pbin(m_nExponent);
-//	pbin(m_nSign);
-}
-
-
 
 int main(int iA, char * lpcC[])
 {
-	
+	bool bSuccess, bValid;
+	long double ldSet[5] = {ld_load_rand(),ld_load_rand(),ld_load_rand(),ld_load_rand(),ld_load_rand()};
+	long double ldExp_Safe_Set[5] = {ld_load_rand_exp(),ld_load_rand_exp(),ld_load_rand_exp(),ld_load_rand_exp(),ld_load_rand_exp()};
+	size_t uiValid_Test_Count[5] = {0,0,0};
+	size_t uiSuccess_Test_Count[5] = {0,0,0};
+	for (unsigned int uiI = 0; uiI < 5; uiI++)
+	{
+		for (unsigned int uiJ = 0; uiJ < 5; uiJ++)
+		{
+			bSuccess = Perform_Test(mult_test,ldSet[uiI],ldSet[uiJ],std::string("a * b"),bValid);
+			if (bValid)
+				uiValid_Test_Count[0]++;
+			if (bSuccess)
+				uiSuccess_Test_Count[0]++;
+			bSuccess = Perform_Test(mult_test,ldExp_Safe_Set[uiI],ldExp_Safe_Set[uiJ],std::string("a * b"),bValid);
+			if (bValid)
+				uiValid_Test_Count[0]++;
+			if (bSuccess)
+				uiSuccess_Test_Count[0]++;
+		}
+	}
+	for (unsigned int uiI = 0; uiI < 5; uiI++)
+	{
+		for (unsigned int uiJ = 0; uiJ < 5; uiJ++)
+		{
+			bSuccess = Perform_Test(add_test,ldSet[uiI],ldSet[uiJ],std::string("a + b"),bValid);
+			if (bValid)
+				uiValid_Test_Count[1]++;
+			if (bSuccess)
+				uiSuccess_Test_Count[1]++;
+			bSuccess = Perform_Test(add_test,ldExp_Safe_Set[uiI],ldExp_Safe_Set[uiJ],std::string("a + b"),bValid);
+			if (bValid)
+				uiValid_Test_Count[1]++;
+			if (bSuccess)
+				uiSuccess_Test_Count[1]++;
+		}
+	}
+	for (unsigned int uiI = 0; uiI < 5; uiI++)
+	{
+		bSuccess = Perform_Test(exp_test,ldExp_Safe_Set[uiI],std::string("exp(a)"),bValid);
+		if (bValid)
+			uiValid_Test_Count[2]++;
+		if (bSuccess)
+			uiSuccess_Test_Count[2]++;
+	}
+	for (unsigned int uiI = 0; uiI < 5; uiI++)
+	{
+		bSuccess = Perform_Test(exp2_test,ldExp_Safe_Set[uiI],std::string("exp2(a)"),bValid);
+		if (bValid)
+			uiValid_Test_Count[3]++;
+		if (bSuccess)
+			uiSuccess_Test_Count[3]++;
+	}
+	for (unsigned int uiI = 0; uiI < 5; uiI++)
+	{
+		bSuccess = Perform_Test(log2_test,ldSet[uiI],std::string("log2(a)"),bValid);
+		if (bValid)
+			uiValid_Test_Count[4]++;
+		if (bSuccess)
+			uiSuccess_Test_Count[4]++;
+		bSuccess = Perform_Test(log2_test,ldExp_Safe_Set[uiI],std::string("log2(a)"),bValid);
+		if (bValid)
+			uiValid_Test_Count[4]++;
+		if (bSuccess)
+			uiSuccess_Test_Count[4]++;
+	}
+	std::cout << "Summary:" << std::endl;
+	for (size_t tI = 0; tI < 5; tI++)
+	{
+		std::cout << "\t";
+		switch (tI)
+		{
+		case 0:
+			std::cout << "*";
+			break;
+		case 1:
+			std::cout << "+";
+			break;
+		case 2:
+			std::cout << "exp";
+			break;
+		case 3:
+			std::cout << "exp2";
+			break;
+		case 4:
+			std::cout << "log2";
+			break;
+		}
+		std::cout << ": ";
+		if (uiSuccess_Test_Count[tI] == uiValid_Test_Count[tI])
+			std::cout << xconsole::foreground_green << "PASS" << xconsole::reset;
+		else
+			std::cout << xconsole::foreground_red << "FAIL" << xconsole::reset;
+
+		std::cout << " " << uiSuccess_Test_Count[tI] << "/" << uiValid_Test_Count[tI] << std::endl;
+	}
+	return 0;
 
 	//@@TODO: write all of this as a series of tests with PASS/FAIL information
 	long double da = 33333333.3333333333333333333;
@@ -296,7 +495,7 @@ int main(int iA, char * lpcC[])
 	unsigned char chA = 2;
 	unsigned char chB = 3;
 	unsigned char chAMB = chA - chB;
-	pbin(chA);pbin(chB);pbin(chAMB);
+	xstdlib::pbin(chA);xstdlib::pbin(chB);xstdlib::pbin(chAMB);
 
 	expdouble xdZero(0.0);
 	expdouble xdAdd = xdZero + 12.0;
@@ -316,8 +515,8 @@ int main(int iA, char * lpcC[])
 	expdouble xdM2(-2.0);
 	long double ldSmTwo = 2.0e-40;
 	std::cout << xdSmTwo.exponent() << std::endl;
-	pbin(xdSmTwo.true_exponent());
-	pbin(ldSmTwo);
+	xstdlib::pbin(xdSmTwo.true_exponent());
+	xstdlib::pbin(ldSmTwo);
 	std::cout << "addition:" << std::endl;
 	std::cout << std::scientific << 2e-40 << ": " << (xdSmTwo) << std::endl;
 	std::cout << std::scientific << -2 << ": " << (-xdTwo) << std::endl;
@@ -366,8 +565,8 @@ int main(int iA, char * lpcC[])
 	else
 	{
 		std::cout << "zero:" << std::endl;
-		pbin(xdZero.mantissa());
-		pbin(xdZero.true_exponent());
+		xstdlib::pbin(xdZero.mantissa());
+		xstdlib::pbin(xdZero.true_exponent());
 	}
 
 	std::cout << "log2:" << std::endl;
