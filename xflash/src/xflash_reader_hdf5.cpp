@@ -46,7 +46,7 @@ bool NameCompare(const char *a, const char *b)
 // This function reads a dataset from an HDF5 file
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-int XFLASH_File::Slurp_HDF5(int mem_type, char *name, int dim, void *target)
+int XFLASH_File::Slurp_HDF5(int mem_type, const char *name, int dim, void *target)
 {
 	hid_t dataset, dataset_type, dataspace, memspace;
 	herr_t status;

@@ -91,7 +91,7 @@ private:
 //#endif
 
 #ifndef NO_HDF5
-	int								Slurp_HDF5(int mem_type, char *name, int dim, void *target);
+	int								Slurp_HDF5(int mem_type, const char *name, int dim, void *target);
 	void							GetNumParticles_HDF5(void);
 	void							Get_data_names_HDF5(void);
 	void 							Open_HDF5(void);
