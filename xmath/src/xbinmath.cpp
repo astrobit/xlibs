@@ -4,72 +4,10 @@
 #include <map>
 #include <xstdlib.h>
 #include <iostream>
-bool g_bRegArchInit = false;
-class c_regarch
-{
-public:
-	xbinarymath::regtype mask_all;// = 0xffffffffffffffff;
-	xbinarymath::regtype mask_low_half;// = 0xffffffff;
-	xbinarymath::regtype mask_hi_half;// = 0xffffffff00000000;
-	xbinarymath::regtype mask_hi_bit;// = 0x8000000000000000;
-	xbinarymath::regtype mask_mid_bit;// = 0x80000000;
-	xbinarymath::regtype mask_mid_bit_m1;// = 0x40000000;
-	size_t 	num_bits;
-	size_t	half_bits;
-	size_t	half_bits_plus_1;
-	size_t	half_bits_minus_1;
 
+bool xbinarymath::g_bRegArchInit = false;
+xbinarymath::c_regarch	xbinarymath::regarch;
 
-	
-	void initialize(void)
-	{
-		num_bits = sizeof(xbinarymath::regtype) * 8;
-		half_bits = num_bits >> 1;
-		half_bits_plus_1 = half_bits + 1;
-		half_bits_minus_1 = half_bits - 1;
-
-		mask_all = 1;
-		mask_hi_half = 1;
-		mask_low_half = 1;
-
-		mask_hi_bit = 1;
-		mask_mid_bit = 1;
-		mask_mid_bit_m1 = 1;
-		for (size_t tI = 0; tI < num_bits; tI++)
-		{
-			mask_all <<= 1;
-			mask_hi_half <<= 1;
-			if (tI < half_bits_minus_1)
-				mask_low_half <<= 1;
-			if (tI < (num_bits - 1))
-				mask_hi_bit <<= 1;
-			if (tI < half_bits_minus_1)
-				mask_mid_bit <<= 1;
-			if (tI < (half_bits_minus_1 - 1))
-				mask_mid_bit_m1 <<= 1;
-
-			mask_all |= 1;
-			if (tI < half_bits)
-				mask_hi_half |= 1;
-			mask_low_half |= 1;
-		}		
-		g_bRegArchInit  = true;
-
-//		std::cout << "regarch: " << num_bits << " " << half_bits << " " << half_bits_plus_1 << " " << half_bits_minus_1 << std::endl;
-//		xstdlib::pbin(mask_all);
-//		xstdlib::pbin(mask_hi_half);
-//		xstdlib::pbin(mask_low_half);
-//		xstdlib::pbin(mask_mid_bit_m1);
-//		xstdlib::pbin(mask_mid_bit);
-//		xstdlib::pbin(mask_hi_bit);
-//		xstdlib::pbin(0x1248124812481248);
-
-
-	}
-	c_regarch(void) {initialize();}
-
-};
-c_regarch	regarch;
 
 class registers
 {
@@ -128,8 +66,8 @@ public:
 	}
 	registers(void)
 	{
-		if (!g_bRegArchInit)
-			regarch.initialize();
+		if (!xbinarymath::g_bRegArchInit)
+			xbinarymath::regarch.initialize();
 
 		rRegister_A_4b = nullptr;
 		rRegister_B_4b = nullptr;
@@ -141,12 +79,12 @@ public:
 		tNum_Words = 0;
 		tDbl_Num_Words = 0;
 		tReg_Bits = 0;
-		tDrop_Mask = regarch.mask_all;
-		tDrop_Bits = regarch.num_bits;
+		tDrop_Mask = xbinarymath::regarch.mask_all;
+		tDrop_Bits = xbinarymath::regarch.num_bits;
 		tShift_Bits = 0;
 		tInv_Drop_Mask = 0;
 		tWord_Size = sizeof(xbinarymath::regtype);
-		tWord_Bits = regarch.num_bits;
+		tWord_Bits = xbinarymath::regarch.num_bits;
 	}
 	inline size_t word_size(void) const
 	{
@@ -160,8 +98,8 @@ public:
 	{
 		if (i_tNum_Bits != tUser_Bits)
 		{
-			if (!g_bRegArchInit)
-				regarch.initialize();
+			if (!xbinarymath::g_bRegArchInit)
+				xbinarymath::regarch.initialize();
 			tUser_Bits = i_tNum_Bits;
 			tNum_Words = i_tNum_Bits / tWord_Bits;
 			tReg_Bits = tNum_Words * tWord_Bits;
@@ -208,15 +146,15 @@ std::map<size_t, registers> g_mapRegisters;
 bool xbinarymath::overflow_adder_arch(xbinarymath::regtype i_tA, xbinarymath::regtype i_tB, xbinarymath::regtype &o_tResult)
 {
 	if (!g_bRegArchInit)
-		regarch.initialize();
-	xbinarymath::regtype tMask = ~regarch.mask_hi_bit;
-	bool bOverflow = (i_tA & i_tB & regarch.mask_hi_bit) != 0; // guaranteed overflow
+		xbinarymath::regarch.initialize();
+	xbinarymath::regtype tMask = ~xbinarymath::regarch.mask_hi_bit;
+	bool bOverflow = (i_tA & i_tB & xbinarymath::regarch.mask_hi_bit) != 0; // guaranteed overflow
 	o_tResult = (i_tA & tMask) + (i_tB & tMask);
-	bool bSecondary_Overflow = !bOverflow && ((i_tA | i_tB) & o_tResult & regarch.mask_hi_bit) != 0;
+	bool bSecondary_Overflow = !bOverflow && ((i_tA | i_tB) & o_tResult & xbinarymath::regarch.mask_hi_bit) != 0;
 	if (bSecondary_Overflow)
 		o_tResult &= tMask; // clear high order bit
 	else if (!bOverflow)
-		o_tResult |= (i_tA | i_tB) & regarch.mask_hi_bit;
+		o_tResult |= (i_tA | i_tB) & xbinarymath::regarch.mask_hi_bit;
 	return (bOverflow || bSecondary_Overflow);
 }
 bool xbinarymath::overflow_adder_n(const xbinarymath::regtype *i_tA, const xbinarymath::regtype *i_tB, size_t i_tNum_Bits, xbinarymath::regtype *&o_tResult)
@@ -239,7 +177,7 @@ bool xbinarymath::overflow_adder_n(const xbinarymath::regtype *i_tA, const xbina
 		if (o_tResult == nullptr)
 			o_tResult = new xbinarymath::regtype [cRegister.tNum_Words];
 
-		xbinarymath::regtype tMask = ~regarch.mask_hi_bit;
+		xbinarymath::regtype tMask = ~xbinarymath::regarch.mask_hi_bit;
 		size_t tNW_m_1 = cRegister.tNum_Words - 1;
 		for (size_t tI = 0; tI < cRegister.tNum_Words; tI++)
 		{
@@ -247,7 +185,7 @@ bool xbinarymath::overflow_adder_n(const xbinarymath::regtype *i_tA, const xbina
 		
 			if (bCarry)
 			{
-				if (i_tA[tIdx] == regarch.mask_all)
+				if (i_tA[tIdx] == xbinarymath::regarch.mask_all)
 				{
 					bCarry = true;
 					o_tResult[tIdx] = i_tB[tIdx];
@@ -318,24 +256,24 @@ void xbinarymath::negate(xbinarymath::regtype * io_tA, size_t i_tNum_Bits)
 xbinarymath::regtype xbinarymath::significand_square_normal_arch(xbinarymath::regtype i_tA, bool &o_bOverflow)
 {
 	if (!g_bRegArchInit)
-		regarch.initialize();
+		xbinarymath::regarch.initialize();
 	o_bOverflow = false;
-	xbinarymath::regtype tHi = (i_tA >> regarch.half_bits);
-	xbinarymath::regtype tLo = i_tA & regarch.mask_low_half;
+	xbinarymath::regtype tHi = (i_tA >> xbinarymath::regarch.half_bits);
+	xbinarymath::regtype tLo = i_tA & xbinarymath::regarch.mask_low_half;
 	xbinarymath::regtype tLL = tLo * tLo;
 	xbinarymath::regtype tHL = tHi * tLo;
 	xbinarymath::regtype tHH = tHi * tHi;
-	xbinarymath::regtype tLLpHL = (tLL >> regarch.half_bits_plus_1) + tHL;
+	xbinarymath::regtype tLLpHL = (tLL >> xbinarymath::regarch.half_bits_plus_1) + tHL;
 
-	xbinarymath::regtype tRet = (tLLpHL >> regarch.half_bits_minus_1) + tHH;
-	o_bOverflow = ((tRet & regarch.mask_hi_bit) != 0);
-	if ((tRet & regarch.mask_hi_bit) == 0)
+	xbinarymath::regtype tRet = (tLLpHL >> xbinarymath::regarch.half_bits_minus_1) + tHH;
+	o_bOverflow = ((tRet & xbinarymath::regarch.mask_hi_bit) != 0);
+	if ((tRet & xbinarymath::regarch.mask_hi_bit) == 0)
 	{
 		tRet <<= 1; // 
-		if (tLLpHL & regarch.mask_mid_bit_m1)
+		if (tLLpHL & xbinarymath::regarch.mask_mid_bit_m1)
 			tRet += 1;
 	}
-	if (tLLpHL & regarch.mask_mid_bit)
+	if (tLLpHL & xbinarymath::regarch.mask_mid_bit)
 		tRet += 1;
 	return tRet;
 }
@@ -345,37 +283,37 @@ xbinarymath::regtype xbinarymath::significand_square_normal_arch(xbinarymath::re
 void xbinarymath::significand_multiply_arch(xbinarymath::regtype i_tA, xbinarymath::regtype i_tB, bool &o_bOverflow, size_t &o_tUnderflow, xbinarymath::regtype & o_tResult_Hi, xbinarymath::regtype & o_tResult_Lo)
 {
 	if (!g_bRegArchInit)
-		regarch.initialize();
+		xbinarymath::regarch.initialize();
 	if (i_tA != 0 && i_tB != 0)
 	{
-		xbinarymath::regtype tHiA = (i_tA >> regarch.half_bits);
-		xbinarymath::regtype tLoA = i_tA & regarch.mask_low_half;
-		xbinarymath::regtype tHiB = (i_tB >> regarch.half_bits);
-		xbinarymath::regtype tLoB = i_tB & regarch.mask_low_half;
+		xbinarymath::regtype tHiA = (i_tA >> xbinarymath::regarch.half_bits);
+		xbinarymath::regtype tLoA = i_tA & xbinarymath::regarch.mask_low_half;
+		xbinarymath::regtype tHiB = (i_tB >> xbinarymath::regarch.half_bits);
+		xbinarymath::regtype tLoB = i_tB & xbinarymath::regarch.mask_low_half;
 		xbinarymath::regtype tLL = tLoA * tLoB;
 		xbinarymath::regtype tHaLb = tHiA * tLoB;
 		xbinarymath::regtype tHbLa = tHiB * tLoA;
 		xbinarymath::regtype tHH = tHiA * tHiB;
 
-		xbinarymath::regtype tLLh = (tLL >> regarch.half_bits) & regarch.mask_low_half;
-		xbinarymath::regtype tLLl = tLL & regarch.mask_low_half;
+		xbinarymath::regtype tLLh = (tLL >> xbinarymath::regarch.half_bits) & xbinarymath::regarch.mask_low_half;
+		xbinarymath::regtype tLLl = tLL & xbinarymath::regarch.mask_low_half;
 
-		xbinarymath::regtype tHaLbh = (tHaLb >> regarch.half_bits) & regarch.mask_low_half;
-		xbinarymath::regtype tHaLbl = tHaLb & regarch.mask_low_half;
+		xbinarymath::regtype tHaLbh = (tHaLb >> xbinarymath::regarch.half_bits) & xbinarymath::regarch.mask_low_half;
+		xbinarymath::regtype tHaLbl = tHaLb & xbinarymath::regarch.mask_low_half;
 
-		xbinarymath::regtype tLaHbh = (tHbLa >> regarch.half_bits) & regarch.mask_low_half;
-		xbinarymath::regtype tLaHbl = tHbLa & regarch.mask_low_half;
+		xbinarymath::regtype tLaHbh = (tHbLa >> xbinarymath::regarch.half_bits) & xbinarymath::regarch.mask_low_half;
+		xbinarymath::regtype tLaHbl = tHbLa & xbinarymath::regarch.mask_low_half;
 
 		o_tResult_Hi = tLLh + tHaLbl + tLaHbl;
 	//	std::cout<< "a";xstdlib::pbin(o_tResult_Hi);
-		o_tResult_Lo = (o_tResult_Hi & regarch.mask_low_half);
-		o_tResult_Lo <<= regarch.half_bits;
+		o_tResult_Lo = (o_tResult_Hi & xbinarymath::regarch.mask_low_half);
+		o_tResult_Lo <<= xbinarymath::regarch.half_bits;
 		o_tResult_Lo |= tLLl;
 	//	std::cout<< "b";xstdlib::pbin(o_tResult_Lo);
-		o_tResult_Hi >>= regarch.half_bits;
+		o_tResult_Hi >>= xbinarymath::regarch.half_bits;
 		o_tResult_Hi += tHaLbh + tLaHbh + tHH;
 	//	std::cout<< "c";xstdlib::pbin(o_tResult_Hi);
-		o_bOverflow = (o_tResult_Hi & regarch.mask_hi_bit) != 0;
+		o_bOverflow = (o_tResult_Hi & xbinarymath::regarch.mask_hi_bit) != 0;
 		o_tUnderflow = 0;
 		if (!o_bOverflow)
 		{
@@ -384,14 +322,14 @@ void xbinarymath::significand_multiply_arch(xbinarymath::regtype i_tA, xbinaryma
 			{
 				o_tUnderflow++;
 				o_tResult_Hi <<= 1;
-				if ((o_tResult_Lo & regarch.mask_hi_bit) != 0)
+				if ((o_tResult_Lo & xbinarymath::regarch.mask_hi_bit) != 0)
 				{
 					o_tResult_Hi |= 1;
 				}
 				o_tResult_Lo <<= 1;
 	//			std::cout<< "D";xstdlib::pbin(o_tResult_Hi);
 	//			std::cout<< "E";xstdlib::pbin(o_tResult_Lo);
-			} while ((o_tResult_Hi & regarch.mask_hi_bit) == 0);
+			} while ((o_tResult_Hi & xbinarymath::regarch.mask_hi_bit) == 0);
 
 		}
 	}
@@ -455,13 +393,13 @@ void xbinarymath::significand_multiply_n(const xbinarymath::regtype * i_tA, cons
 				size_t tI_2 = 2 * tI;
 				size_t tI_2_p_Dbl_Num_Words = tI_2 + cRegister.tDbl_Num_Words;
 
-				cRegister.rRegister_A_4b[tI_2] = (i_tA[tI] >> regarch.half_bits);
-				cRegister.rRegister_A_4b[tI_2 + 1] = i_tA[tI] & regarch.mask_low_half;
+				cRegister.rRegister_A_4b[tI_2] = (i_tA[tI] >> xbinarymath::regarch.half_bits);
+				cRegister.rRegister_A_4b[tI_2 + 1] = i_tA[tI] & xbinarymath::regarch.mask_low_half;
 				cRegister.rRegister_Size_4b[tI_2] = tI_64;
 				cRegister.rRegister_Size_4b[tI_2 + 1] = tI_64 + 1;
 
-				cRegister.rRegister_A_4b[tI_2_p_Dbl_Num_Words] = (i_tB[tI] >> regarch.half_bits);
-				cRegister.rRegister_A_4b[tI_2_p_Dbl_Num_Words + 1] = i_tB[tI] & regarch.mask_low_half;
+				cRegister.rRegister_A_4b[tI_2_p_Dbl_Num_Words] = (i_tB[tI] >> xbinarymath::regarch.half_bits);
+				cRegister.rRegister_A_4b[tI_2_p_Dbl_Num_Words + 1] = i_tB[tI] & xbinarymath::regarch.mask_low_half;
 				cRegister.rRegister_Size_4b[tI_2_p_Dbl_Num_Words] = tI_64;
 				cRegister.rRegister_Size_4b[tI_2_p_Dbl_Num_Words + 1] = tI_64 + 1;
 			}
@@ -477,8 +415,8 @@ void xbinarymath::significand_multiply_n(const xbinarymath::regtype * i_tA, cons
 					else
 					{
 						size_t tHalf_Shifts = cRegister.rRegister_Size_4b[tI] + cRegister.rRegister_Size_4b[tJ + cRegister.tDbl_Num_Words];
-						mAdder_Map[tHalf_Shifts + 1].push_back(tR & regarch.mask_low_half);
-						mAdder_Map[tHalf_Shifts].push_back(tR >> regarch.half_bits);
+						mAdder_Map[tHalf_Shifts + 1].push_back(tR & xbinarymath::regarch.mask_low_half);
+						mAdder_Map[tHalf_Shifts].push_back(tR >> xbinarymath::regarch.half_bits);
 					}
 				}
 			}
@@ -489,14 +427,14 @@ void xbinarymath::significand_multiply_n(const xbinarymath::regtype * i_tA, cons
 				if (iterI != mAdder_Map.rbegin() && iterI->first != 0)
 				{
 					// shift result
-					cRegister.rRegister_B_4b[cRegister.tDbl_Num_Words - 1] >>= regarch.half_bits;
+					cRegister.rRegister_B_4b[cRegister.tDbl_Num_Words - 1] >>= xbinarymath::regarch.half_bits;
 					for (size_t tI = 1; tI < cRegister.tDbl_Num_Words; tI++)
 					{
 						size_t tIdx = cRegister.tDbl_Num_Words - tI;
-						xbinarymath::regtype tTemp = cRegister.rRegister_A_4b[tIdx - 1] & regarch.mask_low_half;
-						tTemp <<= regarch.half_bits;
+						xbinarymath::regtype tTemp = cRegister.rRegister_A_4b[tIdx - 1] & xbinarymath::regarch.mask_low_half;
+						tTemp <<= xbinarymath::regarch.half_bits;
 						cRegister.rRegister_A_4b[tIdx] |= tTemp;
-						cRegister.rRegister_B_4b[tIdx - 1] >>= regarch.half_bits;
+						cRegister.rRegister_B_4b[tIdx - 1] >>= xbinarymath::regarch.half_bits;
 		//				xstdlib::pbin(g_mmResult_Registers[0]);
 		//				xstdlib::pbin(g_mmResult_Registers[1]);
 					}
@@ -509,7 +447,7 @@ void xbinarymath::significand_multiply_n(const xbinarymath::regtype * i_tA, cons
 		//		std::cout << iterI->first << " " << iterI->second.size() << " ";
 		//		xstdlib::pbin(g_mmResult_Registers[0]);
 			}
-			o_bOverflow = (cRegister.rRegister_B_4b[0] & regarch.mask_hi_bit) != 0;
+			o_bOverflow = (cRegister.rRegister_B_4b[0] & xbinarymath::regarch.mask_hi_bit) != 0;
 			o_tUnderflow = 0;
 			if (!o_bOverflow)
 			{
@@ -521,12 +459,12 @@ void xbinarymath::significand_multiply_n(const xbinarymath::regtype * i_tA, cons
 					for (size_t tI = 0; tI < cRegister.tDbl_Num_Words; tI++)
 					{
 						cRegister.rRegister_B_4b[tI] <<= 1;
-						if (tI < tMax && (cRegister.rRegister_B_4b[tI + 1] & regarch.mask_hi_bit) != 0)
+						if (tI < tMax && (cRegister.rRegister_B_4b[tI + 1] & xbinarymath::regarch.mask_hi_bit) != 0)
 						{
 							cRegister.rRegister_B_4b[tI] |= 1;
 						}
 					}
-				} while ((cRegister.rRegister_B_4b[0] & regarch.mask_hi_bit) == 0);
+				} while ((cRegister.rRegister_B_4b[0] & xbinarymath::regarch.mask_hi_bit) == 0);
 			}
 			for(size_t tI = 0; tI < cRegister.tNum_Words; tI++)
 			{
@@ -568,7 +506,7 @@ void xbinarymath::significand_multiply_n(const xbinarymath::regtype * i_tA, cons
 void xbinarymath::significand_divider_arch(xbinarymath::regtype i_tA, xbinarymath::regtype i_tB, xbinarymath::regtype &o_tResult, xbinarymath::regtype & o_tRemainder, xbinarymath::exptype & o_tResult_Exponent, xbinarymath::exptype & o_tRemainder_Exponent)
 {
 	if (!g_bRegArchInit)
-		regarch.initialize();
+		xbinarymath::regarch.initialize();
 	if (i_tA == 0)
 	{
 		o_tResult = 0;
@@ -582,14 +520,14 @@ void xbinarymath::significand_divider_arch(xbinarymath::regtype i_tA, xbinarymat
 		//xbinarymath::regtype tDenomenator = i_tB;
 
 		o_tRemainder = i_tA;
-		o_tResult_Exponent = regarch.num_bits + 1;//64;
+		o_tResult_Exponent = xbinarymath::regarch.num_bits + 1;//64;
 		o_tResult = 0;
-		while ((i_tB & regarch.mask_hi_bit) == 0)
+		while ((i_tB & xbinarymath::regarch.mask_hi_bit) == 0)
 		{
 			i_tB <<= 1;
 			o_tResult_Exponent++;
 		}
-		while ((o_tRemainder & regarch.mask_hi_bit) == 0)
+		while ((o_tRemainder & xbinarymath::regarch.mask_hi_bit) == 0)
 		{
 			o_tRemainder <<= 1;
 			o_tResult_Exponent--;
@@ -598,25 +536,25 @@ void xbinarymath::significand_divider_arch(xbinarymath::regtype i_tA, xbinarymat
 		i_tB = ~i_tB;
 		i_tB++;
 
-		while ((o_tResult & regarch.mask_hi_bit) == 0 && (o_tRemainder != 0 || bHigh_Bit_Flag))
+		while ((o_tResult & xbinarymath::regarch.mask_hi_bit) == 0 && (o_tRemainder != 0 || bHigh_Bit_Flag))
 		{
 			o_tResult <<= 1;
 			xbinarymath::regtype tTest = o_tRemainder + i_tB;
-			if ((tTest & regarch.mask_hi_bit) == 0 || bHigh_Bit_Flag)
+			if ((tTest & xbinarymath::regarch.mask_hi_bit) == 0 || bHigh_Bit_Flag)
 			{
 				o_tRemainder = tTest;
 				o_tResult |= 1;
 			}
 			o_tResult_Exponent--;
-			bHigh_Bit_Flag = (o_tRemainder & regarch.mask_hi_bit) != 0;
+			bHigh_Bit_Flag = (o_tRemainder & xbinarymath::regarch.mask_hi_bit) != 0;
 			o_tRemainder <<= 1;
 		}
 		if (bHigh_Bit_Flag)
 		{
 			o_tRemainder >>= 1;
-			o_tRemainder |= regarch.mask_hi_bit;
+			o_tRemainder |= xbinarymath::regarch.mask_hi_bit;
 		}
-		while ((o_tResult & regarch.mask_hi_bit) == 0)
+		while ((o_tResult & xbinarymath::regarch.mask_hi_bit) == 0)
 		{
 			o_tResult_Exponent--;
 			o_tResult <<= 1;
@@ -641,7 +579,7 @@ bool xbinarymath::greater_than_n(const xbinarymath::regtype *i_tA, const xbinary
 //	xstdlib::pbin(cRegister.rRegister_C_4b[0]);
 //	xstdlib::pbin(cRegister.rRegister_C_4b[1]);
 
-	bool bGreater_Than = (cRegister.rRegister_C_4b[0] & regarch.mask_hi_bit) == 0;
+	bool bGreater_Than = (cRegister.rRegister_C_4b[0] & xbinarymath::regarch.mask_hi_bit) == 0;
 	bool bEqual = true;
 	for (size_t tI = 0; tI < cRegister.tNum_Words && bEqual; tI++)
 	{
@@ -658,7 +596,7 @@ bool xbinarymath::greater_than_or_equal_to_n(const xbinarymath::regtype *i_tA, c
 	cRegister.load_register_B(i_tB,1);
 	negate(cRegister.rRegister_B_4b,i_tNum_Bits);
 	overflow_adder_n(i_tA,cRegister.rRegister_B_4b,i_tNum_Bits,cRegister.rRegister_C_4b);
-	bool bGreater_Than = (cRegister.rRegister_C_4b[0] & regarch.mask_hi_bit) == 0;
+	bool bGreater_Than = (cRegister.rRegister_C_4b[0] & xbinarymath::regarch.mask_hi_bit) == 0;
 	//xstdlib::pbin(cRegister.rRegister_C_4b[0]);
 	// the equality test below is unnecssary -- if the high bit of C is not set, then either all words are 0 (a == b) or a > b
 //	bool bEqual = true;
@@ -766,7 +704,7 @@ void xbinarymath::shift_right_n(xbinarymath::regtype *i_tA,size_t i_tNum_Bits, s
 	}
 	else
 	{
-		size_t tWord_Shift = i_tShift / regarch.num_bits;
+		size_t tWord_Shift = i_tShift / xbinarymath::regarch.num_bits;
 		if (tWord_Shift > 0)
 		{
 			for (size_t tI = tWord_Shift; tI < cRegister.tNum_Words; tI++)
@@ -776,12 +714,12 @@ void xbinarymath::shift_right_n(xbinarymath::regtype *i_tA,size_t i_tNum_Bits, s
 			for (size_t tI = 0; tI < tWord_Shift; tI++)
 				i_tA[tI] = 0;
 
-			i_tShift %= regarch.num_bits;
+			i_tShift %= xbinarymath::regarch.num_bits;
 		}
 		if (i_tShift != 0)
 		{
 			size_t tNWm1 = cRegister.tNum_Words - 1;
-			size_t tShift_Up = regarch.num_bits - i_tShift;
+			size_t tShift_Up = xbinarymath::regarch.num_bits - i_tShift;
 			for (size_t tI = 0; tI < cRegister.tNum_Words; tI++)
 			{
 				size_t tIdx = tNWm1 - tI;
@@ -840,14 +778,14 @@ void xbinarymath::significand_divider_n(const xbinarymath::regtype *i_tA, const 
 			o_tResult_Exponent = i_tNum_Bits + 1;
 
 			bool bRemainder_Zero = false;
-			while ((o_tRemainder[0] & regarch.mask_hi_bit) == 0) // remainder >= B && remainder != 0
+			while ((o_tRemainder[0] & xbinarymath::regarch.mask_hi_bit) == 0) // remainder >= B && remainder != 0
 			{
 				shift_left_n(o_tRemainder,i_tNum_Bits,1);
 				o_tResult_Exponent--;
 			}
 //			std::cout << "here1" << std::endl;
 			cRegister.load_register_B(i_tB,1);
-			while ((cRegister.rRegister_B_4b[0] & regarch.mask_hi_bit) == 0) // remainder >= B && remainder != 0
+			while ((cRegister.rRegister_B_4b[0] & xbinarymath::regarch.mask_hi_bit) == 0) // remainder >= B && remainder != 0
 			{
 				shift_left_n(cRegister.rRegister_B_4b,i_tNum_Bits,1);
 				o_tResult_Exponent++;
@@ -861,20 +799,20 @@ void xbinarymath::significand_divider_n(const xbinarymath::regtype *i_tA, const 
 			//xstdlib::pbin(cRegister.rRegister_B_4b[1]);
 //			xstdlib::pbin(o_tRemainder[0]);
 //			xstdlib::pbin(o_tRemainder[1]);
-			while ((o_tResult[0] & regarch.mask_hi_bit) == 0 && (!bRemainder_Zero || bHigh_Bit_Flag))
+			while ((o_tResult[0] & xbinarymath::regarch.mask_hi_bit) == 0 && (!bRemainder_Zero || bHigh_Bit_Flag))
 			{
 				//xstdlib::pbin(o_tRemainder[0]);
 //				xstdlib::pbin(o_tRemainder[1]);
 				shift_left_n(o_tResult,i_tNum_Bits,1);
 				overflow_adder_n(o_tRemainder,cRegister.rRegister_B_4b,i_tNum_Bits,cRegister.rRegister_A_4b);
-				if (bHigh_Bit_Flag || (cRegister.rRegister_A_4b[0] & regarch.mask_hi_bit) == 0) // remainder >= B 
+				if (bHigh_Bit_Flag || (cRegister.rRegister_A_4b[0] & xbinarymath::regarch.mask_hi_bit) == 0) // remainder >= B 
 				{
 					memcpy(o_tRemainder,cRegister.rRegister_A_4b,cRegister.tNum_Words * sizeof(xbinarymath::regtype));
 					o_tResult[cRegister.tNum_Words - 1] |= 1;
 					//xstdlib::pbin(o_tRemainder[0]);
 				}
 				o_tResult_Exponent--;
-				bHigh_Bit_Flag = (o_tRemainder[0] & regarch.mask_hi_bit) != 0;
+				bHigh_Bit_Flag = (o_tRemainder[0] & xbinarymath::regarch.mask_hi_bit) != 0;
 				shift_left_n(o_tRemainder,i_tNum_Bits,1);
 				bRemainder_Zero = true;
 				for (size_t tI = 0; tI < cRegister.tNum_Words && bRemainder_Zero; tI++)
@@ -883,10 +821,10 @@ void xbinarymath::significand_divider_n(const xbinarymath::regtype *i_tA, const 
 			if (bHigh_Bit_Flag)
 			{
 				shift_right_n(o_tRemainder,i_tNum_Bits,1);
-				o_tRemainder[0] |= regarch.mask_hi_bit;
+				o_tRemainder[0] |= xbinarymath::regarch.mask_hi_bit;
 			}
 
-			while ((o_tResult[0] & regarch.mask_hi_bit) == 0)
+			while ((o_tResult[0] & xbinarymath::regarch.mask_hi_bit) == 0)
 			{
 				o_tResult_Exponent--;
 				shift_left_n(o_tResult,i_tNum_Bits,1);

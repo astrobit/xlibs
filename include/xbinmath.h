@@ -14,7 +14,73 @@ namespace xbinarymath
 	typedef int32_t		exptype;
 #endif
 
+	extern bool g_bRegArchInit;
+	class c_regarch
+	{
+	public:
+		xbinarymath::regtype mask_all;// = 0xffffffffffffffff;
+		xbinarymath::regtype mask_low_half;// = 0xffffffff;
+		xbinarymath::regtype mask_hi_half;// = 0xffffffff00000000;
+		xbinarymath::regtype mask_hi_bit;// = 0x8000000000000000;
+		xbinarymath::regtype mask_mid_bit;// = 0x80000000;
+		xbinarymath::regtype mask_mid_bit_m1;// = 0x40000000;
+		size_t 	num_bits;
+		size_t	half_bits;
+		size_t	half_bits_plus_1;
+		size_t	half_bits_minus_1;
 
+
+	
+		void initialize(void)
+		{
+			num_bits = sizeof(xbinarymath::regtype) * 8;
+			half_bits = num_bits >> 1;
+			half_bits_plus_1 = half_bits + 1;
+			half_bits_minus_1 = half_bits - 1;
+
+			mask_all = 1;
+			mask_hi_half = 1;
+			mask_low_half = 1;
+
+			mask_hi_bit = 1;
+			mask_mid_bit = 1;
+			mask_mid_bit_m1 = 1;
+			for (size_t tI = 0; tI < num_bits; tI++)
+			{
+				mask_all <<= 1;
+				mask_hi_half <<= 1;
+				if (tI < half_bits_minus_1)
+					mask_low_half <<= 1;
+				if (tI < (num_bits - 1))
+					mask_hi_bit <<= 1;
+				if (tI < half_bits_minus_1)
+					mask_mid_bit <<= 1;
+				if (tI < (half_bits_minus_1 - 1))
+					mask_mid_bit_m1 <<= 1;
+
+				mask_all |= 1;
+				if (tI < half_bits)
+					mask_hi_half |= 1;
+				mask_low_half |= 1;
+			}		
+			g_bRegArchInit  = true;
+
+	//		std::cout << "regarch: " << num_bits << " " << half_bits << " " << half_bits_plus_1 << " " << half_bits_minus_1 << std::endl;
+	//		xstdlib::pbin(mask_all);
+	//		xstdlib::pbin(mask_hi_half);
+	//		xstdlib::pbin(mask_low_half);
+	//		xstdlib::pbin(mask_mid_bit_m1);
+	//		xstdlib::pbin(mask_mid_bit);
+	//		xstdlib::pbin(mask_hi_bit);
+	//		xstdlib::pbin(0x1248124812481248);
+
+
+		}
+		c_regarch(void) {initialize();}
+
+	};
+
+	extern c_regarch	regarch;
 	// adders (binary)
 	bool overflow_adder_arch(regtype i_tA, regtype i_tB, regtype &o_tResult);
 	bool overflow_adder_n(const regtype *i_tA, const regtype *i_tB, size_t i_tNum_Bits, regtype *&o_tResult);
