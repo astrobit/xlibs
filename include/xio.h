@@ -10,7 +10,8 @@
 
 #include <string>
 #include <map>
-#include <stdint.h>
+//#include <stdint.h>
+#include <cstdint>
 
 #include <vector>
 
