@@ -172,7 +172,7 @@ void	xvector_ep::Print(FILE * fileOut) const
 	{
 		if (!fileOut)
 			fileOut = stdout;
-		fprintf(fileOut,"%u,%s\n",uiRow,m_lpdValues[uiRow].get_b10_value(6,true));
+		fprintf(fileOut,"%u,%s\n",uiRow,m_lpdValues[uiRow].get_b10_value(6,true).c_str());
 		fflush(fileOut);
 	}
 }
