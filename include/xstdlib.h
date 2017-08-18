@@ -5,6 +5,7 @@
 #include <wctype.h>
 #include <wchar.h>
 #include <string>
+#include <cstdint>
 
 // test if a number is prime
 bool xTest_Prime(unsigned int i_uiI);
