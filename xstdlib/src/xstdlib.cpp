@@ -2049,11 +2049,6 @@ void xstdlib::printbit(uint8_t i_cVal)
 
 void xstdlib::pbin(void * i_lpdData, size_t tN_Bytes)
 {
-//		for (size_t tI = 0; tI < tN_Bytes; tI++)
-//		{
-//			printf("--------");
-//		}
-//		printf("\n");
 	uint8_t * lpcData = (uint8_t *)i_lpdData;
 	for (size_t tI = 0; tI < tN_Bytes; tI++)
 	{
@@ -2068,22 +2063,5 @@ void xstdlib::pbin(void * i_lpdData, size_t tN_Bytes)
 
 	}
 	printf("\n");
-/*	for (size_t tI = 0; tI < tN_Bytes; tI++)
-	{
-		printf("76543210");
-	}
-	printf("\n");
-	for (size_t tI = 0; tI < tN_Bytes; tI++)
-	{
-		for (size_t tJ = 0; tJ < 8; tJ++)
-			printf("%x",tI % 16);
-	}
-	printf("\n");
-	for (size_t tI = 0; tI < tN_Bytes; tI++)
-	{
-		printf("--------");
-	}
-	printf("\n");*/
-
 }
 
