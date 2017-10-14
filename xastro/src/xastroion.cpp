@@ -32,13 +32,21 @@ void xastro_ionization_data::Initialize(void)
 	m_muicIon_Data.clear();
 	char * lpData_Path;
 	char lpszPath[256];
+
 	if ((lpData_Path = getenv("XASTRO_DATA_PATH")) != NULL)
 		sprintf(lpszPath,"%s/ionization_data.dat",lpData_Path);
+#ifdef DATADIR
+	else
+	{
+		sprintf(lpszPath,"%sionization_data.dat",DATADIR);
+	}
+#else
 	else
 	{
 		printf("Environment variable XASTRO_DATA_PATH not defined.\nFailed to load ionization data.");
 		return;
 	}
+#endif
 	printf("Read xastro ion data from %s\n",lpszPath);
 
 	FILE * fileIn = fopen(lpszPath,"rt");

@@ -218,6 +218,23 @@ void XASTROLINE_ELEMENTDATA::ReadDataFile(const char * i_lpszFile_Path, const ch
 			fileIn = fopen(lpszFilename,"rb");
 		}
 	}
+
+#ifdef DATADIR
+	if (!fileIn)
+	{
+		unsigned int uiReq_Len = strlen(DATADIR) + strlen(lpszElement_ID_Temp) + 7;
+		if (uiReq_Len > uiFilename_Len)
+		{
+			if (lpszFilename)
+				delete [] lpszFilename;
+			uiFilename_Len = uiReq_Len;
+			lpszFilename = new char[uiFilename_Len];
+		}
+		sprintf(lpszFilename,"%s%s.dat",DATADIR,lpszElement_ID_Temp);
+		fileIn = fopen(lpszFilename,"rb");
+	}
+#endif
+
 	if (!fileIn)
 	{
 		unsigned int uiReq_Len = strlen(lpszElement_ID_Temp) + 7;
