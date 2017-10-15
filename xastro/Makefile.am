@@ -5,7 +5,7 @@ libxastro_a_SOURCES = src/XAstro.cpp src/xastro_dates.cpp src/xastroion.cpp src/
 
 include_HEADERS = include/xastro.h include/xastroion.h include/xastroline.h
 
-pkgdata_DATA = share/allens_pf_data.csv share/Ar.dat share/Ca.dat share/C.dat share/Co.dat share/Cr.dat share/Fe.dat share/H.dat share/He.dat share/ionization_data.dat share/ionization_data.old share/Irwin_pf_data.csv share/Mg.dat share/Mn.dat share/N.dat share/Ne.dat share/Ni.dat share/O.dat share/pf_data.dat share/README share/S.dat share/Si.dat share/Ti.dat share/V.dat
+dist_pkgdata_DATA = ${srcdir}/share/allens_pf_data.csv ${srcdir}/share/Ar.dat share/Ca.dat ${srcdir}/share/C.dat share/Co.dat ${srcdir}/share/Cr.dat ${srcdir}/share/Fe.dat ${srcdir}/share/H.dat ${srcdir}/share/He.dat ${srcdir}/share/ionization_data.dat ${srcdir}/share/ionization_data.old ${srcdir}/share/Irwin_pf_data.csv ${srcdir}/share/Mg.dat ${srcdir}/share/Mn.dat ${srcdir}/share/N.dat ${srcdir}/share/Ne.dat ${srcdir}/share/Ni.dat ${srcdir}/share/O.dat ${srcdir}/share/pf_data.dat ${srcdir}/share/README ${srcdir}/share/S.dat ${srcdir}/share/Si.dat ${srcdir}/share/Ti.dat ${srcdir}/share/V.dat
 
-AM_CPPFLAGS = -I./include -I../xmath/include -I../xio/include -I../xstdlib/include -DDATADIR=\"$(pkgdatadir)\"
+AM_CPPFLAGS = -I${srcdir}/include -I${srcdir}/../xmath/include -I${srcdir}/../xio/include -I${srcdir}/../xstdlib/include -DDATADIR=\"$(pkgdatadir)\"
 

@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = foreign subdir-objects
-AM_CPPFLAGS = -I./include
+AM_CPPFLAGS = -I${srcdir}/include
 
 lib_LIBRARIES = libxtime.a
 libxtime_a_SOURCES = src/xtime.cpp

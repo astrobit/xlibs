@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = foreign subdir-objects
 lib_LIBRARIES = libxmath.a
-AM_CPPFLAGS = -I./include -I../xstdlib/include
+AM_CPPFLAGS = -I${srcdir}/include -I${srcdir}/../xstdlib/include
 
 libxmath_a_SOURCES = src/xbinmath.cpp src/xcomplex.cpp src/xexpdouble.cpp src/xfit.cpp src/xindex_vector.cpp src/xmath.cpp src/xmatrix.cpp src/xmatrix_ep.cpp src/xmatrix_long.cpp src/xmatrix_tri.cpp src/xpolynomial.cpp src/xroots.cpp src/xstat.cpp src/xtensor.cpp src/xvector.cpp src/xvector_ep.cpp src/xvector_long.cpp
 

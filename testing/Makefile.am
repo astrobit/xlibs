@@ -1,7 +1,7 @@
 AUTOMAKE_OPTIONS = foreign subdir-objects
 bin_PROGRAMS = xrandtest xdatasettest flashtest mathpar xexpdbltest
 
-AM_CPPFLAGS = -I../xstdlib/include
+AM_CPPFLAGS = -I${srcdir}/../xstdlib/include
 
 xrandtest_SOURCES = src/xrand_test.cpp
 xdatasettest_SOURCES = src/xdataset_testing.cpp
@@ -18,11 +18,11 @@ flashtest_LDADD =   ../xflash/libxflash.a -lhdf5
 mathpar_LDADD = ../xmath/libxmath.a
 xexpdbltest_LDADD = ../xmath/libxmath.a ../xstdlib/libxstdlib.a
 
-xrandtest_CPPFLAGS =  -I../xstdlib/include
-xdatasettest_CPPFLAGS =  -I../xio/include  -I../xstdlib/include
+xrandtest_CPPFLAGS =  -I${srcdir}/../xstdlib/include
+xdatasettest_CPPFLAGS =  -I${srcdir}/../xio/include  -I${srcdir}/../xstdlib/include
 #xastroiontest_CPPFLAGS =  -I../xio/include  -I../xstdlib/include   -I../xastro/include  -I../xmath/include
-flashtest_CPPFLAGS =  -I../xflash/include
-mathpar_CPPFLAGS = $(OPENMP_CXXFLAGS) -I../xmath/include
-xexpdbltest_CPPFLAGS = -I../xstdlib/include -I../xmath/include
+flashtest_CPPFLAGS =  -I${srcdir}/../xflash/include
+mathpar_CPPFLAGS = $(OPENMP_CXXFLAGS) -I${srcdir}/../xmath/include
+xexpdbltest_CPPFLAGS = -I${srcdir}/../xstdlib/include -I${srcdir}/../xmath/include
 
 mathpar_LDFLAGS = $(OPENMP_CXXFLAGS)

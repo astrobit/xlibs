@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = foreign subdir-objects
-AM_CPPFLAGS = -I./include
+AM_CPPFLAGS = -I${srcdir}/include
 
 lib_LIBRARIES = libxcpp.a
 libxcpp_a_SOURCES = src/xcpp_dictionary.cpp src/xcpp_tokenizer.cpp

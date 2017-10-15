@@ -2,22 +2,23 @@ AUTOMAKE_OPTIONS = foreign subdir-objects
 
 
 lib_LIBRARIES = libxio.a
-libxio_a_SOURCES = 
-libxio_a_LIBADD = src/xdataparse.st.o src/xdataset_advanced.st.o src/xdataset.st.o src/xdataset_improved.st.o src/xiocmn.st.o src/xmap.st.o
+libxio_a_SOURCES = src/xdataparse.cpp src/xdataset_advanced.cpp src/xdataset.cpp src/xdataset_improved.cpp src/xiocmn.cpp src/xmap.cpp
 
 if HAVE_MPI
 lib_LIBRARIES += libxio_mpi.a
 libxio_mpi_a_SOURCES = 
 libxio_mpi_a_LIBADD = src/xdataparse.mpi.o src/xdataset_advanced.mpi.o src/xdataset.mpi.o src/xdataset_improved.mpi.o src/xiocmn.mpi.o src/xmap.mpi.o
 endif
-AM_CPPFLAGS = -I./include -I../xstdlib/include
+AM_CPPFLAGS = -I${srcdir}/include -I${srcdir}/../xstdlib/include
 
-src/%.st.o: src/%.cpp include/xio.h
-	$(COMPILE) $(CXXFLAGS) $(AM_CPPFLAGS) -c $(patsubst %.st.o,%.cpp,$@) -o $@
+include_HEADERS = include/xio.h
 
-src/%.mpi.o: src/%.cpp include/xio.h
-	$(MPICXX) $(CXXFLAGS) $(AM_CPPFLAGS) -DPARALLEL -c $(patsubst %.mpi.o,%.cpp,$@) -o $@
+#src/%.st.o: src/%.cpp include/xio.h
+#	$(COMPILE) -c $(patsubst %.st.o,%.cpp,$@) -o $@
+
+src/%.mpi.o: ${srcdir}/src/%.cpp ${srcdir}/include/xio.h
+	$(MPICXX)  $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -DPARALLEL -c $(patsubst %.mpi.o,$(srcdir)/%.cpp,$@) -o $@
 
 clean-local:
-	-rm -f *.mpi.o
-	-rm -f *.st.o
+	-rm -f src/*.mpi.o
+
