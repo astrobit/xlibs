@@ -6,6 +6,7 @@
 *.log
 *.la
 *.lo
+*.tar.*
 .deps
 .libs
 Makefile.in
@@ -42,6 +43,7 @@ testing/xrandtest
 xastro/src/.dirstamp
 xcpp/src/.dirstamp
 xflash/src/.dirstamp
+xio/src/.dirstamp
 xmath/src/.dirstamp
 xstdlib/src/.dirstamp
 xtime/src/.dirstamp
