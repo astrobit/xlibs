@@ -1,4 +1,4 @@
-AC_INIT(xlibs,1.0,astrobit2@yahoo.com,xlibs,https://github.com/astrobit/xlibs)
+AC_INIT(xlibs,1.0.0,astrobit2@yahoo.com,xlibs,https://github.com/astrobit/xlibs)
 
 AM_INIT_AUTOMAKE
 
