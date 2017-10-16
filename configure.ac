@@ -22,6 +22,20 @@ AC_CHECK_HEADERS(hdf5.h) # make sure HDF5 is installed -
 
 AC_CONFIG_FILES([Makefile xstdlib/Makefile xastro/Makefile xcpp/Makefile xflash/Makefile xio/Makefile xmath/Makefile xtime/Makefile testing/Makefile xtools/Makefile])
 
+# if the user specified an installation path other that /usr/local
+AM_CONDITIONAL([NON_DEFAULT_PREFIX],[test "${prefix}" != "NONE"])
+#if there is a privatemodules folder in the user's home directory
+AC_CHECK_FILE([${HOME}/privatemodules],[AM_CONDITIONAL([PRIVMODINST],[test "1" == "1"])],[AM_CONDITIONAL([PRIVMODINST],[test "1" == "2"])])
+#if there is a modulefiles folder in share - good indicator that environment modules are installed
+AC_CHECK_FILE([/usr/share/Modules/modulefiles],[AM_CONDITIONAL([ENVMODINST],[test "1" == "1"])],[AM_CONDITIONAL([ENVMODINST],[test "1" == "2"])])
+#if LMOD_CMD is defined  - good indicator that lmod (https://www.tacc.utexas.edu/research-development/tacc-projects/lmod) is installed
+AM_CONDITIONAL([LMODINST],[test "${LMOD_CMD}" != ""])
+#if modulecmd exists - indicator that environment modules are installed
+AC_CHECK_PROG([ENVMOD],modulecmd,[1],[2])
+
+AM_CONDITIONAL([ENVMODPINST],[test "${ENVMOD}" != "2"])
+
+AC_PROG_MKDIR_P
 
 AC_OUTPUT
 

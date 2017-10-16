@@ -13,12 +13,66 @@ Use of code in these libraries is at the user's own risk.  No guaruntee of the s
 Pulls of code prior to commit 5f9b606 is forbidden due to licensing.
 
 prerequisites:
+	autotools
 	(optional) mpi (any form)
+	openmp capable compiler (required for xmath)
 	HDF5 (for xflash only)
 
 build instructions:
-	from xlibs:
-		make
-	if you wish to build the mpi versions of the libs:
-		make MPICXX=<mpi c++ compiler>
+	./configure
+		use ./configure --prefix=[install path] to install somewhere other than /usr/...
+	make
+	make install
+
+Installed files:
+	header files:
+		xastro:
+			include/xastro.h
+			include/xastroion.h
+			include/xastroline.h
+		xcpp:
+			include/xcpp.h
+		xflash:
+			include/xflash.h
+		xio:
+			include/xio.h
+		xmath:
+			include/xbinmath.h
+			include/xcomplex.h
+			include/xextprec.h
+			include/xfit.h
+			include/xgraph.h
+			include/xlinalgep.h
+			include/xlinalg.h
+			include/xmath.h
+			include/xpolynomial.h
+			include/xroots.h
+			include/xstat.h
+		xstdlib:
+			include/xstdlib.h
+		xtime:
+			include/xtime.h
+	libraries:
+		lib/libxastro.a
+		lib/libxcpp.a
+		lib/libxflash.a
+		lib/libxio.a
+		lib/libxio-mpi.a
+		lib/libxmath.a
+		lib/libxstdlib.a
+		lib/libxtime.a
+	executables:
+		bin/flashtest
+		bin/mathpar
+		bin/textcol
+		bin/xdatasetget
+		bin/xdatasettest
+		bin/xdatasettocsv
+		bin/xexpdbltest
+		bin/xgenwiki
+		bin/xrandtest
+	other:
+		Several data files supporting xastroion and xastroline in share/xlibs
+		a modulefile in ~/privatemodules or in the shared data directory (share/xlibs/xlibs/<version>) if the package is not installed in /usr/local
+
 
