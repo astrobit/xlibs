@@ -1,0 +1,15 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+ 
+ 
+Name: @PACKAGE_NAME@-xflash
+Description: xstdlib - useful general computing routines
+URL: http://github.com/astronaos/xlibs
+Version: @PACKAGE_VERSION@
+Libs: -L${libdir} -lxflash
+Cflags: -I${includedir}
+Requires: 
+Requires.private: 
+Libs.private: -lhdf5

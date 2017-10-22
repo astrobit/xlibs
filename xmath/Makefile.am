@@ -8,3 +8,8 @@ libxmath_a_CXXFLAGS = $(OPENMP_CXXFLAGS)
 
 include_HEADERS = include/xbinmath.h include/xcomplex.h include/xextprec.h include/xfit.h include/xlinalgep.h include/xlinalg.h include/xmath.h include/xpolynomial.h include/xroots.h include/xstat.h
 
+# Install the pkg-config file; the directory is set using
+# PKG_INSTALLDIR in configure.ac.
+pkgconfig_DATA = xmath-${API_VERSION}.pc
+
+

@@ -1,0 +1,14 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+ 
+ 
+Name: @PACKAGE_NAME@-xmath
+Description: xmath - linear algebra, calculus, statistics, and modelling routines
+URL: http://github.com/astronaos/xlibs
+Version: @PACKAGE_VERSION@
+Libs: -L${libdir} -lxmath
+Cflags: -I${includedir} -fopenmp
+Requires: 
+Requires.private: 

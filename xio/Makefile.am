@@ -22,3 +22,8 @@ src/%.mpi.o: ${srcdir}/src/%.cpp ${srcdir}/include/xio.h
 clean-local:
 	-rm -f src/*.mpi.o
 
+# Install the pkg-config file; the directory is set using
+# PKG_INSTALLDIR in configure.ac.
+pkgconfig_DATA = xio-${API_VERSION}.pc xio_mpi-${API_VERSION}.pc
+
+

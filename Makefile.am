@@ -34,20 +34,17 @@ install-data-local:
 	@echo "proc ModulesHelp { } {" >>  ${MODFILEINSTPATHV}
 	@echo "	global version" >>  ${MODFILEINSTPATHV}
 	@echo "" >>  ${MODFILEINSTPATHV}
-	@echo "	puts stderr \"\tAdds xlibs to your PATH environment variable, c INCLUDE paths, and library load path\"" >>  ${MODFILEINSTPATHV}
+	@echo "	puts stderr \"\tAdds xlibs to your PATH and PKG_CONFIG_PATH environment variables\"" >>  ${MODFILEINSTPATHV}
 	@echo "}" >>  ${MODFILEINSTPATHV}
 	@echo "" >>  ${MODFILEINSTPATHV}
-	@echo "module-whatis	\"adds xlibs to your PATH environment variable, c INCLUDE paths, and library load path\"" >>  ${MODFILEINSTPATHV}
+	@echo "module-whatis	\"adds xlibs to your PATH and PKG_CONFIG_PATH environment variables\"" >>  ${MODFILEINSTPATHV}
 	@echo "" >>  ${MODFILEINSTPATHV}
 	@echo "# for Tcl script use only" >>  ${MODFILEINSTPATHV}
 	@echo "set	version		"${PACKAGE_VERSION} >>  ${MODFILEINSTPATHV}
 	@echo "set	apppath		"${exec_prefix} >>  ${MODFILEINSTPATHV}
 	@echo "" >>  ${MODFILEINSTPATHV}
 	@echo 'append-path	PATH	$$apppath/bin' >>  ${MODFILEINSTPATHV}
-	@echo 'append-path	C_INCLUDE_PATH	$$apppath/include' >>  ${MODFILEINSTPATHV}
-	@echo 'append-path	CPLUS_INCLUDE_PATH $$apppath/include' >>  ${MODFILEINSTPATHV}
-	@echo 'append-path	LD_LIBRARY_PATH $$apppath/lib' >>  ${MODFILEINSTPATHV}
-	@echo 'append-path	LIBRARY_PATH $$apppath/lib' >>  ${MODFILEINSTPATHV}
+	@echo 'append-path	PKG_CONFIG_PATH $$apppath/lib/pkgconfig' >>  ${MODFILEINSTPATHV}
 	@echo ${MODFILEUSERMESSAGE}
 
 
@@ -71,11 +68,7 @@ install-data-local:
 	@echo "" >> ${MODFILEINSTPATHV}
 	@echo "local dir = \"${prefix}\"" >> ${MODFILEINSTPATHV}
 	@echo "" >> ${MODFILEINSTPATHV}
-	@echo "append_path( \"XASTRO_DATA_PATH\", pathJoin(dir,\"share\"))" >> ${MODFILEINSTPATHV}
-	@echo "prepend_path( \"CPLUS_INCLUDE_PATH\", pathJoin(dir,\"include\"))" >> ${MODFILEINSTPATHV}
-	@echo "prepend_path( \"C_INCLUDE_PATH\", pathJoin(dir,\"include\"))" >> ${MODFILEINSTPATHV}
-	@echo "append_path( \"LD_LIBRARY_PATH\",  pathJoin(dir,\"lib\"))" >> ${MODFILEINSTPATHV}
-	@echo "append_path( \"LIBRARY_PATH\",     pathJoin(dir,\"lib\"))" >> ${MODFILEINSTPATHV}
+	@echo "append-path(	\"PKG_CONFIG_PATH\" pathJoin(dir,\"lib\\pkgconfig\"))" >>  ${MODFILEINSTPATHV}
 	@echo "prepend_path( \"PATH\"           ,  pathJoin(dir,\"bin\"))" >> ${MODFILEINSTPATHV}
 
 endif

@@ -9,3 +9,7 @@ dist_pkgdata_DATA = ${srcdir}/share/allens_pf_data.csv ${srcdir}/share/Ar.dat sh
 
 AM_CPPFLAGS = -I${srcdir}/include -I${srcdir}/../xmath/include -I${srcdir}/../xio/include -I${srcdir}/../xstdlib/include -DDATADIR=\"$(pkgdatadir)\"
 
+# Install the pkg-config file; the directory is set using
+# PKG_INSTALLDIR in configure.ac.
+pkgconfig_DATA = xastro-${API_VERSION}.pc
+

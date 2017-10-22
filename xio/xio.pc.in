@@ -1,0 +1,14 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+ 
+ 
+Name: @PACKAGE_NAME@-xio
+Description: xio - classes for reading datasets into and out of memory to/from disk
+URL: http://github.com/astronaos/xlibs
+Version: @PACKAGE_VERSION@
+Libs: -L${libdir} -lxio
+Cflags: -I${includedir}
+Requires: xstdlib
+Requires.private: 
