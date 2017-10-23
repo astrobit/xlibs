@@ -6,75 +6,56 @@ SUBDIRS = xstdlib xio xmath xastro xcpp xflash xtime testing xtools
 #everything below here creates a module for xlibs in the user's privatemodules directory (if it exists) or in the data directory
 # it will create a .lua module for lmod, and a regular module file for env. modules.
 # the module will be created in a directory called ${PACKAGE_NAME} and have a filename of ${PACKAGE_VERSION}. This is the format used by modules for versioning.
-if NON_DEFAULT_PREFIX
-if ENVMODPINST
-
-if PRIVMODINST
-MODFILEINSTPATH = `echo ${HOME}"/privatemodules/"${PACKAGE_NAME}`
-MODFILEINSTPATHV = `echo ${HOME}"/privatemodules/"${PACKAGE_NAME}"/"${PACKAGE_VERSION}`
-MODFILEUSERMESSAGE = "A module was installed in "
-MODFILEUSERMESSAGE += ${MODFILEINSTPATH}
-MODFILEUSERMESSAGE += "."
+if INSTALLMOD
+if HAVEENVMOD
+modfile_DATA = ${PACKAGE_VERSION}
 else
-MODFILEINSTPATH = `echo ${datadir}"/"${PACKAGE_NAME}`
-MODFILEINSTPATHV = `echo ${datadir}"/"${PACKAGE_NAME}"/"${PACKAGE_VERSION}`
-MODFILEUSERMESSAGE = "The path for module installaction couldn't be found. It was placed in "
-MODFILEUSERMESSAGE += ${MODFILEINSTPATH}
-MODFILEUSERMESSAGE += "."
-endif
-
-install-data-local:
-	-$(MKDIR_P) ${MODFILEINSTPATH}
-	@echo "#%Module1.0#####################################################################" > ${MODFILEINSTPATHV}
-	@echo "##" >>  ${MODFILEINSTPATHV}
-	@echo "## "${PACKAGE_NAME}" modulefile" >>  ${MODFILEINSTPATHV}
-	@echo "##" >>  ${MODFILEINSTPATHV}
-	@echo "## modulefiles/"${PACKAGE_NAME} >>  ${MODFILEINSTPATHV}
-	@echo "##" >>  ${MODFILEINSTPATHV}
-	@echo "proc ModulesHelp { } {" >>  ${MODFILEINSTPATHV}
-	@echo "	global version" >>  ${MODFILEINSTPATHV}
-	@echo "" >>  ${MODFILEINSTPATHV}
-	@echo "	puts stderr \"\tAdds xlibs to your PATH and PKG_CONFIG_PATH environment variables\"" >>  ${MODFILEINSTPATHV}
-	@echo "}" >>  ${MODFILEINSTPATHV}
-	@echo "" >>  ${MODFILEINSTPATHV}
-	@echo "module-whatis	\"adds xlibs to your PATH and PKG_CONFIG_PATH environment variables\"" >>  ${MODFILEINSTPATHV}
-	@echo "" >>  ${MODFILEINSTPATHV}
-	@echo "# for Tcl script use only" >>  ${MODFILEINSTPATHV}
-	@echo "set	version		"${PACKAGE_VERSION} >>  ${MODFILEINSTPATHV}
-	@echo "set	apppath		"${exec_prefix} >>  ${MODFILEINSTPATHV}
-	@echo "" >>  ${MODFILEINSTPATHV}
-	@echo 'append-path	PATH	$$apppath/bin' >>  ${MODFILEINSTPATHV}
-	@echo 'append-path	PKG_CONFIG_PATH $$apppath/lib/pkgconfig' >>  ${MODFILEINSTPATHV}
-	@echo ${MODFILEUSERMESSAGE}
-
-
-else
-if LMODINST
-
-if PRIVMODINST
-MODFILEINSTPATH = `echo ${HOME}"/privatemodules/"${PACKAGE_NAME}`
-MODFILEINSTPATHV = `echo ${MODFILEINSTPATH}"/"${PACKAGE_VERSION}".lua"`
-MODFILEUSERMESSAGE = `echo "A module was installed in "${MODFILEINSTPATH}"."`
-else
-MODFILEINSTPATH = `echo ${datadir}"/"${PACKAGE_NAME}`
-MODFILEINSTPATHV = `echo ${MODFILEINSTPATH}"/"${PACKAGE_VERSION}".lua"`
-MODFILEUSERMESSAGE = `echo "The path for module installaction couldn't be found. It was placed in "${MODFILEINSTPATH}"."`
-endif
-
-install-data-local:
-	-$(MKDIR_P) ${MODFILEINSTPATH}
-	@echo "-- Create environment variables." > ${MODFILEINSTPATHV}
-	@echo "" >> ${MODFILEINSTPATHV}
-	@echo "" >> ${MODFILEINSTPATHV}
-	@echo "local dir = \"${prefix}\"" >> ${MODFILEINSTPATHV}
-	@echo "" >> ${MODFILEINSTPATHV}
-	@echo "append-path(	\"PKG_CONFIG_PATH\" pathJoin(dir,\"lib\\pkgconfig\"))" >>  ${MODFILEINSTPATHV}
-	@echo "prepend_path( \"PATH\"           ,  pathJoin(dir,\"bin\"))" >> ${MODFILEINSTPATHV}
-
+modfile_DATA = ${PACKAGE_VERSION}.lua
 endif
 endif
 
-endif
+#MODFILEINSTPATH=`echo ${modfiledir}"/"${PACKAGE_NAME}`
+#
+#install-data-local:
+#	-$(MKDIR_P) ${modfiledir}
+#	@echo "#%Module1.0#####################################################################" > ${MODFILEINSTPATH}
+#	@echo "##" >>  ${MODFILEINSTPATH}
+#	@echo "## "${PACKAGE_NAME}" modulefile" >>  ${MODFILEINSTPATH}
+#	@echo "##" >>  ${MODFILEINSTPATH}
+#	@echo "## modulefiles/"${PACKAGE_NAME} >>  ${MODFILEINSTPATH}
+#	@echo "##" >>  ${MODFILEINSTPATH}
+#	@echo "proc ModulesHelp { } {" >>  ${MODFILEINSTPATH}
+#	@echo "	global version" >>  ${MODFILEINSTPATH}
+#	@echo "" >>  ${MODFILEINSTPATH}
+#	@echo "	puts stderr \"\tAdds "${PACKAGE_NAME}" to your PATH and PKG_CONFIG_PATH environment variables\"" >>  ${MODFILEINSTPATH}
+#	@echo "}" >>  ${MODFILEINSTPATH}
+#	@echo "" >>  ${MODFILEINSTPATH}
+#	@echo "module-whatis	\"adds "${PACKAGE_NAME}" to your PATH and PKG_CONFIG_PATH environment variables\"" >>  ${MODFILEINSTPATH}
+#	@echo "" >>  ${MODFILEINSTPATH}
+#	@echo "# for Tcl script use only" >>  ${MODFILEINSTPATH}
+#	@echo "set	version		"${PACKAGE_VERSION} >>  ${MODFILEINSTPATH}
+#	@echo "set	apppath		"${exec_prefix} >>  ${MODFILEINSTPATH}
+#	@echo "" >>  ${MODFILEINSTPATH}
+#	@echo 'append-path	PATH	$$apppath/bin' >>  ${MODFILEINSTPATH}
+#	@echo 'append-path	PKG_CONFIG_PATH $$apppath/lib/pkgconfig' >>  ${MODFILEINSTPATH}
+#
+#
+#else #LMOD
+#
+#MODFILEINSTPATH=`echo ${modfiledir}"/"${PACKAGE_NAME}".lua"`
+#
+#install-data-local:
+#	-$(MKDIR_P) ${modfiledir}
+#	@echo "-- Create environment variables." > ${MODFILEINSTPATH}
+#	@echo "" >> ${MODFILEINSTPATH}
+#	@echo "" >> ${MODFILEINSTPATH}
+#	@echo "local dir = \"${prefix}\"" >> ${MODFILEINSTPATH}
+#	@echo "" >> ${MODFILEINSTPATH}
+#	@echo "append-path(	\"PKG_CONFIG_PATH\" pathJoin(dir,\"lib\\pkgconfig\"))" >>  ${MODFILEINSTPATH}
+#	@echo "prepend_path( \"PATH\"           ,  pathJoin(dir,\"bin\"))" >> ${MODFILEINSTPATH}
+#
+#endif
+#endif
 
 
 
