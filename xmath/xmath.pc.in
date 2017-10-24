@@ -8,7 +8,7 @@ Name: @PACKAGE_NAME@-xmath
 Description: xmath - linear algebra, calculus, statistics, and modelling routines
 URL: http://github.com/astronaos/xlibs
 Version: @PACKAGE_VERSION@
-Libs: -L${libdir} -lxmath
-Cflags: -I${includedir} -fopenmp
+Libs: -L${libdir} -lxmath @OPENMP_CXXFLAGS@
+Cflags: -I${includedir} @OPENMP_CXXFLAGS@
 Requires: 
 Requires.private: 
