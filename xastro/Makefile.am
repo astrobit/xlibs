@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = foreign subdir-objects
 
 lib_LTLIBRARIES = libxastro.la
 libxastro_la_SOURCES = src/XAstro.cpp src/xastro_dates.cpp src/xastroion.cpp src/xastroline.cpp src/xastro_CCM_dered.cpp src/xastro_redshift.cpp
-libxastro_la_LDFLAGS = -version-info 1:0:1
+libxastro_la_LDFLAGS = -version-info 2:0:2
 
 include_HEADERS = include/xastro.h include/xastroion.h include/xastroline.h
 
