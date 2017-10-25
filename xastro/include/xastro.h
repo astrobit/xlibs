@@ -1,5 +1,7 @@
 #pragma once
 #include <cmath>
+#include <tuple>
+#include <vector>
 
 class XASTRO_CONSTS
 {
@@ -147,5 +149,13 @@ extern const double g_XASTRO_Vega_uvw1_lum;
 extern const double g_XASTRO_Vega_uvw2_lum;
 extern const double g_XASTRO_Vega_uvm2_lum;
 extern const double g_XASTRO_Vega_white_lum;
+
+void XA_CCM_dered(std::vector<std::pair<double,double> > &io_vSpectrum, const double & i_dE_BmV, const double & i_dRv = 3.1);
+void XA_CCM_dered(std::vector<std::tuple<double,double,double> > &io_vSpectrum, const double & i_dE_BmV, const double & i_dRv = 3.1);
+void XA_CCM_dered(const double & i_dWavelength, double & io_dFlux, const double & i_dE_BmV, const double & i_dRv = 3.1);
+
+double XA_Rest_Frame_Wavelength(const double & i_dObserved_Wavelength, const double & i_dRedshift);
+double XA_Observed_Frame_Wavelength(const double & i_dRest_Frame_Wavelength, const double & i_dRedshift);
+
 
 
