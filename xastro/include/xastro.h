@@ -156,6 +156,7 @@ void XA_CCM_dered(const double & i_dWavelength, double & io_dFlux, const double 
 
 double XA_Rest_Frame_Wavelength(const double & i_dObserved_Wavelength, const double & i_dRedshift);
 double XA_Observed_Frame_Wavelength(const double & i_dRest_Frame_Wavelength, const double & i_dRedshift);
+double	XA_Compute_Velocity(const double & i_dObserved_Wavelength, const double & i_dRest_Wavelength);
 
 
 
