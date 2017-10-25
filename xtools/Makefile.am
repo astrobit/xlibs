@@ -8,11 +8,11 @@ xdatasetget_SOURCES = src/xdatasetget.cpp
 xgenwiki_SOURCES = src/xgenwiki.cpp
 textcol_SOURCES = src/textcolumize.cpp
 
-xdatasettocsv_LDADD = ../xio/libxio.a ../xstdlib/libxstdlib.a
-xdatasetget_LDADD = ../xio/libxio.a ../xstdlib/libxstdlib.a
-xgenwiki_LDADD = ../xcpp/libxcpp.a
+xdatasettocsv_LDADD = ${top_srcdir}/xio/libxio.la ${top_srcdir}/xstdlib/libxstdlib.la
+xdatasetget_LDADD = ${top_srcdir}/xio/libxio.la ${top_srcdir}/xstdlib/libxstdlib.la
+xgenwiki_LDADD = ${top_srcdir}/xcpp/libxcpp.la
 
-xdatasettocsv_CPPFLAGS = -I${srcdir}/../xio/include -I${srcdir}/../xstdlib/include
-xdatasetget_CPPFLAGS = -I${srcdir}/../xio/include -I${srcdir}/../xstdlib/include
-xgenwiki_CPPFLAGS = -I${srcdir}/../xcpp/include
+xdatasettocsv_CPPFLAGS = -I${top_srcdir}xio/include -I${top_srcdir}/xstdlib/include
+xdatasetget_CPPFLAGS = -I${top_srcdir}xio/include -I${top_srcdir}xstdlib/include
+xgenwiki_CPPFLAGS = -I${top_srcdir}xcpp/include
 

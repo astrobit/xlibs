@@ -1,13 +1,15 @@
 # Release version
 m4_define([package_version_major],[1])
-m4_define([package_version_minor],[0])
+m4_define([package_version_minor],[1])
 m4_define([package_version_micro],[0])
  
 # API version
 m4_define([api_version],package_version_major)
 
-AC_INIT(xlibs,package_version_major.package_version_minor.package_version_micro,astrobit2@yahoo.com,bwm801,https://github.com/astrobit/xlibs)
+AC_INIT(xlibs,package_version_major.package_version_minor.package_version_micro,astrobit2@yahoo.com,xlibs,https://github.com/astrobit/xlibs)
 AC_CONFIG_MACRO_DIR([m4])
+
+LT_INIT
 
 PKG_PROG_PKG_CONFIG
 PKG_INSTALLDIR
@@ -17,7 +19,7 @@ MOD_INSTALLDIR
 
 AM_INIT_AUTOMAKE
 
-AC_PROG_RANLIB
+#AC_PROG_RANLIB
 
 AC_LANG(C++)
 
@@ -31,12 +33,15 @@ AX_MPI([AM_CONDITIONAL([HAVE_MPI], [test "1" = "1"])],[AM_CONDITIONAL([HAVE_MPI]
 
 #TODO - need to add header file checks
 
-m4_ifdef([AM_PROG_AR], [AM_PROG_AR]) #not sure why the ifdef is required; this is supposed to be a standard command in automake, but my implementation (v1.15) seems to not find it.
+#m4_ifdef([AM_PROG_AR], [AM_PROG_AR]) #not sure why the ifdef is required; this is supposed to be a standard command in automake, but my implementation (v1.15) seems to not find it.
 
 AC_SUBST([PACKAGE_VERSION_MAJOR],package_version_major)
 AC_SUBST([PACKAGE_VERSION_MINOR],package_version_minor)
 AC_SUBST([PACKAGE_VERSION_MICRO],package_version_micro)
 AC_SUBST([API_VERSION],api_version)
+
+
+
 
 AC_CHECK_HEADERS(hdf5.h) # make sure HDF5 is installed - 
 #AC_CHECK_LIB(hdf5,H5Library) # I removed this one because the check_lib function appears to try linking only to a function of type char <fname>(void)

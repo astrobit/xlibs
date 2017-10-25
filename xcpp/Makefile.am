@@ -1,8 +1,9 @@
 AUTOMAKE_OPTIONS = foreign subdir-objects
 AM_CPPFLAGS = -I${srcdir}/include
 
-lib_LIBRARIES = libxcpp.a
-libxcpp_a_SOURCES = src/xcpp_dictionary.cpp src/xcpp_tokenizer.cpp
+lib_LTLIBRARIES = libxcpp.la
+libxcpp_la_SOURCES = src/xcpp_dictionary.cpp src/xcpp_tokenizer.cpp
+libxcpp_la_LDFLAGS = -version-info 0:0:0
 
 include_HEADERS = include/xcpp.h
 

@@ -1,8 +1,10 @@
 AUTOMAKE_OPTIONS = foreign subdir-objects
 AM_CPPFLAGS = -I${srcdir}/include
 
-lib_LIBRARIES = libxtime.a
-libxtime_a_SOURCES = src/xtime.cpp
+lib_LTLIBRARIES = libxtime.la
+libxtime_la_SOURCES = src/xtime.cpp
+libxtime_la_LDFLAGS = -version-info 0:0:0
+
 include_HEADERS = include/xtime.h
 
 # Install the pkg-config file; the directory is set using

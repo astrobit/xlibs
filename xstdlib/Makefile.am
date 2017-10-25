@@ -1,8 +1,10 @@
 AUTOMAKE_OPTIONS = foreign subdir-objects
 AM_CPPFLAGS = -I${srcdir}/include
 
-lib_LIBRARIES = libxstdlib.a
-libxstdlib_a_SOURCES = src/xstdlib.cpp
+lib_LTLIBRARIES = libxstdlib.la
+libxstdlib_la_SOURCES = src/xstdlib.cpp
+libxstdlib_la_LDFLAGS = -version-info 0:0:0
+
 include_HEADERS = include/xstdlib.h
 
 # Install the pkg-config file; the directory is set using
