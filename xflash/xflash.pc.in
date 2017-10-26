@@ -8,8 +8,8 @@ Name: @PACKAGE_NAME@-xflash
 Description: xstdlib - useful general computing routines
 URL: http://github.com/astronaos/xlibs
 Version: @PACKAGE_VERSION@
-Libs: -L${libdir} -lxflash
+Libs: -L${libdir} -lxflash -lhdf5
 Cflags: -I${includedir}
 Requires: 
 Requires.private: 
-Libs.private: -lhdf5
+Libs.private:

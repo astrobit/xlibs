@@ -10,5 +10,5 @@ URL: http://github.com/astronaos/xlibs
 Version: @PACKAGE_VERSION@
 Libs: -L${libdir} -lxio
 Cflags: -I${includedir}
-Requires: 
-Requires.private: xstdlib-1
+Requires: xstdlib-1
+Requires.private: 
