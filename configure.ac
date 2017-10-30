@@ -25,7 +25,7 @@ AC_LANG(C++)
 
 AC_PROG_CXX
 
-AX_CXX_COMPILE_STDCXX(14,noext,mandatory) #use c++14 standard, required (I think) in xio and xstdlib, maybe xmath
+AX_CXX_COMPILE_STDCXX(11,noext,mandatory) #use c++14 standard, required (I think) in xio and xstdlib, maybe xmath
 
 AC_OPENMP #xmath requires openmp
 
