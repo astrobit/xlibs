@@ -11,7 +11,7 @@ mathpar_SOURCES = src/xmath_test_parallel.cpp
 xexpdbltest_SOURCES = src/xexpdouble_test.cpp
 
 
-xrandtest_LDADD = ${top_srcdir}/xstdlib/libxstdlib.la
+xrandtest_LDADD = ${top_srcdir}/xstdlib/libxstdlib.la -lrt
 xdatasettest_LDADD = ${top_srcdir}/xio/libxio.la ${top_srcdir}/xstdlib/libxstdlib.la
 flashtest_LDADD =   ${top_srcdir}/xflash/libxflash.la -lhdf5
 #xastroiontest_LDADD = ../xstdlib/libxstdlib.a ../xastro/libxastro.a ../xio/libxio.a ../xmath/libxmath.a
