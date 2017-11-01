@@ -38,7 +38,7 @@ void xastro_ionization_data::Initialize(void)
 #ifdef DATADIR
 	else
 	{
-		sprintf(lpszPath,"%sionization_data.dat",DATADIR);
+		sprintf(lpszPath,"%s/ionization_data.dat",DATADIR);
 	}
 #else
 	else

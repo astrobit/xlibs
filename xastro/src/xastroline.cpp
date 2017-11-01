@@ -230,7 +230,7 @@ void XASTROLINE_ELEMENTDATA::ReadDataFile(const char * i_lpszFile_Path, const ch
 			uiFilename_Len = uiReq_Len;
 			lpszFilename = new char[uiFilename_Len];
 		}
-		sprintf(lpszFilename,"%s%s.dat",DATADIR,lpszElement_ID_Temp);
+		sprintf(lpszFilename,"%s/%s.dat",DATADIR,lpszElement_ID_Temp);
 		fileIn = fopen(lpszFilename,"rb");
 	}
 #endif
