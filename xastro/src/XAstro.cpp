@@ -4,46 +4,56 @@
 
 XASTRO_CONSTS::XASTRO_CONSTS(void)
 {
-	k_dAU_cm = 1.5e13; // cm
-	k_dpc_cm = 3.086e18; // 1 pc in cm
-	k_dMpc_cm = 3.086e24; // 1 Mpc in cm
-	k_dGpc_cm = 3.086e27; // 1 Gpc in cm
-	k_dAMU_gm = 1.660538921e-24; // AMU in gm
+//	k_dAU_cm = 1.5e13; // cm
+//	k_dpc_cm = 3.086e18; // 1 pc in cm
+//	k_dMpc_cm = 3.086e24; // 1 Mpc in cm
+//	k_dGpc_cm = 3.086e27; // 1 Gpc in cm
 
-	k_deV_erg = 6.2415e+11; // eV / erg
-	k_derg_eV = 1. / k_deV_erg;
+	// fundamental constants
 	k_dc = 2.99792458e10; // cgs
 	k_dG = 6.67384e-8;//cgs
-	k_dYear = 86400 * 365.25;// Official definition, s
-	k_dMsun = 1.98892e+33;//g
-	k_dLsun = 3.8515e+33;//erg/s
-	k_dRsun = 6.955e+10; // cm
-	k_dSigma_SB = 5.67051e-5;//cgs
-	k_dWein = 0.2897756e+7; // nm
+	k_de = 4.80320451e-10;
 	k_dme = 9.10938291e-28;//g
 	k_dmp = 1.672621777e-24;//g
-	k_dmh = k_dme + k_dmp - 13.6 * k_derg_eV / pow(k_dc,2.);
-	k_dKb = 1.3806488e-16; // erg/K
-	k_dKb_eV = 8.6173324e-5; // eV/K
-	k_de = 4.80320451e-10;
-	k_da = 7.5657e-15; // erg cm^{-3} K^{-4}
 	k_dpi = acos(-1.0);
 	k_dexp = 2.718281828459045235;
 	k_dEuler = 0.577215664901532861;
 	k_dh = 6.62606957e-27; // erg s
-	k_dhbar = 1.054571726e-27; // erg s
-	k_dh_eV = 4.135667516e-15; // eV s
-	k_dhbar_eV = 6.58211928e-16; // eV s
-	k_dhc = k_dh * k_dc;
-	k_dhc_eVnm = k_dh_eV * k_dc * 1e7;//eV nm
+	k_dAvogadro = 6.02214129e+23;
 	k_dH0std = 100.e5 / (k_dMpc_cm); // s^{-1} h
 	k_dH0h = 0.726; // s^{-1} h // WMAP 7
+	k_dKb = 1.3806488e-16; // erg/K
+	k_dAMU_gm = 1.660538921e-24; // AMU in gm
+
+	k_dYear = 31556925.9747;//86400 * 365.25;// Tropical Year 1900 (Allen's)  
+	k_dMsun = 1.98892e+33;//g
+	k_dLsun = 3.8515e+33;//erg/s
+	k_dRsun = 6.955e+10; // cm
+	k_dAU_cm = 1.49597870662e+13;
+
+	// derived constants
+	k_dpc_cm = k_dAU_cm * k_dpi / 648000;//3.0856775807e+18; // 1 pc in cm
+	k_dMpc_cm = k_dpc_cm * 1e6;//3.0856775807e+24; // 1 Mpc in cm
+	k_dGpc_cm = k_dpc_cm * 1e12;//3.0856775807e+27; // 1 Gpc in cm
+
+	k_derg_eV = 1.0e8*k_de/k_dc;//1.602192e-11;//1. / k_deV_erg;
+	k_deV_erg = 1.0 / k_derg_eV;//6.2415e+11; // eV / erg
+
+	k_dhc = k_dh * k_dc;
+	k_da = 8.0 * k_dpi * k_dpi * k_dpi * k_dpi * k_dpi * k_dKb * k_dKb * k_dKb * k_dKb / (15.0 * k_dhc * k_dhc * k_dhc); //7.5657e-15; // erg cm^{-3} K^{-4}
+	k_dSigma_SB = k_da * k_dc * 0.25;//5.67051e-5;//cgs
+	k_dWein = k_dhc / k_dKb / 4.96511423e-7;//0.2897756e+7; // nm
+	k_dKb_eV = k_dKb * k_deV_erg;//8.6173324e-5; // eV/K 
+	k_dhbar = k_dh / (2.0 * k_dpi); // erg s //@@
+	k_dh_eV = k_dh * k_deV_erg;// 4.135667516e-15; // eV s 
+	k_dhbar_eV = k_dhbar * k_deV_erg;//6.58211928e-16; // eV s
+	k_dhc_eVnm = k_dh_eV * k_dc * 1e7;//eV nm
 	k_dH0 = k_dH0std * k_dH0h;
-	k_dAvogadro = 6.02214129e+23;
-	k_dAlpha = pow(k_de,2.0) / k_dhc;
+	k_dAlpha = 2.0 * k_dpi * k_de * k_de / k_dhc;
 	k_da0 = k_dhbar * k_dhbar / (k_dme * k_de * k_de); // = 5.2917721092e−9; // cm
-	k_dRy = (k_dme * k_de * k_de * k_de * k_de) / (2.0 * k_dhbar * k_dhbar);
+	k_dRy = (k_dme * k_de * k_de * k_de * k_de) / (2.0 * k_dhbar * k_dhbar); // Allen says 2 pi^2 me e^4 / (c h^3) ..... not sure why the difference
 	k_dRy_eV = k_dRy * k_deV_erg;
+	k_dmh = k_dme + k_dmp - k_dRy / (k_dc * k_dc);
 }
 void	XASTRO_CONSTS::Use_FLASH_Constants(void)
 {
