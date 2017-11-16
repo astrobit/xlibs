@@ -25,7 +25,7 @@ XASTRO_CONSTS::XASTRO_CONSTS(void)
 	k_dKb = 1.3806488e-16; // erg/K
 	k_dAMU_gm = 1.660538921e-24; // AMU in gm
 
-	k_dYear = 31556925.9747;//86400 * 365.25;// Tropical Year 1900 (Allen's)  
+	k_dYear = 31556925.9747;//86400 * 365.25;// Tropical Year 1900 (Allen's 1976)  
 	k_dMsun = 1.98892e+33;//g
 	k_dLsun = 3.8515e+33;//erg/s
 	k_dRsun = 6.955e+10; // cm
