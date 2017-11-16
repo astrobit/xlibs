@@ -32,7 +32,7 @@ XASTRO_CONSTS::XASTRO_CONSTS(void)
 	k_dAU_cm = 1.49597870662e+13;
 
 	// derived constants
-	k_dpc_cm = k_dAU_cm * k_dpi / 648000;//3.0856775807e+18; // 1 pc in cm
+	k_dpc_cm = k_dAU_cm * 648000 / k_dpi;//3.0856775807e+18; // 1 pc in cm
 	k_dMpc_cm = k_dpc_cm * 1e6;//3.0856775807e+24; // 1 Mpc in cm
 	k_dGpc_cm = k_dpc_cm * 1e12;//3.0856775807e+27; // 1 Gpc in cm
 
@@ -50,8 +50,8 @@ XASTRO_CONSTS::XASTRO_CONSTS(void)
 	k_dhc_eVnm = k_dh_eV * k_dc * 1e7;//eV nm
 	k_dH0 = k_dH0std * k_dH0h;
 	k_dAlpha = 2.0 * k_dpi * k_de * k_de / k_dhc;
-	k_da0 = k_dhbar * k_dhbar / (k_dme * k_de * k_de); // = 5.2917721092e−9; // cm
-	k_dRy = (k_dme * k_de * k_de * k_de * k_de) / (2.0 * k_dhbar * k_dhbar); // Allen says 2 pi^2 me e^4 / (c h^3) ..... not sure why the difference
+	k_da0 = k_dh * k_dh / (4.0 * k_dpi * k_dpi * k_dme * k_de * k_de); // = 5.2917721092e−9; // cm
+	k_dRy = (2.0 * k_dpi * k_dpi * k_dme * k_de * k_de * k_de * k_de) / (k_dh * k_dh);
 	k_dRy_eV = k_dRy * k_deV_erg;
 	k_dmh = k_dme + k_dmp - k_dRy / (k_dc * k_dc);
 }
