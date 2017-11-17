@@ -42,7 +42,7 @@ XASTRO_CONSTS::XASTRO_CONSTS(void)
 	k_dhc = k_dh * k_dc;
 	k_da = 8.0 * k_dpi * k_dpi * k_dpi * k_dpi * k_dpi * k_dKb * k_dKb * k_dKb * k_dKb / (15.0 * k_dhc * k_dhc * k_dhc); //7.5657e-15; // erg cm^{-3} K^{-4}
 	k_dSigma_SB = k_da * k_dc * 0.25;//5.67051e-5;//cgs
-	k_dWein = k_dhc / k_dKb / 4.96511423e-7;//0.2897756e+7; // nm
+	k_dWein = k_dhc / k_dKb / 4.965114231e-7;//0.2897756e+7; // nm
 	k_dKb_eV = k_dKb * k_deV_erg;//8.6173324e-5; // eV/K 
 	k_dhbar = k_dh / (2.0 * k_dpi); // erg s //@@
 	k_dh_eV = k_dh * k_deV_erg;// 4.135667516e-15; // eV s 
