@@ -1268,7 +1268,7 @@ public:
 		else if (!isinf() && !isnan())
 		{
 			xdRet.load(exponent() - 1);
-			std::cout << "b" << exponent() << " " << xdRet.unload() << std::endl;
+//			std::cout << "b" << exponent() << " " << xdRet.unload() << std::endl;
 //			pbin(xdRet.m_nMantissa);
 //			pbin(m_nMantissa);
 
