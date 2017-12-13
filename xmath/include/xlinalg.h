@@ -421,6 +421,10 @@ public:
 					FILE * i_fileOut = NULL, WHICH i_eWhich = MAT_A);
 	// Generate rotation matrix, given rotation about z axis (theta) and x axis (phi)
 	void	Create_Rotation_Matrix(const double & i_dPhi_Rad,const double &i_dTheta_Rad, const double & i_dPsi_Rad);
+	// Generate rotation matrix, given rotation about z axis (theta) and x axis (phi)
+	enum axis {axis_x,axis_y,axis_z};
+	void	Create_Rotation_Matrix(axis i_eAxis, const double & i_dAngle_Radians);
+	void	Create_Derivative_Rotation_Matrix(axis i_eAxis, const double & i_dAngle_Radians);
 
 	// Transpose the matrix
 	void	Transpose(void);

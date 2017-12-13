@@ -87,6 +87,25 @@ double XM_Simpsons_Integration(QFunctionD lpfFn, const double &dStart, const dou
 	return dIntegral;
 }
 
+long double XM_Simpsons_Integration_LD(QFunctionLD lpfFn, const long double &dStart, const long double &dEnd, unsigned int uiNumSteps, const void * i_lpvData)
+{
+	long double	dStep = (dEnd - dStart) / uiNumSteps;
+	long double		dIntegral(0.0);
+	long double dThird((long double)(1.0) / (long double)(3.0));
+
+	
+	dIntegral = lpfFn(dStart,i_lpvData) + lpfFn(dEnd,i_lpvData);
+#pragma omp parallel for reduction(+:dIntegral)
+	for (unsigned int uiIndex = 1; uiIndex < uiNumSteps; uiIndex++)
+	{
+		long double	dX = dStart + dStep * uiIndex;
+		dIntegral += ((uiIndex & 1) * 2 + 2) * lpfFn(dX,i_lpvData);
+	}
+	dIntegral *= dStep * dThird;
+
+	return dIntegral;
+}
+
 double	g_dXMNR_Trapezoid_Res(0.0);
 double XMNR_Trapezoid(QFunctionD lpfFn, const double &i_dStart, const double &i_dEnd, unsigned int uiN, const void * i_lpvData)
 {

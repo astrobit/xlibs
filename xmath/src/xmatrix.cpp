@@ -717,7 +717,134 @@ void	xsquare_matrix::Create_Rotation_Matrix(const double & i_dPhi_Rad,const doub
 
 }
 
+void	xsquare_matrix::Create_Rotation_Matrix(axis i_eAxis, const double & i_dAngle_Radians)
+{
 
+	if (m_uiN == 0)
+		Set_Size(3);
+	if (m_uiN == 2 || m_uiN == 3) // not defined in higher order spaces for now
+	{
+		double	dCosBeta = cos(i_dAngle_Radians);
+		double	dSinBeta = sin(i_dAngle_Radians);
+		if (m_uiN == 2)
+		{
+			m_lpdValues[0] = dCosBeta;
+			m_lpdValues[1] = -dSinBeta;
+			m_lpdValues[2] = dSinBeta;
+			m_lpdValues[3] = dCosBeta;
+		}
+		else
+		{
+			switch (i_eAxis)
+			{
+			case axis_x:
+				m_lpdValues[0] = 1.0;
+				m_lpdValues[1] = 0.0;
+				m_lpdValues[2] = 0.0;
+
+				m_lpdValues[3] = 0.0;
+				m_lpdValues[4] = dCosBeta;
+				m_lpdValues[5] = -dSinBeta;
+
+				m_lpdValues[6] = 0.0;
+				m_lpdValues[7] = dSinBeta;
+				m_lpdValues[8] = dCosBeta;
+				break;
+			case axis_y:
+				m_lpdValues[0] = dCosBeta;
+				m_lpdValues[1] = 0.0;
+				m_lpdValues[2] = dSinBeta;
+
+				m_lpdValues[3] = 0.0;
+				m_lpdValues[4] = 1.0;
+				m_lpdValues[5] = 0.0;
+
+				m_lpdValues[6] = -dSinBeta;
+				m_lpdValues[7] = 0.0;
+				m_lpdValues[8] = dCosBeta;
+				break;
+			case axis_z:
+				m_lpdValues[0] = dCosBeta;
+				m_lpdValues[1] = -dSinBeta;
+				m_lpdValues[2] = 0.0;
+
+				m_lpdValues[3] = dSinBeta;
+				m_lpdValues[4] = dCosBeta;
+				m_lpdValues[5] = 0.0;
+
+				m_lpdValues[6] = 0.0;
+				m_lpdValues[7] = 0.0;
+				m_lpdValues[8] = 1.0;
+				break;
+			}
+		}
+	}
+}
+
+
+void	xsquare_matrix::Create_Derivative_Rotation_Matrix(axis i_eAxis, const double & i_dAngle_Radians)
+{
+
+	if (m_uiN == 0)
+		Set_Size(3);
+	if (m_uiN == 2 || m_uiN == 3) // not defined in higher order spaces for now
+	{
+		double	dCosBeta = cos(i_dAngle_Radians);
+		double	dSinBeta = sin(i_dAngle_Radians);
+		if (m_uiN == 2)
+		{
+			m_lpdValues[0] = -dSinBeta;
+			m_lpdValues[1] = -dCosBeta;
+			m_lpdValues[2] = dCosBeta;
+			m_lpdValues[3] = -dSinBeta;
+		}
+		else
+		{
+			switch (i_eAxis)
+			{
+			case axis_x:
+				m_lpdValues[0] = 0.0;
+				m_lpdValues[1] = 0.0;
+				m_lpdValues[2] = 0.0;
+
+				m_lpdValues[3] = 0.0;
+				m_lpdValues[4] = -dSinBeta;
+				m_lpdValues[5] = -dCosBeta;
+
+				m_lpdValues[6] = 0.0;
+				m_lpdValues[7] = dCosBeta;
+				m_lpdValues[8] = -dSinBeta;
+				break;
+			case axis_y:
+				m_lpdValues[0] = -dSinBeta;
+				m_lpdValues[1] = 0.0;
+				m_lpdValues[2] = dCosBeta;
+
+				m_lpdValues[3] = 0.0;
+				m_lpdValues[4] = 0.0;
+				m_lpdValues[5] = 0.0;
+
+				m_lpdValues[6] = -dCosBeta;
+				m_lpdValues[7] = 0.0;
+				m_lpdValues[8] = -dSinBeta;
+				break;
+			case axis_z:
+				m_lpdValues[0] = -dSinBeta;
+				m_lpdValues[1] = -dCosBeta;
+				m_lpdValues[2] = 0.0;
+
+				m_lpdValues[3] = dCosBeta;
+				m_lpdValues[4] = -dSinBeta;
+				m_lpdValues[5] = 0.0;
+
+				m_lpdValues[6] = 0.0;
+				m_lpdValues[7] = 0.0;
+				m_lpdValues[8] = 0.0;
+				break;
+			}
+		}
+	}
+}
 bool xsquare_matrix::is_nan(void) const
 {
 	bool bRet = false;

@@ -22,6 +22,7 @@ class xcomplex;
 
 typedef xcomplex (*QFunctionC)(const xcomplex &i_cX, const void * i_lpvData);
 typedef double (*QFunctionD)(const double &i_dX, const void * i_lpvData);
+typedef long double (*QFunctionLD)(const long double &i_dX, const void * i_lpvData);
 typedef double (*QFunctionV)(const xvector &i_vX, void * i_lpvData);
 void XMATH_Set_Convergence_Threshold(const double &dValue);
 double XMATH_Get_Convergence_Threshold(void);
@@ -29,6 +30,7 @@ bool XMATH_Delta_Threshold_Test(const double &i_dX, const double  &i_dDelta, uns
 
 
 double XM_Simpsons_Integration(QFunctionD lpfFn, const double &dStart, const double &dEnd, unsigned int uiNumSteps, const void * i_lpvData = NULL);
+long double XM_Simpsons_Integration_LD(QFunctionLD lpfFn, const long double &dStart, const long double &dEnd, unsigned int uiNumSteps, const void * i_lpvData = NULL);
 double XM_Simpsons_Integration_Fast(QFunctionD lpfFn, const double &dStart, const double &dEnd, const void * i_lpvData = NULL);
 
 xcomplex XM_Simpsons_Integration(QFunctionC lpfFn, const xcomplex &xcStart, const xcomplex &xcEnd, unsigned int uiNumSteps, const void * i_lpdData);
