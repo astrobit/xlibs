@@ -54,4 +54,6 @@ xtools/textcol
 xtools/xdatasetget
 xtools/xdatasettocsv
 xtools/xgenwiki
+xtools/xexpfit
+xtools/xlinfit
 
