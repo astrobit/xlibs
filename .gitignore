@@ -56,4 +56,5 @@ xtools/xdatasettocsv
 xtools/xgenwiki
 xtools/xexpfit
 xtools/xlinfit
+testing/xsqmltest
 

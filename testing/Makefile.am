@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = foreign subdir-objects
-bin_PROGRAMS = xrandtest xdatasettest flashtest mathpar xexpdbltest
+bin_PROGRAMS = xrandtest xdatasettest flashtest mathpar xexpdbltest xsqmltest
 
 AM_CPPFLAGS = -I${srcdir}/../xstdlib/include
 
@@ -9,6 +9,8 @@ flashtest_SOURCES = src/FLASH_1D_Test.cpp
 #xastroiontest_SOURCES = src/xastroion_test.cpp
 mathpar_SOURCES = src/xmath_test_parallel.cpp
 xexpdbltest_SOURCES = src/xexpdouble_test.cpp
+xsqmltest_SOURCES = src/xsmatrix_eigv.cpp
+
 
 
 xrandtest_LDADD = ${top_srcdir}/xstdlib/libxstdlib.la -lrt
@@ -17,6 +19,7 @@ flashtest_LDADD =   ${top_srcdir}/xflash/libxflash.la -lhdf5
 #xastroiontest_LDADD = ../xstdlib/libxstdlib.a ../xastro/libxastro.a ../xio/libxio.a ../xmath/libxmath.a
 mathpar_LDADD = ${top_srcdir}/xmath/libxmath.la
 xexpdbltest_LDADD = ${top_srcdir}/xmath/libxmath.la ${top_srcdir}/xstdlib/libxstdlib.la
+xsqmltest_LDADD = ${top_srcdir}/xmath/libxmath.la 
 
 xrandtest_CPPFLAGS =  -I${top_srcdir}/xstdlib/include
 xdatasettest_CPPFLAGS =  -I${top_srcdir}/xio/include  -I${top_srcdir}/xstdlib/include
@@ -24,5 +27,7 @@ xdatasettest_CPPFLAGS =  -I${top_srcdir}/xio/include  -I${top_srcdir}/xstdlib/in
 flashtest_CPPFLAGS =  -I${top_srcdir}/xflash/include
 mathpar_CPPFLAGS = $(OPENMP_CXXFLAGS) -I${top_srcdir}/xmath/include
 xexpdbltest_CPPFLAGS = -I${top_srcdir}/xstdlib/include -I${top_srcdir}/xmath/include
+xsqmltest_CPPFLAGS = $(OPENMP_CXXFLAGS) -I${top_srcdir}/xmath/include
 
 mathpar_LDFLAGS = $(OPENMP_CXXFLAGS)
+xsqmltest_LDFLAGS = $(OPENMP_CXXFLAGS)
