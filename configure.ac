@@ -1,6 +1,6 @@
 # Release version
 m4_define([package_version_major],[1])
-m4_define([package_version_minor],[4])
+m4_define([package_version_minor],[5])
 m4_define([package_version_micro],[0])
  
 # API version

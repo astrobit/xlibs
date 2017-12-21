@@ -46,6 +46,7 @@ public:
 	double	k_da0; // Bohr radius (cm)
 	double	k_dRy; // Rydberg energy, erg
 	double	k_dRy_eV; // Rydberg energy, eV
+	double	k_dRy_cmm1; // Rydberg energy, cm^-1
 	XASTRO_CONSTS(void);
 	void	Use_FLASH_Constants(void);
 };
