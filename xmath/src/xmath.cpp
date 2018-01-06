@@ -91,16 +91,24 @@ long double XM_Simpsons_Integration_LD(QFunctionLD lpfFn, const long double &dSt
 {
 	long double	dStep = (dEnd - dStart) / uiNumSteps;
 	long double		dIntegral(0.0);
-	long double dThird((long double)(1.0) / (long double)(3.0));
+	long double ldOne = 1.0;
+	long double ldThree = 3.0;
+	long double dThird(ldOne / ldThree);
 
 	
-	dIntegral = lpfFn(dStart,i_lpvData) + lpfFn(dEnd,i_lpvData);
-#pragma omp parallel for reduction(+:dIntegral)
+//@@NOTE: 5 Jan 2018 - discovered that the omp implementation in GNU c++ (as of v6.3.1) seems to perform the reduction using float instead of long double 
+// the arithmetic in the reduction happens as each individual thread completes its task, which can lead to machine precision level errors
+// this in and of itself is annoying but acceptable operation
+// however, reduction seems to use single precision floating point for the reduction process, leading to precision of only 10^-7, well above the expected precision
+// for a long double.
+// further note - testing this in a clean environment leads to correct machine precision -- is this a problem to do wtih this being in a library?
+//#pragma omp parallel for reduction(+:dIntegral)
 	for (unsigned int uiIndex = 1; uiIndex < uiNumSteps; uiIndex++)
 	{
 		long double	dX = dStart + dStep * uiIndex;
 		dIntegral += ((uiIndex & 1) * 2 + 2) * lpfFn(dX,i_lpvData);
 	}
+	dIntegral += lpfFn(dStart,i_lpvData) + lpfFn(dEnd,i_lpvData);
 	dIntegral *= dStep * dThird;
 
 	return dIntegral;
