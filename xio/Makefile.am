@@ -3,7 +3,7 @@ AUTOMAKE_OPTIONS = foreign subdir-objects
 
 lib_LTLIBRARIES = libxio.la
 libxio_la_SOURCES = src/xdataparse.cpp src/xdataset_advanced.cpp src/xdataset.cpp src/xdataset_improved.cpp src/xiocmn.cpp src/xmap.cpp
-libxio_la_LDFLAGS = -version-info 0:0:0
+libxio_la_LDFLAGS = -version-info 1:0:1
 
 #if HAVE_MPI
 #lib_LTLIBRARIES += libxio_mpi.la

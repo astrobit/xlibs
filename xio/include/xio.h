@@ -67,6 +67,9 @@ public:
 
 	void Allocate(size_t i_tNum_Rows, size_t i_tNum_Columns);
 	void Read_Data_File(std::string i_lpszFilename, bool i_bWhitespace_Separated_Columns = false, char i_chColumn_Separator = ',', size_t i_tHeader_Lines = 1);
+	void Read_xdataset(std::string i_lpszFilename);
+
+	void Zero(void); // make all integer and double fields zero, make all string fields empty 
 
 	double Get_Element_Double(size_t i_tRow, size_t i_tColumn) const;
 	int Get_Element_Int(size_t i_tRow, size_t i_tColumn) const;

@@ -3,7 +3,7 @@ AM_CPPFLAGS = -I${srcdir}/include
 
 lib_LTLIBRARIES = libxstdlib.la
 libxstdlib_la_SOURCES = src/xstdlib.cpp
-libxstdlib_la_LDFLAGS = -version-info 0:0:0
+libxstdlib_la_LDFLAGS = -version-info 1:0:1
 
 include_HEADERS = include/xstdlib.h
 

@@ -481,3 +481,54 @@ void xdataset_improved::Save_Data_File_Binary(const std::string & i_szFilename) 
 		std::cerr << "xdataset_improved::Save_Data_File_CSV: Unable to open file " << i_szFilename << std::endl;
 }
 
+void xdataset_improved::Read_xdataset(std::string i_sFilename)
+{
+	xdataset cData;
+	cData.ReadDataFileBin(i_sFilename.c_str(),true);
+	Allocate(cData.GetNumElements(),cData.GetNumColumns());
+	for (size_t tI = 0; tI < cData.GetNumElements(); tI++)
+	{
+		for (size_t tJ = 0; tJ < cData.GetNumColumns(); tJ++)
+		{
+			Set_Element(tI,tJ,cData.GetElement(tJ,tI));
+		}
+	}
+}
+
+
+void xdataset_improved::Zero(void) // make all integer and double fields zero, make all string fields empty 
+{
+	for (size_t tI = 0; tI < Get_Num_Rows(); tI++)
+	{
+		for (size_t tJ = 0; tJ < Get_Num_Columns_of_Row(tI); tJ++)
+		{
+			switch (Get_Element_Type(tI, tJ))
+			{
+			case xstdlib::empty:
+				break;
+			case xstdlib::logical:
+				Set_Element(tI,tJ,false);
+				break;
+			case xstdlib::hex:
+				Set_Element(tI,tJ,0);
+				break;
+			case xstdlib::octal:
+				Set_Element(tI,tJ,0);
+				break;
+			case xstdlib::binary:
+				Set_Element(tI,tJ,0);
+				break;
+			case xstdlib::integer:
+				Set_Element(tI,tJ,0);
+				break;
+			case xstdlib::floating_point:
+				Set_Element(tI,tJ,0.0);
+				break;
+			case xstdlib::string:
+				Set_Element(tI,tJ,std::string());
+				break;
+			}
+		}
+	}
+}
+

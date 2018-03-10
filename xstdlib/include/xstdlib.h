@@ -53,11 +53,11 @@ private:
 
 	void Initialize(void)
 	{
-		m_lpszString = NULL; 
+		m_lpszString = nullptr; 
 		m_uiAllocated_Length = 0;
 		m_uiCurrent_Length = 0;
 		m_uiCharStringLength = 0;
-		m_lpszCharString = NULL;
+		m_lpszCharString = nullptr;
 	}
 	void Deallocate(void)
 	{
@@ -229,10 +229,12 @@ double xParse_Command_Line_Dbl(int iArgC,const char * lpszArgV[],const char * i_
 bool xParse_Command_Line_Bool(int iArgC,const char * lpszArgV[],const char * i_lpszOption, const double &bDefault_Value = false);
 unsigned int xParse_Command_Line_UInt(int iArgC,const char * lpszArgV[],const char * i_lpszOption, unsigned int i_uiDefault_Value = -1);
 int xParse_Command_Line_Int(int iArgC,const char * lpszArgV[],const char * i_lpszOption, int i_uiDefault_Value = -1);
-void xParse_Command_Line_String(int iArgC,const char * lpszArgV[],const char * i_lpszOption, char * o_lpszParameter, unsigned int i_uiMax_Parameter_Size, const char * i_lpszDefault_Value = NULL);
+void xParse_Command_Line_String(int iArgC,const char * lpszArgV[],const char * i_lpszOption, char * o_lpszParameter, unsigned int i_uiMax_Parameter_Size, const char * i_lpszDefault_Value = nullptr);
+std::string xParse_Command_Line_String(int iArgC,const char * lpszArgV[],const std::string & i_szOption, const std::string &i_szDefault_Value = std::string());
 
 void xRomanNumeralGenerator(char * lpszResult, unsigned int uiI);
 void xGet_Element_Symbol(unsigned int i_uiAtomic_Number, char * o_lpszElement_Symbol); // o_lpszElement_Symbol must be of size char [3] or longer; some elements require char [4]
+double xGet_Element_Number(const char * i_lpszNuclide); // read a element symbol and return the atomic number
 
 unsigned int xChoose_Allocation_Size_Word_Aligned(unsigned int i_uiNumber_Of_Elements, unsigned int i_uiElement_Size);
 unsigned int xChoose_Allocation_Size_Word_Aligned_Quiet(unsigned int i_uiNumber_Of_Elements, unsigned int i_uiElement_Size);
