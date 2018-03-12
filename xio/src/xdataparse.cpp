@@ -87,6 +87,8 @@ void xdataparse::Parse_String(const std::string & i_szString, bool i_bWhitespace
 				else
 					tRoot = std::string::npos;
 			}
+			else
+				tRoot = std::string::npos;
 		}
 		// add the data for this line to the data for this file
 		m_vvsData.push_back(vsLine);
