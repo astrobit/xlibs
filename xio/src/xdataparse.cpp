@@ -42,7 +42,7 @@ void xdataparse::Parse_String(const std::string & i_szString, bool i_bWhitespace
 		// parse the line, using the user specified column separator
 		// for each entry, create a string and add it to the vector vsLine
 		size_t tRoot = 0;
-		while (tRoot != std::string::npos)
+		while (tRoot != std::string::npos && tRoot < szLine.size())
 		{
 			while ((szLine[tRoot] == ' ' || szLine[tRoot] == '\t') && tRoot < szLine.size()) // ignore whitespace
 				tRoot++;
@@ -82,13 +82,18 @@ void xdataparse::Parse_String(const std::string & i_szString, bool i_bWhitespace
 				vsLine.push_back(szEntry);
 				vsLineTypes.push_back(xstdlib::identify_datatype(szEntry));
 
-				if (tPos < szLine.size())
+				if (tPos < (szLine.size() - 1))
 					tRoot = tPos + 1;
 				else
+				{
+					if (!i_bWhitespace_Separated && tPos == (szLine.size() - 1) && szLine[tPos] == i_chColumn_Seperator)
+					{
+						vsLine.push_back("");
+						vsLineTypes.push_back(xstdlib::empty);
+					}
 					tRoot = std::string::npos;
+				}
 			}
-			else
-				tRoot = std::string::npos;
 		}
 		// add the data for this line to the data for this file
 		m_vvsData.push_back(vsLine);
