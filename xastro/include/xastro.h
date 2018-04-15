@@ -12,6 +12,8 @@ public:
 	double	k_dGpc_cm;// Gigaparsec in cm
 	double	k_dAMU_gm;// AMU in grams
 
+	double	k_derg_cmm1; // erg / cm^-1
+	double	k_dcmm1_erg; // cm^-1 / erg
 	double	k_deV_erg;// eV / erg
 	double	k_derg_eV;// erg / eV;
 	double	k_dc;// Speed of  light, cm/s
