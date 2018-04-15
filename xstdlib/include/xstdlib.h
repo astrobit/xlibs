@@ -6,6 +6,9 @@
 #include <wchar.h>
 #include <string>
 #include <cstdint>
+#include <vector>
+#include <map>
+
 
 // test if a number is prime
 bool xTest_Prime(unsigned int i_uiI);
@@ -317,4 +320,46 @@ namespace xstdlib
 	{
 		pbin((void *)&i_ldData,sizeof(T));
 	}
+
+
+	class command_line_parse
+	{
+	private:
+		std::vector<std::string> m_vAllowed_Options;
+		std::map<std::string,std::string> m_mAllowed_Options_Explanations;
+		std::map<std::string,xstdlib::datatype> m_mAllowed_Option_Types;
+
+		std::string m_sCall_Path;
+
+		std::map<std::string,std::string> mapValues;
+		std::map<std::string,xstdlib::datatype> mapTypes;
+
+		std::vector<std::string> vUnrecognized_Options;
+		std::vector<std::string> vIncorrect_Type_Options;
+	public:
+		void 			Add_Allowed_Option(const std::string &i_sOption , xstdlib::datatype i_eType , const std::string & i_sExplanation);
+		void 			Add_Allowed_Options(const std::vector<std::string> & i_vsOption_List, const std::map<std::string,xstdlib::datatype> i_mOption_Types, const std::map<std::string, std::string> & i_msOption_Explanation_List);
+
+		command_line_parse(void);
+		command_line_parse(int i_iArg_Count, const char * i_lpszArg_Values[]);
+
+		int 			Read_Command_Line(int i_iArg_Count, const char * i_lpszArg_Values[]);
+
+		bool 			Key_Exists(const std::string & i_sOption);
+
+		double 			Get_Key_Value_Double(const std::string & i_sOption);
+		std::string 	Get_Key_Value_String(const std::string & i_sOption);
+		int 			Get_Key_Value_Int(const std::string & i_sOption);
+		unsigned int	Get_Key_Value_UInt(const std::string & i_sOption);
+		bool 			Get_Key_Value_Bool(const std::string & i_sOption);
+
+		std::string		Get_Call_Path(void){return m_sCall_Path;}
+		std::map<std::string,std::string> Get_All_Values(void){return mapValues;}
+		std::vector<std::string> Get_All_Keys(void);
+
+		void			Set_Key_Value(const std::string & i_sKey, const std::string & i_sValue);
+
+		std::vector<std::string> Get_Unrecognized_Options(void){return vUnrecognized_Options;}
+		std::vector<std::string> Get_Incorrect_Type_Options(void){return vIncorrect_Type_Options;}
+	};
 }
