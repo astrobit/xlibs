@@ -1815,9 +1815,9 @@ double xGet_Element_Number(const char * i_lpszNuclide)
 {
 	double dZ;
 	char lpszElem[4] = {(char)toupper(i_lpszNuclide[0]),0,0,0};
-	if (i_lpszNuclide[1] != 0)
+	if ((i_lpszNuclide[1] >= 'a' && i_lpszNuclide[1] <= 'z') || (i_lpszNuclide[1] >= 'A' && i_lpszNuclide[1] <= 'Z'))
 		lpszElem[1] = toupper(i_lpszNuclide[1]);
-	if (i_lpszNuclide[2] != 0 && lpszElem[0] == 'U' && lpszElem[1] == 'U' && ((i_lpszNuclide[2] >= 'a' && i_lpszNuclide[2] <= 'z') || (i_lpszNuclide[2] >= 'A' && i_lpszNuclide[2] <= 'Z')))
+	if (lpszElem[1] != 0 && i_lpszNuclide[2] != 0 && lpszElem[0] == 'U' && lpszElem[1] == 'U' && ((i_lpszNuclide[2] >= 'a' && i_lpszNuclide[2] <= 'z') || (i_lpszNuclide[2] >= 'A' && i_lpszNuclide[2] <= 'Z')))
 		lpszElem[2] = toupper(i_lpszNuclide[2]);
 	if (strcmp(lpszElem,"H") == 0)
 		dZ = 1.0;
@@ -2312,7 +2312,7 @@ xstdlib::datatype xstdlib::identify_datatype(const std::string i_szString)
 			eType = xstdlib::floating_point;
 		else
 		{
-			if (i_szString == "true" || i_szString == "false" || i_szString == "TRUE" || i_szString == "FALSE" || i_szString == "True" || i_szString == "False" || i_szString == "t" || i_szString == "f" || i_szString == "T" || i_szString == "F")
+			if (i_szString == ".true." || i_szString == ".false." || i_szString == "true" || i_szString == "false" || i_szString == ".TRUE." || i_szString == ".FALSE." || i_szString == "TRUE" || i_szString == "FALSE" || i_szString == "True" || i_szString == "False" || i_szString == "t" || i_szString == "f" || i_szString == "T" || i_szString == "F")
 				eType = xstdlib::logical;
 			else
 				eType = xstdlib::string;
