@@ -68,6 +68,8 @@ void xdataset_improved::Read_Data_File(std::string i_lpszFilename, bool i_bWhite
 			vvsDatatypes.push_back(m_vvsDatatypes[tI]);
 		}
 	}
+	m_vvsData.clear();
+	m_vvsDatatypes.clear();
 	m_vvsData = vvsData;
 	m_vvsDatatypes = vvsDatatypes;
 }
