@@ -22,6 +22,8 @@ public:
 	double	k_dMsun;// Mass of sun, in g
 	double	k_dLsun;// Luminosity of sun, erg/s
 	double	k_dRsun;// Radius of sun, cm
+	double	k_dSsun;// Solar irradiance, in erg / cm^2
+	double	k_dTsun; // Solar blackbody temperature, in K
 	double	k_dSigma_SB;// Stephen-Boltzmann constant, erg / cm^2 / K^4 / s
 	double	k_dWein;// Wein's law constant, cm K
 	double	k_dme;// Electron mass, g
@@ -30,6 +32,7 @@ public:
 	double	k_dKb;// Boltzmann constant, erg / K
 	double	k_dKb_eV;// Boltzmann constant, eV / K
 	double	k_de;// electron charge, esu
+	double	k_dQe; // fundamental charge, C 
 	double	k_da;// Radiation constant, erg / cm^3 / K^4
 	double	k_dpi;// pi
 	double	k_dexp; // e
@@ -49,6 +52,7 @@ public:
 	double	k_dRy; // Rydberg energy, erg
 	double	k_dRy_eV; // Rydberg energy, eV
 	double	k_dRy_cmm1; // Rydberg energy, cm^-1
+	double	k_dCs_Transition; // Cesium ground state hyperfine transition frequency, Hz
 	XASTRO_CONSTS(void);
 	void	Use_FLASH_Constants(void);
 };

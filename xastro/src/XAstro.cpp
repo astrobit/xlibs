@@ -4,40 +4,46 @@
 
 XASTRO_CONSTS::XASTRO_CONSTS(void)
 {
-//	k_dAU_cm = 1.5e13; // cm
-//	k_dpc_cm = 3.086e18; // 1 pc in cm
-//	k_dMpc_cm = 3.086e24; // 1 Mpc in cm
-//	k_dGpc_cm = 3.086e27; // 1 Gpc in cm
-
-	// fundamental constants
-	k_dc = 2.99792458e10; // cgs
-	k_dG = 6.67384e-8;//cgs
-	k_de = 4.80320451e-10;
-	k_dme = 9.10938291e-28;//g
-	k_dmp = 1.672621777e-24;//g
+	// fundamental numeric constants
 	k_dpi = acos(-1.0);
 	k_dexp = 2.718281828459045235;
 	k_dEuler = 0.577215664901532861;
-	k_dh = 6.62606957e-27; // erg s
-	k_dAvogadro = 6.02214129e+23;
-	k_dH0std = 100.e5 / (k_dMpc_cm); // s^{-1} h
-	k_dH0h = 0.726; // s^{-1} h // WMAP 7
-	k_dKb = 1.3806488e-16; // erg/K
-	k_dAMU_gm = 1.660538921e-24; // AMU in gm
 
-	k_dYear = 31556925.9747;//86400 * 365.25;// Tropical Year 1900 (Allen's 1976)  
-	k_dMsun = 1.98892e+33;//g
-	k_dLsun = 3.8515e+33;//erg/s
-	k_dRsun = 6.955e+10; // cm
-	k_dAU_cm = 1.49597870662e+13;
+	// defined fundamental constants (CODATA 2018 except AU)
+	k_dG = 6.67430e-8;//cgs
+	k_dc = 2.99792458e10; // cgs
+	k_dCs_Transition = 9.19263177e9;
+	k_dh = 6.62607015e-27; // erg s
+	k_dAvogadro = 6.0224076e+23;
+	k_dAU_cm = 1.49597870700e+13; // cm (IAU Resolution B2 2012)
+	k_dQe = 1.602176634000e-19; // Coulomb // fundamental charge in SI units
+	k_dKb = 1.380649000000e-16; // erg/K
+
+	// empirical fundamental constants
+	k_dYear = 365.2421896698 * 86400.0;// Tropical Year 2000 (McCarthy & Seidelmann 2009)  
+	k_dLsun = 3.828e+33;//erg/s (IAU Resolution B3 2015)
+	k_dRsun = 6.957e+10; // cm (IAU Resolution B3 2015)
+	k_dTsun = 5772; // K  (IAU Resolution B3 2015)
+	k_dSsun = 1.361e6; // erg cm^{-2} (IAU Resolution B3 2015)
+	k_dH0h = 0.726; // s^{-1} h // WMAP 7
+
+	// semi-empircal derived constants
+	k_de = k_dQe * k_dc / 10.0; // esu, now defined in terms of speed of light and fundamental charge. //4.80320451e-10;
+	k_dAMU_gm = 1.0e-3 / k_dAvogadro; // AMU in gm
+	k_dmp = 1.007276466621 * k_dAMU_gm;//g
+	k_dme = 5.48579909065e-4 * k_dAMU_gm;//g (CODATA 2018)
 
 	// derived constants
-	k_dpc_cm = k_dAU_cm * 648000 / k_dpi;//3.0856775807e+18; // 1 pc in cm
-	k_dMpc_cm = k_dpc_cm * 1e6;//3.0856775807e+24; // 1 Mpc in cm
-	k_dGpc_cm = k_dpc_cm * 1e12;//3.0856775807e+27; // 1 Gpc in cm
+	// Mass of Sun, based on orbital period and distance. Warning: this mass is wrong because of the explicit definition of the AU
+	k_dMsun = 1.3271244e26 / k_dG; // cm^3 s^2 (IAU Resolution B3 2015)
 
-	k_derg_eV = 1.0e8*k_de/k_dc;//1.602192e-11;//1. / k_deV_erg;
-	k_deV_erg = 1.0 / k_derg_eV;//6.2415e+11; // eV / erg
+	k_dpc_cm = k_dAU_cm * 648000.0 / k_dpi; // 1 pc in cm
+	k_dMpc_cm = k_dpc_cm * 1.0e6; // 1 Mpc in cm
+	k_dGpc_cm = k_dpc_cm * 1.0e12; // 1 Gpc in cm
+	k_dH0std = 100.0e5 / (k_dMpc_cm); // s^{-1} h
+
+	k_derg_eV = k_dQe * 1e7;//1. / k_deV_erg;
+	k_deV_erg = 1.0e-7 / k_dQe;// eV / erg
 
 	k_dhc = k_dh * k_dc;
 
@@ -45,16 +51,16 @@ XASTRO_CONSTS::XASTRO_CONSTS(void)
 	k_dcmm1_erg = 1.0 /  k_dhc; // cm^-1 / erg
 
 	k_da = 8.0 * k_dpi * k_dpi * k_dpi * k_dpi * k_dpi * k_dKb * k_dKb * k_dKb * k_dKb / (15.0 * k_dhc * k_dhc * k_dhc); //7.5657e-15; // erg cm^{-3} K^{-4}
-	k_dSigma_SB = k_da * k_dc * 0.25;//5.67051e-5;//cgs
-	k_dWein = k_dhc / k_dKb / 4.965114231e-7;//0.2897756e+7; // nm
-	k_dKb_eV = k_dKb * k_deV_erg;//8.6173324e-5; // eV/K 
+	k_dSigma_SB = k_da * k_dc * 0.25;////cgs
+	k_dWein = k_dhc / k_dKb / 4.965114231e-7;// nm
+	k_dKb_eV = k_dKb * k_deV_erg; // eV/K 
 	k_dhbar = k_dh / (2.0 * k_dpi); // erg s //@@
-	k_dh_eV = k_dh * k_deV_erg;// 4.135667516e-15; // eV s 
-	k_dhbar_eV = k_dhbar * k_deV_erg;//6.58211928e-16; // eV s
+	k_dh_eV = k_dh * k_deV_erg;// eV s 
+	k_dhbar_eV = k_dhbar * k_deV_erg;// eV s
 	k_dhc_eVnm = k_dh_eV * k_dc * 1e7;//eV nm
 	k_dH0 = k_dH0std * k_dH0h;
 	k_dAlpha = 2.0 * k_dpi * k_de * k_de / k_dhc;
-	k_da0 = k_dh * k_dh / (4.0 * k_dpi * k_dpi * k_dme * k_de * k_de); // = 5.2917721092e−9; // cm
+	k_da0 = k_dh * k_dh / (4.0 * k_dpi * k_dpi * k_dme * k_de * k_de); // cm
 	k_dRy = (2.0 * k_dpi * k_dpi * k_dme * k_de * k_de * k_de * k_de) / (k_dh * k_dh);
 	k_dRy_eV = k_dRy * k_deV_erg;
 	k_dRy_cmm1 = k_dRy / k_dhc;
