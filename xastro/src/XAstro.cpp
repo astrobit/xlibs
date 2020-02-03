@@ -1,5 +1,5 @@
 #include <xastro.h>
-#include <math.h>
+#include <cmath>
 
 
 XASTRO_CONSTS::XASTRO_CONSTS(void)
@@ -29,13 +29,28 @@ XASTRO_CONSTS::XASTRO_CONSTS(void)
 
 	// semi-empircal derived constants
 	k_de = k_dQe * k_dc / 10.0; // esu, now defined in terms of speed of light and fundamental charge. //4.80320451e-10;
-	k_dAMU_gm = 1.0e-3 / k_dAvogadro; // AMU in gm
+	k_dAMU_gm = 1.0 / k_dAvogadro; // AMU in gm
 	k_dmp = 1.007276466621 * k_dAMU_gm;//g
 	k_dme = 5.48579909065e-4 * k_dAMU_gm;//g (CODATA 2018)
 
 	// derived constants
-	// Mass of Sun, based on orbital period and distance. Warning: this mass is wrong because of the explicit definition of the AU
-	k_dMsun = 1.3271244e26 / k_dG; // cm^3 s^2 (IAU Resolution B3 2015)
+	// combined mass of Sun and Newton's gravitational constant
+	k_dGMsun = 1.3271244e26; // cm^3 s^2 (IAU Resolution B3 2015)
+	k_dMsun = k_dGMsun / k_dG; // g (IAU Resolution B3 2015)
+
+	// combined mass of Jupiter and Newton's gravitational constant
+	k_dGMjupiter = 1.2668653e23; // cm^3 s^2 (IAU Resolution B3 2015)
+	k_dMjupiter = k_dGMjupiter / k_dG; // g (IAU Resolution B3 2015)
+	k_dRjupiterPolar = 6.6854e9; // cm  (IAU Resolution B3 2015)
+	k_dRjupiterEquatorial = 7.1492e9; // cm  (IAU Resolution B3 2015)
+	k_dRjupiter = std::pow(k_dRjupiterPolar * k_dRjupiterEquatorial * k_dRjupiterEquatorial,1.0/3.0); // average radius for volume, cm
+
+	// combined mass of Jupiter and Newton's gravitational constant
+	k_dGMearth = 3.986004e20; // cm^3 s^2 (IAU Resolution B3 2015)
+	k_dMearth = k_dGMearth / k_dG; // g (IAU Resolution B3 2015)
+	k_dRearthPolar = 6.3568e8; // cm  (IAU Resolution B3 2015)
+	k_dRearthEquatorial = 6.3781e8; // cm  (IAU Resolution B3 2015)
+	k_dRearth = std::pow(k_dRearthPolar * k_dRearthEquatorial * k_dRearthEquatorial,1.0/3.0); // average radius for volume, cm
 
 	k_dpc_cm = k_dAU_cm * 648000.0 / k_dpi; // 1 pc in cm
 	k_dMpc_cm = k_dpc_cm * 1.0e6; // 1 Mpc in cm
@@ -65,6 +80,8 @@ XASTRO_CONSTS::XASTRO_CONSTS(void)
 	k_dRy_eV = k_dRy * k_deV_erg;
 	k_dRy_cmm1 = k_dRy / k_dhc;
 	k_dmh = k_dme + k_dmp - k_dRy / (k_dc * k_dc);
+	k_dSigma_Te = k_dQe * k_dQe * k_dQe * k_dQe / (k_dme * k_dme) * 8.0 * k_dpi / 3.0 * 1.0e4;
+	k_dSigma_Tp = k_dQe * k_dQe * k_dQe * k_dQe / (k_dmp * k_dmp) * 8.0 * k_dpi / 3.0 * 1.0e4;
 }
 void	XASTRO_CONSTS::Use_FLASH_Constants(void)
 {
