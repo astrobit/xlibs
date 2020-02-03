@@ -19,11 +19,22 @@ public:
 	double	k_dc;// Speed of  light, cm/s
 	double	k_dG;// Newton's gravitational constant, cgs
 	double	k_dYear;// Length of year in seconds
+	double	k_dGMsun;// Mass of sun, in g
 	double	k_dMsun;// Mass of sun, in g
 	double	k_dLsun;// Luminosity of sun, erg/s
 	double	k_dRsun;// Radius of sun, cm
 	double	k_dSsun;// Solar irradiance, in erg / cm^2
 	double	k_dTsun; // Solar blackbody temperature, in K
+	double	k_dGMearth;// Mass of sun, in g
+	double	k_dMearth;// Mass of sun, in g
+	double	k_dRearth;// mean radius of Earth at the poles, cm
+	double	k_dRearthPolar;// Radius of Earth at the poles, cm
+	double	k_dRearthEquatorial;// Radius of Earth at the equator, cm
+	double	k_dGMjupiter;// Mass of sun, in g
+	double	k_dMjupiter;// Mass of sun, in g
+	double	k_dRjupiter;// mean radius of Jupiter at the poles, cm
+	double	k_dRjupiterPolar;// Radius of Jupiter at the poles, cm
+	double	k_dRjupiterEquatorial;// Radius of Jupiter at the equator, cm
 	double	k_dSigma_SB;// Stephen-Boltzmann constant, erg / cm^2 / K^4 / s
 	double	k_dWein;// Wein's law constant, cm K
 	double	k_dme;// Electron mass, g
@@ -53,6 +64,9 @@ public:
 	double	k_dRy_eV; // Rydberg energy, eV
 	double	k_dRy_cmm1; // Rydberg energy, cm^-1
 	double	k_dCs_Transition; // Cesium ground state hyperfine transition frequency, Hz
+
+	double	k_dSigma_Te; // Thomson cross-section of electron, cm^-2
+	double	k_dSigma_Tp; // Thomson cross-section of proton, cm^-2
 	XASTRO_CONSTS(void);
 	void	Use_FLASH_Constants(void);
 };
