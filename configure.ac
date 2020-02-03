@@ -1,7 +1,7 @@
 # Release version
 m4_define([package_version_major],[1])
-m4_define([package_version_minor],[8])
-m4_define([package_version_micro],[2])
+m4_define([package_version_minor],[9])
+m4_define([package_version_micro],[0])
  
 # API version
 m4_define([api_version],package_version_major)
@@ -14,8 +14,8 @@ LT_INIT
 PKG_PROG_PKG_CONFIG
 PKG_INSTALLDIR
 
-MOD_PROG_ENVMOD
-MOD_INSTALLDIR
+#MOD_PROG_ENVMOD
+#MOD_INSTALLDIR
 
 AM_INIT_AUTOMAKE
 
@@ -48,9 +48,9 @@ AC_CHECK_HEADERS(hdf5.h) # make sure HDF5 is installed -
 
 AC_CONFIG_FILES([Makefile xstdlib/Makefile xastro/Makefile xcpp/Makefile xflash/Makefile xio/Makefile xmath/Makefile xtime/Makefile testing/Makefile xtools/Makefile xstdlib/xstdlib-$API_VERSION.pc:xstdlib/xstdlib.pc.in xastro/xastro-$API_VERSION.pc:xastro/xastro.pc.in xcpp/xcpp-$API_VERSION.pc:xcpp/xcpp.pc.in xflash/xflash-$API_VERSION.pc:xflash/xflash.pc.in xio/xio-$API_VERSION.pc:xio/xio.pc.in xio/xio_mpi-$API_VERSION.pc:xio/xio_mpi.pc.in xmath/xmath-$API_VERSION.pc:xmath/xmath.pc.in xtime/xtime-$API_VERSION.pc:xtime/xtime.pc.in ],[],[API_VERSION='$API_VERSION'])
 
-AS_IF( [test ${MODTYPE} = "LMOD"],
-	[AC_CONFIG_FILES([$PACKAGE_VERSION.lua:modfile.lua.in])],
-	[AS_IF( [test ${MODTYPE} = "ENVMOD"], [AC_CONFIG_FILES([$PACKAGE_VERSION:modfile.in])], [])])
+#AS_IF( [test ${MODTYPE} = "LMOD"],
+#	[AC_CONFIG_FILES([$PACKAGE_VERSION.lua:modfile.lua.in])],
+#	[AS_IF( [test ${MODTYPE} = "ENVMOD"], [AC_CONFIG_FILES([$PACKAGE_VERSION:modfile.in])], [])])
 
 AC_PROG_MKDIR_P
 
