@@ -844,13 +844,13 @@ public:
 	inline bool isnormal(void) const
 	{
 		//pbin(m_nMantissa);
-		return (iszero() || (isfinite() && ((m_nMantissa & highbit64) == highbit64)));
+		return (iszero() || (isfinite() && ((m_nMantissa & highbit64) != 0)));
 	}
-	inline bool issubnormal(void) const
-	{
+//	inline bool issubnormal(void) const
+//	{
 		//pbin(m_nMantissa);
-		return (iszero() || (isfinite() && ((m_nMantissa & highbit64) != highbit64)));
-	}
+//		return (iszero() || (isfinite() && ((m_nMantissa & highbit64) == 0)));
+//	}
 	inline bool signbit(void) const
 	{
 		return ((m_nExponent & highbit64) == highbit64);

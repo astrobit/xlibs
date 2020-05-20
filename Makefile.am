@@ -6,13 +6,13 @@ SUBDIRS = xstdlib xio xmath xastro xcpp xflash xtime testing xtools
 #everything below here creates a module for xlibs in the user's privatemodules directory (if it exists) or in the data directory
 # it will create a .lua module for lmod, and a regular module file for env. modules.
 # the module will be created in a directory called ${PACKAGE_NAME} and have a filename of ${PACKAGE_VERSION}. This is the format used by modules for versioning.
-if INSTALLMOD
-if HAVEENVMOD
-modfile_DATA = ${PACKAGE_VERSION}
-else
-modfile_DATA = ${PACKAGE_VERSION}.lua
-endif
-endif
+#if INSTALLMOD
+#if HAVEENVMOD
+#modfile_DATA = ${PACKAGE_VERSION}
+#else
+#modfile_DATA = ${PACKAGE_VERSION}.lua
+#endif
+#endif
 
 #MODFILEINSTPATH=`echo ${modfiledir}"/"${PACKAGE_NAME}`
 #
