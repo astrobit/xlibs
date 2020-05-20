@@ -54,7 +54,7 @@ XASTRO_CONSTS::XASTRO_CONSTS(void)
 
 	k_dpc_cm = k_dAU_cm * 648000.0 / k_dpi; // 1 pc in cm
 	k_dMpc_cm = k_dpc_cm * 1.0e6; // 1 Mpc in cm
-	k_dGpc_cm = k_dpc_cm * 1.0e12; // 1 Gpc in cm
+	k_dGpc_cm = k_dpc_cm * 1.0e9; // 1 Gpc in cm
 	k_dH0std = 100.0e5 / (k_dMpc_cm); // s^{-1} h
 
 	k_derg_eV = k_dQe * 1e7;//1. / k_deV_erg;
