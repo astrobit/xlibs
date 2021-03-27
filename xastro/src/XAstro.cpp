@@ -14,7 +14,7 @@ XASTRO_CONSTS::XASTRO_CONSTS(void)
 	k_dc = 2.99792458e10; // cgs
 	k_dCs_Transition = 9.19263177e9;
 	k_dh = 6.62607015e-27; // erg s
-	k_dAvogadro = 6.0224076e+23;
+	k_dAvogadro = 6.02214076e+23;
 	k_dAU_cm = 1.49597870700e+13; // cm (IAU Resolution B2 2012)
 	k_dQe = 1.602176634000e-19; // Coulomb // fundamental charge in SI units
 	k_dKb = 1.380649000000e-16; // erg/K
@@ -29,9 +29,9 @@ XASTRO_CONSTS::XASTRO_CONSTS(void)
 
 	// semi-empircal derived constants
 	k_de = k_dQe * k_dc / 10.0; // esu, now defined in terms of speed of light and fundamental charge. //4.80320451e-10;
-	k_dAMU_gm = 1.0 / k_dAvogadro; // AMU in gm
-	k_dmp = 1.007276466621 * k_dAMU_gm;//g
-	k_dme = 5.48579909065e-4 * k_dAMU_gm;//g (CODATA 2018)
+	k_dAMU_gm = 1.66053906660e-24;//1.0 / k_dAvogadro; // AMU in gm // due to the 2019 change in Avogadro's number, the AMU is no longer exactly 1/Na.
+	k_dmp = 1.67262192369e-24;//g
+	k_dme = 9.1093837015e-28;//g (CODATA 2018)
 
 	// derived constants
 	// combined mass of Sun and Newton's gravitational constant
