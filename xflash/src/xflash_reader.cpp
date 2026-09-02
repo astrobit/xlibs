@@ -133,24 +133,25 @@ void XFLASH_File::Release_Particles(XFLASH_Particle_Collection * i_lpiParticles)
 		delete [] i_lpiParticles;
 }
 
+
 void XFLASH_File::Open(const char *i_lpszFilename)
 {
 	FILE * fileIn;
-	int lpcSignature[8];
+	char lpcSignature[64];
 
-	m_lpszFilename = new char[strlen(i_lpszFilename) + 1];
+	m_lpszFilename = new char[strlen(i_lpszFilename) + 2];
 	strcpy(m_lpszFilename,i_lpszFilename);
 
   /* From H5Fpkg.h */
   /* const char *H5F_SIGNATURE = "\211HDF\r\n\032\n"; */
 	const unsigned char chH5F_SIGNATURE[8] = {137, 72, 68, 70, 13, 10, 26, 10};
 	const int iH5F_SIGNATURE_LEN = sizeof(chH5F_SIGNATURE);
-
-	const char *chNCDF_SIGNATURE = "CDF";
+    
+	const char chNCDF_SIGNATURE[3] = {'C','D','F'};
 	const int iNCDF_SIGNATURE_LEN = 3;
 
 	fileIn = fopen(i_lpszFilename, "r");
-	if (fileIn)
+	if (fileIn != nullptr)
 	{
 		fread(lpcSignature,1,iH5F_SIGNATURE_LEN,fileIn);
 	    bool bIsHDF5 = (memcmp(lpcSignature,chH5F_SIGNATURE,iH5F_SIGNATURE_LEN) == 0);
@@ -163,7 +164,7 @@ void XFLASH_File::Open(const char *i_lpszFilename)
 		else
 			m_eFormat = FMT_HDF4;
 		fclose(fileIn);
-		fileIn = NULL;
+		fileIn = nullptr;
 
 		switch (m_eFormat)
 		{
@@ -186,6 +187,7 @@ void XFLASH_File::Open(const char *i_lpszFilename)
 	//	#endif
 
 		default:
+            fprintf(stderr,"File format not recognized.\n");
 			break;
 		}
 	}
@@ -245,10 +247,13 @@ void XFLASH_File::Close(void)
 	case FMT_HDF5:
 	case FMT_HDF5_PMESH:
 	case FMT_HDF5_CHOMBO:
-		H5Fclose((hid_t)m_iFile_Handle);
+        if (m_lpFile_Handle != nullptr)
+    		H5Fclose(((hid_t*)m_lpFile_Handle)[0]);
 		break;
 	#endif
 
+    if (m_lpFile_Handle != nullptr)
+        delete (hid_t*)m_lpFile_Handle;
 //	#ifndef NO_NCDF
 //	case FR_NCDF:
 //		ncmpi_close(*((int *)m_lpvFile_Handle));
@@ -265,34 +270,34 @@ void XFLASH_File::Close(void)
 void XFLASH_File::Void(void)
 {
 	m_eFormat = FMT_INVALID;
-	m_lpszFilename = NULL;
+	m_lpszFilename = nullptr;
 	m_uiNum_Blocks = 0;
 	m_uiNum_Cells_per_Block = 0;
 	m_uiBlock_Dimensions[0] = 0; // assuming 3-d blocks
 	m_uiBlock_Dimensions[1] = 0; // assuming 3-d blocks
 	m_uiBlock_Dimensions[2] = 0; // assuming 3-d blocks
 	m_uiNum_Dimensions = 0;
-	m_lpeBlock_Node_Type = NULL;
-	m_lpdBlock_Coords = NULL;
-	m_lpdBlock_Bounding_Box = NULL;
-	m_lpdBlock_Size = NULL;
-	m_lpiRefinement_Levels = NULL;
+	m_lpeBlock_Node_Type = nullptr;
+	m_lpdBlock_Coords = nullptr;
+	m_lpdBlock_Bounding_Box = nullptr;
+	m_lpdBlock_Size = nullptr;
+	m_lpiRefinement_Levels = nullptr;
 	
 	m_uiNum_Vars = 0;
-	m_lpszVar_Names = NULL;
-	m_lpeVar_Types = NULL;
+	m_lpszVar_Names = nullptr;
+	m_lpeVar_Types = nullptr;
 	
 	m_uiNum_Particles = 0;
 	m_uiNum_Particle_Int_Properties = 0;
-	m_lpszParticle_Int_Property_Names = NULL;
+	m_lpszParticle_Int_Property_Names = nullptr;
 	m_uiNum_Particle_Real_Properties = 0;
-	m_lpszParticle_Real_Property_Names = NULL;
+	m_lpszParticle_Real_Property_Names = nullptr;
 
-	m_lpuiBlocks_Per_Refine_Level = NULL; // Chombo HDF5 only
-	m_lpdLevel_Size  = NULL;
+	m_lpuiBlocks_Per_Refine_Level = nullptr; // Chombo HDF5 only
+	m_lpdLevel_Size  = nullptr;
 	m_uiNum_Levels = 0;
-
-	m_iFile_Handle = -1;
+	
+	m_lpFile_Handle = nullptr;
 
 }
 

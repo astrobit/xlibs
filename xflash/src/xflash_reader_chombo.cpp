@@ -21,7 +21,7 @@ XFLASH_Block * XFLASH_File::GetBlock_HDF5_Chombo(unsigned int i_uiVariable_ID, u
 {
 	XFLASH_Block * lpRet = NULL;
 	char refine_level_str[MAX_STRING_LENGTH];
-	hid_t handle = (hid_t)m_iFile_Handle;
+	hid_t handle = ((hid_t*)m_lpFile_Handle)[0];
 	int refine_level, ncells;
 	int lo_i, lo_j, lo_k, hi_i, hi_j, hi_k;
 	int dim, nxb, nyb, nzb;
@@ -127,7 +127,7 @@ XFLASH_Block * XFLASH_File::GetBlock_HDF5_Chombo(unsigned int i_uiVariable_ID, u
 
 void XFLASH_File::Open_HDF5_Chombo(void)
 {
-	hid_t handle = (hid_t)m_iFile_Handle;
+	hid_t handle = ((hid_t*)m_lpFile_Handle)[0];
 
 	unsigned int nRefineLevels, numVariables, dim;
 	unsigned int n_rBlocks ;

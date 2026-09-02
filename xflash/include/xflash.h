@@ -1,6 +1,4 @@
 #pragma once
-
-
 #define FR_MDIM 3
 #define FR_VAR_STRING_SIZE 4
 #define FR_LEAF_NODE 1
@@ -81,7 +79,7 @@ public:
 private:
 	XFLASH_FILE_FORMAT	m_eFormat;
 
-	int					m_iFile_Handle;
+	void *				m_lpFile_Handle;
 
 	void				Void(void);
 
@@ -91,7 +89,7 @@ private:
 //#endif
 
 #ifndef NO_HDF5
-	int								Slurp_HDF5(int mem_type, const char *name, int dim, void *target);
+	int								Slurp_HDF5(void * mem_type, const char *name, int dim, void *target);
 	void							GetNumParticles_HDF5(void);
 	void							Get_data_names_HDF5(void);
 	void 							Open_HDF5(void);

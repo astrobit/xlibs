@@ -46,11 +46,12 @@ bool NameCompare(const char *a, const char *b)
 // This function reads a dataset from an HDF5 file
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-int XFLASH_File::Slurp_HDF5(int mem_type, const char *name, int dim, void *target)
+int XFLASH_File::Slurp_HDF5(void * mem_type, const char *name, int dim, void *target)
 {
 	hid_t dataset, dataset_type, dataspace, memspace;
 	herr_t status;
 	bool bAuto_Type = false;
+	hid_t hMem;
 
 	/*for special handling*/
 	hsize_t dimens_3d[3],maxdimens_3d[3], mem_dimens_3d[3];
@@ -62,10 +63,12 @@ int XFLASH_File::Slurp_HDF5(int mem_type, const char *name, int dim, void *targe
 
 
 
-	if (!mem_type)
+	if (mem_type == nullptr)
 		bAuto_Type = true;
+    else
+        hMem = ((hid_t *)mem_type)[0];
 
-	dataset = H5Dopen((hid_t)m_iFile_Handle, name);
+	dataset = H5Dopen(((hid_t*)m_lpFile_Handle)[0], name);
 	if (dataset < 0)
 	{
 		printf("Error reading \"%s\": dataset not found\n", name);
@@ -78,14 +81,17 @@ int XFLASH_File::Slurp_HDF5(int mem_type, const char *name, int dim, void *targe
    */
 	if (bAuto_Type)
 	{ /* get type from dataset */
-		mem_type = H5Dget_type(dataset);
-		dataset_type = mem_type;
+		hMem = H5Dget_type(dataset);
+		dataset_type = hMem;
 	}
 	else
 	{ /*just check type */
 		dataset_type = H5Dget_type(dataset);
-		if (H5Tget_class(mem_type) != H5Tget_class(dataset_type))
-			printf("\"%s\" has an unexpected data type\n", name);
+		H5T_class_t tMem = H5Tget_class(hMem);
+		H5T_class_t tDataset = H5Tget_class(dataset_type);
+		
+		if (tMem != tDataset)
+			printf("\"%s\" has an unexpected data type: %i %i\n", name, tMem, tDataset);
 	}
   
 	/*This has to change for bounding box*/
@@ -121,7 +127,7 @@ int XFLASH_File::Slurp_HDF5(int mem_type, const char *name, int dim, void *targe
 
 		H5Sselect_hyperslab(memspace, H5S_SELECT_SET, start_3d, stride_3d, count_3d, NULL);
 
-		status = H5Dread(dataset, mem_type, memspace, dataspace, H5P_DEFAULT, target);
+		status = H5Dread(dataset, hMem, memspace, dataspace, H5P_DEFAULT, target);
 		if (status < 0)
 		{
 			printf("Error reading \"%s\"\n", name);
@@ -158,7 +164,7 @@ int XFLASH_File::Slurp_HDF5(int mem_type, const char *name, int dim, void *targe
 
 		H5Sselect_hyperslab(memspace, H5S_SELECT_SET, start_2d, stride_2d, count_2d, NULL);
 
-		status = H5Dread(dataset, mem_type, memspace, dataspace, H5P_DEFAULT, target);
+		status = H5Dread(dataset, hMem, memspace, dataspace, H5P_DEFAULT, target);
 		if (status < 0)
 		{
 			printf("Error reading \"%s\"\n", name);
@@ -221,7 +227,7 @@ XFLASH_Particle_Collection *  XFLASH_File::GetParticles_HDF5(unsigned int starti
 			lpRet->m_lpiProps = new int[to_read * m_uiNum_Particle_Int_Properties];
 			lpRet->m_lpdProps = new double[to_read * m_uiNum_Particle_Real_Properties];
 			
-			dataset = H5Dopen((hid_t)m_iFile_Handle, "tracer particles");
+			dataset = H5Dopen(((hid_t*)m_lpFile_Handle)[0], "tracer particles");
 
 			dataspace = H5Dget_space(dataset);
 
@@ -289,7 +295,7 @@ void XFLASH_File::GetNumParticles_HDF5(void)
 
 	/* get the dataset ID for the tracer partlcies record, and the dataspace in
 	this record */
-	dataset = H5Dopen((hid_t) m_iFile_Handle, "tracer particles");
+	dataset = H5Dopen(((hid_t*)m_lpFile_Handle)[0], "tracer particles");
 
 	/* restore the error handling */
 	H5Eset_auto(old_func, old_client_data);
@@ -313,6 +319,7 @@ void XFLASH_File::GetNumParticles_HDF5(void)
 
 
 
+
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
 //	Open_HDF5
@@ -320,10 +327,9 @@ void XFLASH_File::GetNumParticles_HDF5(void)
 //  This function opens the file, determines its format, and reads the data
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////
-
 void XFLASH_File::Open_HDF5(void)
 {
-//	hid_t handle;
+    hid_t handle;
 	hid_t gid;
 	int status;
 
@@ -331,13 +337,15 @@ void XFLASH_File::Open_HDF5(void)
 	status = H5Eset_auto(NULL, NULL);
 
  
-  	m_iFile_Handle = H5Fopen(m_lpszFilename, H5F_ACC_RDONLY, H5P_DEFAULT);
+    m_lpFile_Handle = new hid_t;
+  	((hid_t*)m_lpFile_Handle)[0] = H5Fopen(m_lpszFilename, H5F_ACC_RDONLY, H5P_DEFAULT);
 //  	*((hid_t *)out->handle) = handle;
 
-  	if (m_iFile_Handle >= 0)
+  	if (((hid_t*)m_lpFile_Handle)[0] != H5I_INVALID_HID)
 	{
 	  	//Determine if this is a Chombo or Paramesh file
-		if( (gid= H5Gopen((hid_t)m_iFile_Handle, "Chombo_global")) < 0)
+	  	gid= H5Gopen(((hid_t*)m_lpFile_Handle)[0], "Chombo_global");
+	  	if (gid == H5I_INVALID_HID)
 		{
 			m_eFormat = FMT_HDF5_PMESH;
 			Open_HDF5_Pmesh();
@@ -348,7 +356,7 @@ void XFLASH_File::Open_HDF5(void)
 			Open_HDF5_Chombo();
 		}
 
-		H5Gclose(gid);
+        H5Gclose(gid);
 	}
 }
 
@@ -395,7 +403,7 @@ void XFLASH_File::Open_HDF5_Pmesh(void)
 	hid_t dataspace, memspace, dataset;//, name_dataset;
 //	hsize_t maximum_dims[10];
 //	hsize_t dataspace_dims[10];
-	hsize_t dimens_1d, maxdimens_1d;
+	hsize_t *dimens_1d, *maxdimens_1d;
 	hid_t string_type;
 	hid_t int_list_type;
 	int_list_t *int_list;
@@ -415,19 +423,30 @@ void XFLASH_File::Open_HDF5_Pmesh(void)
 
 //	int num_vars;
 
-
-	/* integer scalars */
-
 	/* grab the data with the name 'integer scalars' from the file */
-	dataset = H5Dopen((hid_t)m_iFile_Handle, "integer scalars"); 
+	dataset = H5Dopen(((hid_t*)m_lpFile_Handle)[0], "integer scalars"); 
+	if (dataset == H5I_INVALID_HID)
+	{
+        printf("H5Dopen failed\n");
+        return;
+	}
 
 	dataspace = H5Dget_space(dataset);
+	if (dataspace == H5I_INVALID_HID)
+	{
+        printf("get space returned invalid handle\n");
+	    return;
+	}
+	
+	int nDims = H5Sget_simple_extent_ndims(dataspace);
+	dimens_1d = new hsize_t[nDims];
+	maxdimens_1d = new hsize_t[nDims];
 
 	/* read the extent of 'dataspace' into 'dimens_1d' */
-	H5Sget_simple_extent_dims(dataspace, &dimens_1d, &maxdimens_1d);
+	H5Sget_simple_extent_dims(dataspace, dimens_1d, maxdimens_1d);
 
 	/* malloc a pointer to a list of int_list_t's */
-	int_list = new int_list_t[dimens_1d]; 
+	int_list = new int_list_t[dimens_1d[0]]; 
 
 	/* create an empty vessel sized to hold one int_list_t's worth of data */
 	int_list_type = H5Tcreate(H5T_COMPOUND, sizeof(int_list_t));
@@ -441,14 +460,14 @@ void XFLASH_File::Open_HDF5_Pmesh(void)
 	H5Tinsert(int_list_type, "value", HOFFSET(int_list_t, value), H5T_NATIVE_INT);
 
 	/* create a new simple dataspace of 1 dimension and size of 'dimens_1d' */
-	memspace = H5Screate_simple(1, &dimens_1d, NULL);
+	memspace = H5Screate_simple(1, dimens_1d, NULL);
 
 	status = H5Dread(dataset, int_list_type, memspace, dataspace, H5P_DEFAULT, int_list);
 	if (status >= 0)
 	{
 		/* compare this value's 'name' field to the word we're looking for
 		using our 'specialcmp' function (defined above) */  
-		for (i = 0; i < dimens_1d; i++)
+		for (i = 0; i < dimens_1d[0]; i++)
 		{
 			if (NameCompare(int_list[i].name, "globalnumblocks")) m_uiNum_Blocks = int_list[i].value;
 			else if (NameCompare(int_list[i].name, "nxb")) m_uiBlock_Dimensions[0] = int_list[i].value;
@@ -463,15 +482,15 @@ void XFLASH_File::Open_HDF5_Pmesh(void)
 		H5Sclose(dataspace);
 		H5Dclose(dataset);
 
-		dataset = H5Dopen((hid_t)m_iFile_Handle, "real scalars"); 
+		dataset = H5Dopen(((hid_t*)m_lpFile_Handle)[0], "real scalars"); 
 
 		dataspace = H5Dget_space(dataset);
 
 		/* read the extent of 'dataspace' into 'dimens_1d' */
-		H5Sget_simple_extent_dims(dataspace, &dimens_1d, &maxdimens_1d);
+		H5Sget_simple_extent_dims(dataspace, dimens_1d, maxdimens_1d);
 
 		/* malloc a pointer to a list of int_list_t's */
-		real_list = new real_list_t[dimens_1d]; 
+		real_list = new real_list_t[dimens_1d[0]]; 
 
 		/* create an empty vessel sized to hold one int_list_t's worth of data */
 		real_list_type = H5Tcreate(H5T_COMPOUND, sizeof(real_list_t));
@@ -485,14 +504,14 @@ void XFLASH_File::Open_HDF5_Pmesh(void)
 		H5Tinsert(real_list_type, "value", HOFFSET(real_list_t, value), H5T_NATIVE_DOUBLE);
 
 		/* create a new simple dataspace of 1 dimension and size of 'dimens_1d' */
-		memspace = H5Screate_simple(1, &dimens_1d, NULL);
+		memspace = H5Screate_simple(1, dimens_1d, NULL);
 
 		status = H5Dread(dataset, real_list_type, memspace, dataspace, H5P_DEFAULT, real_list);
 		if (status >= 0)
 		{
 			/* compare this value's 'name' field to the word we're looking for
 			using our 'specialcmp' function (defined above) */  
-			for (i = 0; i < dimens_1d; i++)
+			for (i = 0; i < dimens_1d[0]; i++)
 			{
 				if (NameCompare(real_list[i].name, "time")) m_dTime = real_list[i].value;
 				else if (NameCompare(real_list[i].name, "redshift")) m_dRedshift = real_list[i].value;
@@ -521,20 +540,22 @@ void XFLASH_File::Open_HDF5_Pmesh(void)
 		m_lpdBlock_Coords = new double[m_uiNum_Blocks * m_uiNum_Dimensions];
 		m_lpdBlock_Bounding_Box = new double[m_uiNum_Blocks * m_uiNum_Dimensions * 2];
 		m_lpdBlock_Size = new double[m_uiNum_Blocks * m_uiNum_Dimensions];
+		
+		hid_t tTypes[2] = {H5T_NATIVE_INT,H5T_NATIVE_DOUBLE};
 
-		if(Slurp_HDF5(H5T_NATIVE_INT, "node type",m_uiNum_Dimensions, m_lpeBlock_Node_Type))
+		if(Slurp_HDF5(&tTypes[0], "node type",m_uiNum_Dimensions, m_lpeBlock_Node_Type))
 			return;
 
-		if(Slurp_HDF5(H5T_NATIVE_INT, "refine level",m_uiNum_Dimensions, m_lpiRefinement_Levels))
+		if(Slurp_HDF5(&tTypes[0], "refine level",m_uiNum_Dimensions, m_lpiRefinement_Levels))
 			return;
 
-		if(Slurp_HDF5(H5T_NATIVE_DOUBLE, "coordinates", m_uiNum_Dimensions, m_lpdBlock_Coords))
+		if(Slurp_HDF5(&tTypes[1], "coordinates", m_uiNum_Dimensions, m_lpdBlock_Coords))
 			return;
 
-		if(Slurp_HDF5(H5T_NATIVE_DOUBLE, "block size", m_uiNum_Dimensions, m_lpdBlock_Size))
+		if(Slurp_HDF5(&tTypes[1], "block size", m_uiNum_Dimensions, m_lpdBlock_Size))
 			return;
 
-		if(Slurp_HDF5(H5T_NATIVE_DOUBLE, "bounding box", m_uiNum_Dimensions, m_lpdBlock_Bounding_Box))
+		if(Slurp_HDF5(&tTypes[1], "bounding box", m_uiNum_Dimensions, m_lpdBlock_Bounding_Box))
 			return;
 
 
@@ -678,7 +699,7 @@ XFLASH_Block * XFLASH_File::GetBlock_HDF5(unsigned int i_uiVariable_ID, unsigned
 		ierr = H5Sselect_hyperslab(memspace, H5S_SELECT_SET, start_4d, stride_4d, count_4d, NULL);
 
 	  /* Now read */
-		dataset = H5Dopen((hid_t)m_iFile_Handle, m_lpszVar_Names[i_uiVariable_ID]);
+		dataset = H5Dopen(((hid_t*)m_lpFile_Handle)[0], m_lpszVar_Names[i_uiVariable_ID]);
 		status  = H5Dread(dataset, H5T_NATIVE_DOUBLE, memspace, dataspace, H5P_DEFAULT, (void *) lpRet->m_lpdData);
 		H5Sclose(memspace);
 		H5Sclose(dataspace);
@@ -708,17 +729,17 @@ void XFLASH_File::Get_data_names_HDF5(void)
 	unsigned int i, iVar;
 
 
-	H5Gget_num_objs((hid_t)m_iFile_Handle, &num_objs);
+	H5Gget_num_objs(((hid_t*)m_lpFile_Handle)[0], &num_objs);
 	m_uiNum_Vars = 0;
 	for( i = 0; i < num_objs; ++i)
 	{
 
     /*have to iterate over objects, look at dimensions, and store the ones we want*/
-	    if(H5Gget_objtype_by_idx((hid_t)m_iFile_Handle, i) == H5G_DATASET)
+	    if(H5Gget_objtype_by_idx(((hid_t*)m_lpFile_Handle)[0], i) == H5G_DATASET)
 		{
-			H5Gget_objname_by_idx((hid_t)m_iFile_Handle, (hsize_t)i,obj_name, 80);
+			H5Gget_objname_by_idx(((hid_t*)m_lpFile_Handle)[0], (hsize_t)i,obj_name, 80);
 		
-			dataset = H5Dopen((hid_t)m_iFile_Handle, obj_name);
+			dataset = H5Dopen(((hid_t*)m_lpFile_Handle)[0], obj_name);
 			dataspace = H5Dget_space(dataset);
 			if(dataspace >= 0 && H5Sget_simple_extent_ndims(dataspace) == 4)
 			    m_uiNum_Vars++;
@@ -732,11 +753,11 @@ void XFLASH_File::Get_data_names_HDF5(void)
 	{
 
     /*have to iterate over objects, look at dimensions, and store the ones we want*/
-	    if(H5Gget_objtype_by_idx((hid_t)m_iFile_Handle, i) == H5G_DATASET)
+	    if(H5Gget_objtype_by_idx(((hid_t*)m_lpFile_Handle)[0], i) == H5G_DATASET)
 		{
-			H5Gget_objname_by_idx((hid_t)m_iFile_Handle, (hsize_t)i,obj_name, 80);
+			H5Gget_objname_by_idx(((hid_t*)m_lpFile_Handle)[0], (hsize_t)i,obj_name, 80);
 		
-			dataset = H5Dopen((hid_t)m_iFile_Handle, obj_name);
+			dataset = H5Dopen(((hid_t*)m_lpFile_Handle)[0], obj_name);
 			dataspace = H5Dget_space(dataset);
 			if(dataspace >= 0 && H5Sget_simple_extent_ndims(dataspace) == 4)
 			{
