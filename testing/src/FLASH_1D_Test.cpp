@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <ctype.h>
 #include "xflash.h"
-
+#include <sstream>
 
 /* sfocu(argc, argv)
 
@@ -23,6 +23,7 @@ int main(int iArgC, char ** lpszArgV)
 	unsigned int iLeafBlocks;
 	double	ddx = 0.0, ddy = 0.0, ddz = 0.0;
 	double x0 = 0.0, y0 = 0.0, z0 = 0.0;
+	std::stringstream sOutfileName;
 
   /* Open files */
     if (iArgC > 1)
@@ -30,6 +31,7 @@ int main(int iArgC, char ** lpszArgV)
 	    printf("Opening file %s.\n",lpszArgV[1]);
 
 	    cFile.Open(lpszArgV[1]);
+    	sOutfileName << lpszArgV[1] << ".csv";
 	    
 	    printf("Found %i blocks in file.\n",cFile.m_uiNum_Blocks);
 	    if (cFile.m_uiNum_Blocks > 0)
@@ -57,7 +59,7 @@ int main(int iArgC, char ** lpszArgV)
 	        // Allocate block pointers for variables
 	        lpBlocks = new XFLASH_Block * [cFile.m_uiNum_Vars];
 
-        	fileOut = fopen("out.csv","wt");
+        	fileOut = fopen(sOutfileName.str().c_str(),"wt");
 
 	        // Output header line	
 	        fprintf(fileOut,"x, y, z");
