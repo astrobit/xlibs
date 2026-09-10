@@ -541,7 +541,7 @@ void XFLASH_File::Open_HDF5_Pmesh(void)
 		m_lpdBlock_Bounding_Box = new double[m_uiNum_Blocks * m_uiNum_Dimensions * 2];
 		m_lpdBlock_Size = new double[m_uiNum_Blocks * m_uiNum_Dimensions];
 		
-		hid_t tTypes[2] = {H5T_NATIVE_INT,H5T_NATIVE_DOUBLE};
+		hid_t tTypes[3] = {H5T_NATIVE_INT,H5T_NATIVE_DOUBLE,H5T_NATIVE_CHAR};
 
 		if(Slurp_HDF5(&tTypes[0], "node type",m_uiNum_Dimensions, m_lpeBlock_Node_Type))
 			return;
@@ -578,7 +578,7 @@ void XFLASH_File::Open_HDF5_Pmesh(void)
 			lpszTempNames = new char[uiTempNameSize];
 			memset(lpszTempNames,0,uiTempNameSize);
 
-			if(Slurp_HDF5((hid_t) 0, "particle names", m_uiNum_Dimensions, lpszTempNames))
+			if(Slurp_HDF5(&tTypes[2], "particle names", m_uiNum_Dimensions, lpszTempNames))
 				return;
 
 			while (lpszTempNames[m_uiNum_Particle_Real_Properties*FR_PART_PROP_STRING_SIZE] != 0 && m_uiNum_Particle_Real_Properties < FR_MAXVARS)
